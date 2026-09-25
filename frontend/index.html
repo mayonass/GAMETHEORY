@@ -1,0 +1,2746 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Game Theory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@400;600&display=swap">
+<style>
+/* ============================================================
+   BAREVNÉ A TYPOGRAFICKÉ TOKENY
+   Všechny barvy jsou definované tady. Tmavý režim jen přepisuje
+   hodnoty, nikde jinde v souboru není natvrdo napsaná barva.
+   ============================================================ */
+:root {
+  --bg:        #E8EDEF;
+  --panel:     #FFFFFF;
+  --panel-2:   #F3F7F8;
+  --ink:       #121B21;
+  --muted:     #5A6A75;
+  --faint:     #8695A0;
+  --line:      #CFD9DE;
+  --line-soft: #E3EAED;
+  --accent:    #23697F;
+  --accent-2:  #EAF2F5;
+  --coop:      #2C7A5A;
+  --defect:    #A8422C;
+  --shadow:    0 1px 2px rgba(18,27,33,.05), 0 12px 30px -22px rgba(18,27,33,.4);
+  --shadow-sm: 0 1px 2px rgba(18,27,33,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0E1418;
+    --panel:     #171F25;
+    --panel-2:   #1C262C;
+    --ink:       #DFE7EC;
+    --muted:     #93A4AF;
+    --faint:     #6E808C;
+    --line:      #2A353D;
+    --line-soft: #222C33;
+    --accent:    #6FB7D6;
+    --accent-2:  #1A2A33;
+    --coop:      #55BE8E;
+    --defect:    #E4886B;
+    --shadow:    0 1px 2px rgba(0,0,0,.35), 0 12px 30px -22px rgba(0,0,0,.9);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0E1418; --panel:#171F25; --panel-2:#1C262C; --ink:#DFE7EC;
+  --muted:#93A4AF; --faint:#6E808C; --line:#2A353D; --line-soft:#222C33;
+  --accent:#6FB7D6; --accent-2:#1A2A33; --coop:#55BE8E; --defect:#E4886B;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 30px -22px rgba(0,0,0,.9);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+
+/* ============================================================
+   HLAVIČKA
+   ============================================================ */
+.topbar {
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.topbar-in {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.brand { display: flex; flex-direction: column; gap: 1px; }
+.brand .name {
+  font-family: Spectral, Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  line-height: 1.1;
+}
+.brand .tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px 5px 11px;
+  background: var(--panel-2);
+  white-space: nowrap;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); flex: none; }
+.status[data-state="up"] .dot   { background: var(--coop); }
+.status[data-state="down"] .dot { background: var(--defect); }
+.status[data-state="up"]        { color: var(--ink); }
+
+/* ============================================================
+   ZÁLOŽKY
+   ============================================================ */
+.tabs {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 2px;
+}
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px 18px 12px;
+  cursor: pointer;
+  transition: color .14s ease, border-color .14s ease;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; border-radius: 3px; }
+
+/* ============================================================
+   ROZVRŽENÍ
+   ============================================================ */
+main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
+
+.split {
+  display: grid;
+  grid-template-columns: 372px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 940px) { .split { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+.panel + .panel { margin-top: 20px; }
+
+.panel-head {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-head h2 {
+  margin: 0;
+  font-family: Spectral, Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+.panel-head .hint { font-size: 12px; color: var(--faint); }
+.panel-body { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ============================================================
+   FORMULÁŘOVÉ PRVKY
+   ============================================================ */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label, .field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.field .note { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
+
+select, input[type="text"], input[type="number"] {
+  appearance: none;
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px 12px;
+  transition: border-color .14s ease, box-shadow .14s ease;
+}
+select {
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 17px) 51%, calc(100% - 12px) 51%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 34px;
+  cursor: pointer;
+}
+select:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-2);
+}
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* posuvník */
+.slider { display: flex; flex-direction: column; gap: 7px; }
+.slider .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.slider .val {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  margin: 6px 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+  box-shadow: var(--shadow-sm);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--panel);
+}
+input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* zaškrtávátko */
+.check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.check input { margin: 4px 0 0; accent-color: var(--accent); width: 15px; height: 15px; flex: none; }
+.check .txt { display: flex; flex-direction: column; gap: 2px; }
+.check .txt b { font-weight: 500; font-size: 14px; }
+.check .txt span { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
+
+/* tlačítko */
+.btn {
+  appearance: none;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 7px;
+  padding: 11px 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity .14s ease, background .14s ease;
+}
+.btn-primary { background: var(--accent); color: var(--panel); }
+.btn-primary:hover:not(:disabled) { opacity: .88; }
+.btn-ghost { background: var(--panel-2); color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-wide { width: 100%; }
+
+/* segmentovaný přepínač (počet opakování) */
+.seg { display: flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--panel-2); }
+.seg button {
+  flex: 1;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--line);
+  font: inherit;
+  font-size: 13px;
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--muted);
+  padding: 8px 4px;
+  cursor: pointer;
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* výběrové čipy (turnaj) */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  border-radius: 999px;
+  padding: 6px 14px 6px 11px;
+  font-size: 13.5px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .14s ease, background .14s ease;
+}
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip .mark {
+  width: 13px; height: 13px; border-radius: 3px;
+  border: 1.5px solid var(--line); flex: none;
+  display: grid; place-items: center;
+}
+.chip:has(input:checked) { border-color: var(--accent); background: var(--accent-2); }
+.chip:has(input:checked) .mark { background: var(--accent); border-color: var(--accent); }
+.chip:has(input:checked) .mark::after {
+  content: ""; width: 6px; height: 3px;
+  border-left: 1.5px solid var(--panel); border-bottom: 1.5px solid var(--panel);
+  transform: rotate(-45deg) translate(0.5px, -1px);
+}
+.chip:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ============================================================
+   VÝSLEDKY — DUEL
+   ============================================================ */
+.stage { padding: 26px 24px 24px; }
+
+.scoreline {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 18px;
+  align-items: center;
+}
+.side { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.side.right { text-align: right; }
+.side .who {
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.side .num {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: clamp(38px, 7vw, 58px);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+.side.win .num { color: var(--accent); }
+.side.lose .num { color: var(--faint); }
+.vs {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .18em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+
+.bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--line-soft);
+  margin-top: 22px;
+}
+.bar > i { display: block; height: 100%; }
+.bar .b1 { background: var(--accent); }
+.bar .b2 { background: var(--faint); }
+.bar .b0 { background: var(--line); }
+
+.verdict {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+}
+.stat { display: flex; flex-direction: column; gap: 1px; }
+.stat .k {
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.stat .v { font-size: 14.5px; font-variant-numeric: tabular-nums; }
+
+/* rozdělení výher při opakování */
+.tally { display: flex; flex-direction: column; gap: 9px; margin-top: 22px; }
+.tally .bar { margin-top: 0; height: 10px; }
+.tally .legend { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12.5px; color: var(--muted); }
+.tally .legend span { display: inline-flex; align-items: center; gap: 7px; }
+.tally .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+/* ---------- průběh zápasu kolo po kole ---------- */
+.replay {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.replay-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.replay-head .t { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.replay-head .s { font-size: 12.5px; color: var(--faint); }
+
+.replay-grid { display: flex; align-items: stretch; }
+.rlabels { flex: none; padding-right: 12px; border-right: 1px solid var(--line-soft); }
+.rlabels > div {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 12.5px;
+  color: var(--ink);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rlabels > div.head {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint);
+}
+.rscroll { overflow-x: auto; min-width: 0; flex: 1 1 auto; padding-left: 4px; }
+.rrow { display: flex; height: 34px; align-items: center; }
+.rcell { width: 34px; flex: none; display: flex; align-items: center; justify-content: center; }
+.rnum { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--faint); }
+.pts  { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mv {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 500;
+  width: 25px; height: 25px;
+  border-radius: 5px;
+  display: grid; place-items: center;
+  position: relative;
+  border: 1px solid transparent;
+  cursor: default;
+}
+.mv.C { color: var(--coop);   background: color-mix(in srgb, var(--coop) 13%, transparent); }
+.mv.D { color: var(--defect); background: color-mix(in srgb, var(--defect) 13%, transparent); }
+.mv.fog { background: transparent; border-color: currentColor; border-style: dashed; opacity: .6; }
+.mv.noise::after {
+  content: ""; position: absolute; top: 2px; right: 2px;
+  width: 5px; height: 5px; border-radius: 1px;
+}
+.mv.C.noise::after { background: var(--defect); }
+.mv.D.noise::after { background: var(--coop); }
+
+.replay-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 12.5px; color: var(--muted); }
+.replay-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.replay-legend .mv { width: 19px; height: 19px; font-size: 11px; }
+
+/* ============================================================
+   VÝSLEDKY — TURNAJ
+   ============================================================ */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+thead th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: 0; }
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; }
+.rank {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--faint);
+  width: 34px;
+  font-size: 13px;
+}
+tbody tr.lead td { background: var(--accent-2); }
+tbody tr.lead .rank { color: var(--accent); }
+.scorecell { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+.scorebar { height: 5px; border-radius: 999px; background: var(--accent); opacity: .55; flex: none; }
+.wl { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.wl b { color: var(--ink); font-weight: 500; }
+
+.matches { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1px; background: var(--line-soft); }
+.match {
+  background: var(--panel);
+  padding: 11px 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+.match .names { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.match .sc { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.match .sc .w { color: var(--ink); font-weight: 500; }
+.match .sc .l { color: var(--faint); }
+
+details.fold > summary {
+  cursor: pointer;
+  padding: 13px 20px;
+  font-size: 13px;
+  color: var(--muted);
+  border-top: 1px solid var(--line-soft);
+  list-style: none;
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸ "; color: var(--faint); }
+details.fold[open] > summary::before { content: "▾ "; }
+details.fold > summary:hover { color: var(--ink); }
+
+/* ============================================================
+   MŮJ BOT
+   ============================================================ */
+.jsonview {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  line-height: 1.65;
+  background: var(--panel-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  color: var(--muted);
+  margin: 0;
+  white-space: pre;
+}
+
+/* ============================================================
+   GRAF EVOLUCE
+   Osm kategorických odstínů, ověřených na oddělitelnost i pro
+   barvosleposti zvlášť pro světlý a tmavý povrch. Pořadí je pevné —
+   nikdy se necyklují a devátá série neexistuje (strop je osm botů).
+   ============================================================ */
+:root {
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+}
+
+.chartwrap { position: relative; }
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.chart .grid line { stroke: var(--line-soft); stroke-width: 1; }
+svg.chart .baseline { stroke: var(--line); stroke-width: 1; }
+svg.chart text { font-family: "IBM Plex Mono", monospace; font-size: 11px; fill: var(--faint); }
+svg.chart text.lbl { font-family: "IBM Plex Sans", sans-serif; font-size: 12px; fill: var(--ink); }
+svg.chart .serie { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+svg.chart .crosshair { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; }
+svg.chart .vymrel { stroke: var(--panel); stroke-width: 2; }
+
+.tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 10px 12px;
+  font-size: 12.5px;
+  min-width: 178px;
+  z-index: 5;
+}
+.tip .tg { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+.tip .tr { display: flex; align-items: center; gap: 8px; line-height: 1.7; }
+.tip .tr .nm { flex: 1 1 auto; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tip .tr .vv { font-family: "IBM Plex Mono", monospace; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tip .tr.pryc .nm, .tip .tr.pryc .vv { color: var(--faint); }
+
+.swatch-dot { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+
+.legenda { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12.5px; color: var(--ink); }
+.legenda span.pol { display: inline-flex; align-items: center; gap: 8px; }
+.legenda span.pol.pryc { color: var(--faint); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+.vahy { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; }
+.vahy label { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vahy input { width: 82px; }
+
+/* ============================================================
+   ÚČET — hlavička, dialog, uložení bota
+   ============================================================ */
+.userbox { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.whoami { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.whoami b { color: var(--ink); font-weight: 600; }
+.linkbtn {
+  appearance: none; background: none; border: 0; padding: 0;
+  font: inherit; font-size: 13px; color: var(--accent);
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.linkbtn:hover { opacity: .75; }
+.linkbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+dialog.modal {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 0;
+  width: min(420px, calc(100vw - 32px));
+  box-shadow: 0 24px 60px -22px rgba(0,0,0,.45);
+}
+dialog.modal::backdrop { background: rgba(8, 14, 18, .45); }
+.modal-head { padding: 20px 24px 0; display: flex; flex-direction: column; gap: 4px; }
+.modal-head h2 { font-family: Spectral, Georgia, serif; font-size: 20px; font-weight: 600; margin: 0; }
+.modal-head p { margin: 0; font-size: 13px; color: var(--faint); }
+.modal-body { padding: 18px 24px 22px; display: flex; flex-direction: column; gap: 15px; }
+.modal-switch { font-size: 13px; color: var(--muted); text-align: center; }
+.formerr {
+  font-size: 13px; color: var(--defect);
+  border-left: 2px solid var(--defect); padding-left: 11px; line-height: 1.5;
+}
+.formok {
+  font-size: 13px; color: var(--coop);
+  border-left: 2px solid var(--coop); padding-left: 11px; line-height: 1.5;
+}
+
+/* ---------- seznam botů ---------- */
+.filterbar { display: flex; gap: 2px; }
+.filterbar .seg { width: auto; }
+.botlist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1px;
+  background: var(--line-soft);
+  border-top: 1px solid var(--line-soft);
+}
+.botcard { background: var(--panel); padding: 17px 20px; display: flex; flex-direction: column; gap: 9px; }
+.botcard .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.botcard .nm { font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
+.botcard .meta { font-size: 12px; color: var(--faint); font-family: "IBM Plex Mono", monospace; white-space: nowrap; }
+.botcard .desc { font-size: 13.5px; color: var(--muted); }
+.botcard .acts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
+.badge {
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--faint); white-space: nowrap;
+}
+.badge.pub { color: var(--coop); border-color: color-mix(in srgb, var(--coop) 42%, var(--line)); }
+.minibtn {
+  appearance: none; font: inherit; font-size: 12.5px;
+  background: var(--panel-2); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 5px 11px; cursor: pointer;
+}
+.minibtn:hover:not(:disabled) { border-color: var(--accent); }
+.minibtn:disabled { opacity: .5; cursor: default; }
+.minibtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ============================================================
+   STAVY A HLÁŠKY
+   ============================================================ */
+.empty, .errorbox {
+  padding: 34px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.empty p, .errorbox p { margin: 0; color: var(--muted); font-size: 14px; max-width: 46ch; }
+.empty .big, .errorbox .big {
+  font-family: Spectral, Georgia, serif;
+  font-size: 18px;
+  color: var(--ink);
+}
+.errorbox { border-left: 3px solid var(--defect); text-align: left; align-items: flex-start; }
+.errorbox code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  background: var(--panel-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.C { color: var(--coop); font-weight: 500; }
+.D { color: var(--defect); font-weight: 500; }
+
+footer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--faint);
+}
+footer label { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+footer input {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  width: 210px;
+  padding: 5px 9px;
+  border-radius: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="name">The Game Theory</div>
+      <div class="tag">Iterované vězňovo dilema&nbsp;&middot;&nbsp;mlha války</div>
+    </div>
+    <div class="userbox">
+      <span id="userinfo"></span>
+      <div class="status" id="status" data-state="wait">
+        <span class="dot"></span><span id="statusText">připojuji se k backendu…</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tab-duel" aria-selected="true" aria-controls="p-duel">Duel</button>
+  <button class="tab" role="tab" id="tab-turnaj" aria-selected="false" aria-controls="p-turnaj">Turnaj</button>
+  <button class="tab" role="tab" id="tab-evoluce" aria-selected="false" aria-controls="p-evoluce">Evoluce</button>
+  <button class="tab" role="tab" id="tab-bot" aria-selected="false" aria-controls="p-bot">Můj bot</button>
+  <button class="tab" role="tab" id="tab-boti" aria-selected="false" aria-controls="p-boti">Boti ostatních</button>
+</div>
+
+<main>
+
+  <!-- ============ DUEL ============ -->
+  <section id="p-duel" role="tabpanel" aria-labelledby="tab-duel">
+    <div class="split">
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head"><h2>Kdo proti komu</h2></div>
+          <div class="panel-body">
+            <div class="field">
+              <label for="d-bot1">Bot&nbsp;1</label>
+              <select id="d-bot1"></select>
+              <div class="note" id="d-bot1-desc"></div>
+            </div>
+            <div class="field">
+              <label for="d-bot2">Bot&nbsp;2</label>
+              <select id="d-bot2"></select>
+              <div class="note" id="d-bot2-desc"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Nastavení zápasu</h2>
+            <button class="btn btn-ghost" id="d-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+          </div>
+          <div class="panel-body" id="d-settings"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            <div class="field">
+              <span class="field-label">Kolikrát odehrát</span>
+              <div class="seg" id="d-reps">
+                <button type="button" data-reps="1" aria-pressed="true">1×</button>
+                <button type="button" data-reps="10" aria-pressed="false">10×</button>
+                <button type="button" data-reps="100" aria-pressed="false">100×</button>
+              </div>
+              <div class="note">Mlha, šum i neznámý počet kol jsou náhodné. Jeden zápas nic nedokazuje — sto zápasů ukáže, kdo je opravdu lepší.</div>
+            </div>
+            <button class="btn btn-primary btn-wide" id="d-run">Spustit zápas</button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="panel" id="d-result">
+        <div class="empty"><p class="big">Vyber dva boty a spusť zápas.</p></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ TURNAJ ============ -->
+  <section id="p-turnaj" role="tabpanel" aria-labelledby="tab-turnaj" hidden>
+    <div class="split">
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Účastníci</h2>
+            <span class="hint" id="t-count"></span>
+          </div>
+          <div class="panel-body">
+            <div class="chips" id="t-chips"></div>
+            <div class="note">Každý hraje s každým právě jednou. Pořadí se určuje podle celkového počtu bodů, ne podle výher.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            <div class="field">
+              <span class="field-label">Kolikrát turnaj odehrát</span>
+              <div class="seg" id="t-reps">
+                <button type="button" data-reps="1" aria-pressed="true">1×</button>
+                <button type="button" data-reps="5" aria-pressed="false">5×</button>
+                <button type="button" data-reps="20" aria-pressed="false">20×</button>
+              </div>
+              <div class="note">ZD strategie se rozhodují náhodně, takže i bez mlhy a šumu vychází pokaždé jiné pořadí. Při opakování uvidíš průměr, rozpětí a hlavně to, jak často kdo skutečně skončil první.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Nastavení zápasu</h2>
+            <button class="btn btn-ghost" id="t-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+          </div>
+          <div class="panel-body" id="t-settings"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            <button class="btn btn-primary btn-wide" id="t-run">Odehrát turnaj</button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="panel" id="t-result">
+        <div class="empty"><p class="big">Vyber aspoň dva boty a odehraj turnaj.</p></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ EVOLUCE ============ -->
+  <section id="p-evoluce" role="tabpanel" aria-labelledby="tab-evoluce" hidden>
+    <div class="split">
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Druhy v populaci</h2>
+            <span class="hint" id="e-count"></span>
+          </div>
+          <div class="panel-body">
+            <div class="chips" id="e-chips"></div>
+            <div class="note">Populace má vždy 1000 jedinců. Nejvýš osm druhů — víc čar už v grafu nerozeznáš.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Průběh evoluce</h2></div>
+          <div class="panel-body" id="e-evo"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Nastavení zápasu</h2>
+            <button class="btn btn-ghost" id="e-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+          </div>
+          <div class="panel-body" id="e-settings"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            <button class="btn btn-primary btn-wide" id="e-run">Spustit evoluci</button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="panel" id="e-result">
+        <div class="empty"><p class="big">Vyber druhy a spusť evoluci.</p>
+        <p>Uvidíš, jak se zastoupení strategií v populaci mění generaci po generaci — kdo se rozšíří a kdo vymře.</p></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ MŮJ BOT ============ -->
+  <section id="p-bot" role="tabpanel" aria-labelledby="tab-bot" hidden>
+    <div class="split">
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Vlastní strategie</h2>
+            <button class="btn btn-ghost" id="b-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+          </div>
+          <div class="panel-body" id="b-form"></div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Jak se rozhoduje</h2>
+            <span class="hint">v tomhle pořadí</span>
+          </div>
+          <div class="panel-body" id="b-explain" style="gap:14px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Uložit bota</h2>
+            <span class="hint" id="b-save-hint"></span>
+          </div>
+          <div class="panel-body" id="b-save"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Co se posílá na server</h2>
+            <span class="hint">žádný kód — jen hodnoty</span>
+          </div>
+          <div class="panel-body">
+            <pre class="jsonview" id="b-json"></pre>
+            <div class="note">Server tyhle hodnoty dosadí do jedné pevně napsané funkce. Nic jiného spustit nejde.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ BOTI OSTATNÍCH ============ -->
+  <section id="p-boti" role="tabpanel" aria-labelledby="tab-boti" hidden>
+    <div class="panel">
+      <div class="panel-head">
+        <h2 id="bl-title">Veřejná galerie</h2>
+        <div class="filterbar">
+          <div class="seg" id="bl-filter">
+            <button type="button" data-f="public" aria-pressed="true">Veřejní</button>
+            <button type="button" data-f="mine" aria-pressed="false">Moji</button>
+          </div>
+        </div>
+      </div>
+      <div id="bl-body"></div>
+    </div>
+  </section>
+
+</main>
+
+<dialog class="modal" id="authModal">
+  <div class="modal-head">
+    <h2 id="auth-title">Přihlášení</h2>
+    <p id="auth-sub"></p>
+  </div>
+  <div class="modal-body">
+    <div id="auth-fields" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div class="formerr" id="auth-err" hidden></div>
+    <button class="btn btn-primary btn-wide" id="auth-submit">Přihlásit se</button>
+    <div class="modal-switch" id="auth-switch"></div>
+  </div>
+</dialog>
+
+<footer>
+  <label>Adresa backendu <input type="text" id="api-base" class="mono" spellcheck="false"></label>
+  <span id="footer-note"></span>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. DATA — musí odpovídat app/game/registry.py na backendu
+   ============================================================ */
+
+const BOTI = [
+  { type: "always_cooperate", nazev: "Vždy spolupracuj",  popis: "Vždy spolupracuje, ať se děje co se děje." },
+  { type: "always_defect",    nazev: "Vždy zraď",         popis: "Vždy zradí. Proti naivním strategiím vydělá, proti mstivým prodělá." },
+  { type: "tit_for_tat",      nazev: "Půjčka za oplátku", popis: "Začne spoluprací, pak opakuje poslední viditelný tah soupeře." },
+  { type: "grudger",          nazev: "Záštník",           popis: "Spolupracuje, dokud ho soupeř jednou nezradí. Pak už jen zrazuje." },
+  { type: "pavlov",           nazev: "Pavlov",            popis: "Když to vyšlo, opakuje. Když ne, změní tah." },
+  { type: "zd_extortioner",   nazev: "ZD Vyděrač",        popis: "Vynucuje si, aby měl vyšší skóre než soupeř — i za cenu nižšího zisku pro oba." },
+  { type: "zd_generous",      nazev: "ZD Štědrý",         popis: "Odměňuje spolupráci a odpouští chyby. Táhne obě strany nahoru." },
+  { type: "custom",           nazev: "Můj bot",           popis: "Tvoje vlastní strategie ze záložky „Můj bot“." }
+];
+
+/* delay = 1, ne 0: při nule se zamlžený tah odhalí dřív, než se ho stihne
+   kdokoli zeptat, takže by posuvník Mlha neměl vůbec žádný účinek. */
+const VYCHOZI_NASTAVENI = { kola: 10, neznama_kola: false, mlha: 0, delay: 1, zkresleni: 0 };
+
+const VYCHOZI_BOT = {
+  jmeno: "Můj bot",
+  prvni_tah: "C",
+  zakladni_strategie: "tit_for_tat",
+  pravdepodobnost_c: 100,
+  tolerance_d: 1,
+  zrada_pri_pomeru: 100,
+  reakce_mlha: "zradit",
+  posledni_tah: "normal",
+  nikdy_neodpoustet: false,
+  chyba_pct: 0
+};
+
+/* Stav aplikace. Drží se v paměti — po obnovení stránky se vrátí výchozí
+   a odhlásíš se. Trvalé přihlášení by chtělo token uložit do prohlížeče. */
+const stav = {
+  duel:   { bot1: "tit_for_tat", bot2: "always_defect", nastaveni: { ...VYCHOZI_NASTAVENI }, reps: 1 },
+  turnaj: { vybrani: ["tit_for_tat", "always_defect", "grudger", "pavlov"], nastaveni: { ...VYCHOZI_NASTAVENI }, reps: 1 },
+  evoluce: {
+    vybrani: ["always_cooperate", "always_defect", "tit_for_tat", "grudger"],
+    nastaveni: { ...VYCHOZI_NASTAVENI },
+    generace: 100,
+    rozlozeni: "equal",
+    vahy: {},
+    mutace: 0
+  },
+  bot:    { ...VYCHOZI_BOT },
+  /* Metadata k ukládání bota do databáze. `id` je vyplněné, jen když
+     upravuješ bota, který už v databázi je a patří tobě. */
+  ulozeni: { id: null, popis: "", verejny: false },
+  auth:    { token: null, username: null },
+  /* Boti stažení z databáze a přidaní do výběru — klíč je jejich id.
+     Objevují se pak v obou rozbalovačkách duelu i v čipech turnaje. */
+  prevzati: {},
+  filtrBotu: "public"
+};
+
+/* Boti nabízení k výběru = vestavěné strategie + to, co sis přidal z galerie. */
+function seznamBotu() {
+  const prevzati = Object.values(stav.prevzati).map((b) => ({
+    type: "saved:" + b.id,
+    nazev: b.name,
+    popis: b.description || ("Uložený bot" + (b.owner_username ? " od uživatele " + b.owner_username : "") + ".")
+  }));
+  return [...BOTI, ...prevzati];
+}
+
+const $ = (sel, kde = document) => kde.querySelector(sel);
+const el = (tag, tridy, text) => {
+  const n = document.createElement(tag);
+  if (tridy) n.className = tridy;
+  if (text !== undefined) n.textContent = text;
+  return n;
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ============================================================
+   2. KOMUNIKACE S BACKENDEM
+   ============================================================ */
+
+/* Stránku servíruje ta samá aplikace jako API, takže výchozí adresa je prostě
+   ta, ze které se stránka načetla — lokálně 127.0.0.1:8000, nasazená ta
+   veřejná. Natvrdo napsaná localhost adresa by online nefungovala.
+   Otevření souboru dvojklikem (protokol file:) spadne zpátky na localhost. */
+const VYCHOZI_API = /^https?:$/.test(location.protocol)
+  ? location.origin
+  : "http://127.0.0.1:8000";
+
+const apiBase = () => ($("#api-base").value.trim() || VYCHOZI_API).replace(/\/+$/, "");
+
+/* Běží backend na tomhle počítači? Podle toho se liší rady při chybě —
+   „spusť uvicorn" má smysl jen doma, ne na veřejné adrese. */
+const bezimeLokalne = () => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|$)/i.test(apiBase());
+
+async function api(cesta, { method = "GET", telo = null, auth = false } = {}) {
+  const hlavicky = {};
+  if (telo) hlavicky["Content-Type"] = "application/json";
+  if (auth && stav.auth.token) hlavicky["Authorization"] = "Bearer " + stav.auth.token;
+
+  const odpoved = await fetch(apiBase() + cesta, {
+    method,
+    headers: hlavicky,
+    body: telo ? JSON.stringify(telo) : undefined
+  });
+
+  /* Token vypršel nebo je neplatný — nemá smysl předstírat přihlášení dál. */
+  if (odpoved.status === 401 && auth) {
+    odhlas();
+    throw new Error("Přihlášení vypršelo. Přihlas se prosím znovu.");
+  }
+
+  if (!odpoved.ok) {
+    let detail = "HTTP " + odpoved.status;
+    try {
+      const j = await odpoved.json();
+      if (typeof j.detail === "string") detail = j.detail;
+      else if (Array.isArray(j.detail)) detail = j.detail.map((d) => d.msg).join("; ");
+    } catch (_) { /* odpověď nebyla JSON */ }
+    throw new Error(detail);
+  }
+  if (odpoved.status === 204) return null;
+  return odpoved.json();
+}
+
+/* Převede vybranou hodnotu z rozbalovačky na tvar, kterému rozumí API.
+   Hodnota je buď typ vestavěného bota, "custom" (tvůj rozpracovaný bot
+   ze záložky Můj bot), nebo "saved:<id>" pro bota převzatého z galerie. */
+function botSpec(hodnota) {
+  if (hodnota.startsWith("saved:")) {
+    const b = stav.prevzati[hodnota.slice(6)];
+    const config = b.config || {};
+    return { type: config.type || "custom", name: b.name, config };
+  }
+  if (hodnota === "custom") {
+    const { jmeno, ...config } = stav.bot;
+    return { type: "custom", name: jmeno || "Můj bot", config };
+  }
+  return { type: hodnota };
+}
+
+async function overSpojeni(pokusu = 1) {
+  const s = $("#status"), t = $("#statusText");
+  for (let pokus = 1; pokus <= pokusu; pokus++) {
+    try {
+      await api("/health");
+      s.dataset.state = "up";
+      t.textContent = "server běží";
+      return true;
+    } catch (_) {
+      /* Levné hostingy uspávají aplikaci po čtvrthodině nečinnosti a probouzení
+         trvá kolem minuty. První návštěvník by jinak viděl „server neodpovídá",
+         i když je všechno v pořádku — proto to zkusíme víckrát. */
+      if (pokus < pokusu) {
+        s.dataset.state = "wait";
+        t.textContent = "probouzím server… (" + pokus + "/" + (pokusu - 1) + ")";
+        await new Promise((r) => setTimeout(r, 6000));
+      }
+    }
+  }
+  s.dataset.state = "down";
+  t.textContent = bezimeLokalne() ? "backend neběží" : "server neodpovídá";
+  return false;
+}
+
+/* ============================================================
+   3. STAVĚNÍ FORMULÁŘŮ
+   ============================================================ */
+
+function naplnVyberBotu(select, popisEl, vybrany, priZmene) {
+  const obnovPopis = () => {
+    const b = seznamBotu().find((x) => x.type === select.value);
+    popisEl.textContent = b ? b.popis : "";
+  };
+  const naplnOptions = () => {
+    const drzenaHodnota = select.value || vybrany;
+    select.innerHTML = "";
+    for (const b of seznamBotu()) {
+      const o = el("option", null, b.nazev);
+      o.value = b.type;
+      select.append(o);
+    }
+    /* Když bot z galerie zmizel z výběru, vrátíme se na výchozí strategii. */
+    select.value = [...select.options].some((o) => o.value === drzenaHodnota)
+      ? drzenaHodnota
+      : "tit_for_tat";
+    priZmene(select.value);
+    obnovPopis();
+  };
+
+  naplnOptions();
+  select.addEventListener("change", () => { obnovPopis(); priZmene(select.value); });
+  return naplnOptions;
+}
+
+/* Panel s nastavením zápasu — používají ho duel i turnaj. */
+function postavNastaveni(kam, nastaveni, priZmene) {
+  kam.innerHTML = "";
+
+  const poleKola = el("div", "field");
+  poleKola.innerHTML = '<label for="' + kam.id + '-kola">Počet kol</label>';
+  const vstupKola = el("input");
+  vstupKola.type = "number"; vstupKola.min = 1; vstupKola.max = 1000;
+  vstupKola.id = kam.id + "-kola";
+  vstupKola.value = nastaveni.kola;
+  vstupKola.addEventListener("input", () => {
+    const v = Math.max(1, Math.min(1000, parseInt(vstupKola.value, 10) || 1));
+    nastaveni.kola = v; priZmene();
+  });
+  poleKola.append(vstupKola);
+
+  const neznama = el("label", "check");
+  neznama.innerHTML =
+    '<input type="checkbox"' + (nastaveni.neznama_kola ? " checked" : "") + '>' +
+    '<span class="txt"><b>Neznámý počet kol</b>' +
+    '<span>Boti nevědí, kdy zápas skončí, takže nemůžou v posledním kole zradit „na jistotu“. Skutečný počet kol se pohybuje kolem zadané hodnoty.</span></span>';
+  neznama.querySelector("input").addEventListener("change", (e) => {
+    nastaveni.neznama_kola = e.target.checked; priZmene();
+  });
+
+  /* Zpoždění mlhy je celé číslo kol (min. 1), ostatní posuvníky jsou procenta. */
+  const posuvnik = (klic, popisek, napoveda, format) => {
+    const jeDelay = klic === "delay";
+    const box = el("div", "slider");
+    const top = el("div", "top");
+    top.append(el("span", "field-label", popisek));
+    const val = el("span", "val", format(nastaveni[klic]));
+    top.append(val);
+    const r = el("input");
+    r.type = "range"; r.step = 1;
+    r.min = jeDelay ? 1 : 0;
+    r.max = jeDelay ? 20 : 100;
+    r.value = jeDelay ? Math.max(1, nastaveni[klic]) : Math.round(nastaveni[klic] * 100);
+    if (jeDelay) nastaveni[klic] = Number(r.value);
+    r.addEventListener("input", () => {
+      nastaveni[klic] = jeDelay ? parseInt(r.value, 10) : parseInt(r.value, 10) / 100;
+      val.textContent = format(nastaveni[klic]);
+      priZmene();
+      obnovStavMlhy();
+    });
+    box.append(top, r, el("div", "note", napoveda));
+    box._vstup = r;
+    return box;
+  };
+
+  const mlhaBox = posuvnik("mlha", "Mlha",
+    "Šance, že soupeřův tah zůstane skrytý — bot místo něj uvidí otazník.",
+    (v) => Math.round(v * 100) + " %");
+  const delayBox = posuvnik("delay", "Jak dlouho mlha drží",
+    "Kolik kol zůstane tah skrytý, než se odhalí. Míň než jedno kolo nejde — bot se soupeřova tahu ptá až v následujícím kole, takže kratší mlha by neměla co zakrýt.",
+    (v) => v + (v === 1 ? " kolo" : (v >= 2 && v <= 4 ? " kola" : " kol")));
+
+  /* Když je mlha na nule, zpoždění nemá co ovlivňovat — ztlumíme ho,
+     ať je vidět, že spolu ty dva posuvníky souvisí. */
+  function obnovStavMlhy() {
+    const aktivni = nastaveni.mlha > 0;
+    delayBox.style.opacity = aktivni ? "1" : ".45";
+    delayBox._vstup.disabled = !aktivni;
+  }
+
+  kam.append(
+    poleKola,
+    neznama,
+    mlhaBox,
+    delayBox,
+    posuvnik("zkresleni", "Šum", "Šance, že tah dorazí převrácený. Body se počítají podle skutečnosti, ne podle toho, co bot viděl.", (v) => Math.round(v * 100) + " %")
+  );
+  obnovStavMlhy();
+}
+
+/* ============================================================
+   4. ZÁLOŽKA DUEL
+   ============================================================ */
+
+/* Funkce, kterými se po změně převzatých botů obnoví nabídky ve výběrech. */
+const obnovovace = [];
+
+function obnovNabidkyBotu() {
+  for (const f of obnovovace) f();
+  postavChipy();
+  postavChipyEvoluce();
+  postavEvoNastaveni();
+}
+
+function initDuel() {
+  obnovovace.push(
+    naplnVyberBotu($("#d-bot1"), $("#d-bot1-desc"), stav.duel.bot1, (v) => { stav.duel.bot1 = v; }),
+    naplnVyberBotu($("#d-bot2"), $("#d-bot2-desc"), stav.duel.bot2, (v) => { stav.duel.bot2 = v; })
+  );
+  postavNastaveni($("#d-settings"), stav.duel.nastaveni, () => {});
+
+  $("#d-reset").addEventListener("click", () => {
+    stav.duel.nastaveni = { ...VYCHOZI_NASTAVENI };
+    postavNastaveni($("#d-settings"), stav.duel.nastaveni, () => {});
+  });
+
+  $("#d-reps").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-reps]");
+    if (!b) return;
+    stav.duel.reps = parseInt(b.dataset.reps, 10);
+    for (const x of $("#d-reps").querySelectorAll("button")) {
+      x.setAttribute("aria-pressed", String(x === b));
+    }
+  });
+
+  $("#d-run").addEventListener("click", spustDuel);
+}
+
+async function spustDuel() {
+  const tlacitko = $("#d-run");
+  const cil = $("#d-result");
+  const reps = stav.duel.reps;
+
+  tlacitko.disabled = true;
+  tlacitko.textContent = reps === 1 ? "počítám…" : "počítám " + reps + " zápasů…";
+
+  const telo = {
+    bot1: botSpec(stav.duel.bot1),
+    bot2: botSpec(stav.duel.bot2),
+    settings: stav.duel.nastaveni,
+    /* Průběh kolo po kole má smysl jen u jednoho zápasu. U stovky by to
+       byly desetitisíce řádků JSONu, které nikdo neuvidí. */
+    history: reps === 1
+  };
+
+  try {
+    /* Zápasy pouštíme po dvacítkách, ať se prohlížeč nezahltí. */
+    const vysledky = [];
+    for (let i = 0; i < reps; i += 20) {
+      const davka = Math.min(20, reps - i);
+      vysledky.push(...await Promise.all(
+        Array.from({ length: davka }, () => api("/simulate/duel", { method: "POST", telo }))
+      ));
+    }
+    vykresliDuel(cil, vysledky);
+    $("#status").dataset.state = "up";
+    $("#statusText").textContent = "backend běží";
+  } catch (chyba) {
+    vykresliChybu(cil, chyba);
+    overSpojeni();
+  } finally {
+    tlacitko.disabled = false;
+    tlacitko.textContent = "Spustit zápas";
+  }
+}
+
+function vykresliDuel(cil, vysledky) {
+  const n = vysledky.length;
+  const prvni = vysledky[0];
+  const jmeno1 = prvni.bot1_name, jmeno2 = prvni.bot2_name;
+
+  const soucet1 = vysledky.reduce((a, v) => a + v.score1, 0);
+  const soucet2 = vysledky.reduce((a, v) => a + v.score2, 0);
+  const prumer1 = soucet1 / n, prumer2 = soucet2 / n;
+  const kolaPrumer = vysledky.reduce((a, v) => a + v.rounds_played, 0) / n;
+
+  const vyhry1 = vysledky.filter((v) => v.result === "bot1").length;
+  const vyhry2 = vysledky.filter((v) => v.result === "bot2").length;
+  const remizy = n - vyhry1 - vyhry2;
+
+  const cislo = (x) => (n === 1 ? String(Math.round(x)) : x.toFixed(1));
+  const vedeBot1 = prumer1 > prumer2, vedeBot2 = prumer2 > prumer1;
+
+  cil.innerHTML = "";
+  const hlava = el("div", "panel-head");
+  hlava.append(el("h2", null, n === 1 ? "Výsledek zápasu" : n + " zápasů"));
+  hlava.append(el("span", "hint", n === 1 ? "" : "průměr na jeden zápas"));
+  cil.append(hlava);
+
+  const stage = el("div", "stage");
+
+  /* Skóre */
+  const radek = el("div", "scoreline");
+  const levy = el("div", "side" + (vedeBot1 ? " win" : vedeBot2 ? " lose" : ""));
+  levy.append(el("div", "who", jmeno1), el("div", "num", cislo(prumer1)));
+  const stred = el("div", "vs", "vs");
+  const pravy = el("div", "side right" + (vedeBot2 ? " win" : vedeBot1 ? " lose" : ""));
+  pravy.append(el("div", "who", jmeno2), el("div", "num", cislo(prumer2)));
+  radek.append(levy, stred, pravy);
+  stage.append(radek);
+
+  /* Poměr skóre */
+  const celkem = prumer1 + prumer2;
+  const pruh = el("div", "bar");
+  if (celkem === 0) {
+    const i0 = el("i", "b0");
+    i0.style.width = "100%";
+    pruh.append(i0);
+  } else {
+    const i1 = el("i", "b1"), i2 = el("i", "b2");
+    i1.style.width = (prumer1 / celkem * 100) + "%";
+    i2.style.width = (prumer2 / celkem * 100) + "%";
+    pruh.append(i1, i2);
+  }
+  stage.append(pruh);
+
+  /* Doplňující čísla */
+  const verdikt = el("div", "verdict");
+  const stat = (k, v) => { const s = el("div", "stat"); s.append(el("div", "k", k), el("div", "v", v)); return s; };
+
+  /* Srovnávací měřítko: kdyby oba celý zápas spolupracovali, mají dohromady
+     6 bodů za kolo. To je nejvyšší možný společný zisk — vyšší součet neexistuje. */
+  const spolecnyStrop = Math.round(kolaPrumer * 6);
+  verdikt.append(
+    stat("Odehraných kol", n === 1 ? String(prvni.rounds_played) : kolaPrumer.toFixed(1)),
+    stat("Vítěz", vedeBot1 ? jmeno1 : vedeBot2 ? jmeno2 : "remíza"),
+    stat("Rozdíl", cislo(Math.abs(prumer1 - prumer2)) + " bodů"),
+    stat("Společný zisk", cislo(celkem) + " ze " + spolecnyStrop + " možných")
+  );
+  stage.append(verdikt);
+
+  /* Rozdělení výher — jen když se hrálo víckrát */
+  if (n > 1) {
+    const tally = el("div", "tally");
+    const pruh2 = el("div", "bar");
+    const seg = (trida, pocet) => { const i = el("i", trida); i.style.width = (pocet / n * 100) + "%"; return i; };
+    pruh2.append(seg("b1", vyhry1), seg("b0", remizy), seg("b2", vyhry2));
+    const legenda = el("div", "legend");
+    const polozka = (barva, text) => {
+      const s = el("span");
+      const sw = el("span", "swatch");
+      sw.style.background = barva;
+      s.append(sw, document.createTextNode(text));
+      return s;
+    };
+    legenda.append(
+      polozka("var(--accent)", jmeno1 + " — " + vyhry1 + "×  (" + Math.round(vyhry1 / n * 100) + " %)"),
+      polozka("var(--line)", "remíza — " + remizy + "×"),
+      polozka("var(--faint)", jmeno2 + " — " + vyhry2 + "×  (" + Math.round(vyhry2 / n * 100) + " %)")
+    );
+    tally.append(el("div", "field-label", "Kdo vyhrál kolikrát"), pruh2, legenda);
+    stage.append(tally);
+  }
+
+  /* Průběh kolo po kole — jen u jednoho zápasu, jinak by nebylo co ukázat. */
+  if (n === 1 && Array.isArray(prvni.history) && prvni.history.length) {
+    stage.append(vykresliPrubeh(prvni.history, jmeno1, jmeno2));
+  }
+
+  cil.append(stage);
+}
+
+/* Slovní popis jednoho tahu — ukáže se jako bublina po najetí myší. */
+function popisTahu(zaznam, kdo, jmenoSoupere) {
+  const tah      = kdo === 1 ? zaznam.move1    : zaznam.move2;
+  const dorazilo = kdo === 1 ? zaznam.arrived1 : zaznam.arrived2;
+  const vMlze    = kdo === 1 ? zaznam.fog1     : zaznam.fog2;
+  const slovo = (t) => (t === "C" ? "spolupráci" : "zradu");
+
+  let s = "Kolo " + zaznam.round + " — zahrál " + slovo(tah) + ".";
+  if (vMlze && tah !== dorazilo) {
+    s += " " + jmenoSoupere + " ho v tu chvíli neviděl; až se mlha rozplyne, uvidí " + slovo(dorazilo) + ".";
+  } else if (vMlze) {
+    s += " " + jmenoSoupere + " ho v tu chvíli neviděl.";
+  } else if (tah !== dorazilo) {
+    s += " K soupeři ale dorazila " + slovo(dorazilo) + ".";
+  }
+  s += " Body v tomhle kole: " + zaznam.points1 + " : " + zaznam.points2 + ".";
+  return s;
+}
+
+/* Vykreslí čtyři řádky — čísla kol, tahy obou botů a body za kolo. */
+function vykresliPrubeh(historie, jmeno1, jmeno2) {
+  const box = el("div", "replay");
+
+  const zakryto = historie.filter((r) => r.fog1 || r.fog2).length;
+  const prevraceno = historie.reduce(
+    (a, r) => a + (r.move1 !== r.arrived1 ? 1 : 0) + (r.move2 !== r.arrived2 ? 1 : 0), 0);
+
+  /* České skloňování: 1 → jedna, 2–4 → málo, 5+ → hodně. */
+  const sklonuj = (n, jedna, malo, hodne) => n + " " + (n === 1 ? jedna : (n >= 2 && n <= 4 ? malo : hodne));
+
+  const hlava = el("div", "replay-head");
+  hlava.append(el("div", "t", "Průběh zápasu"));
+  const casti = [];
+  if (zakryto) {
+    casti.push(sklonuj(zakryto, "kolo bylo", "kola byla", "kol bylo") + " zčásti v mlze");
+  }
+  if (prevraceno) {
+    casti.push(sklonuj(prevraceno, "tah dorazil", "tahy dorazily", "tahů dorazilo") + " převráceně");
+  }
+  hlava.append(el("div", "s", casti.length ? casti.join(" · ") : "čistá hra bez mlhy a šumu"));
+  box.append(hlava);
+
+  const mriz = el("div", "replay-grid");
+  const popisky = el("div", "rlabels");
+  popisky.append(
+    el("div", "head", "kolo"),
+    el("div", null, jmeno1),
+    el("div", null, jmeno2),
+    el("div", "head", "body")
+  );
+
+  const scroll = el("div", "rscroll");
+  const rKolo = el("div", "rrow"), r1 = el("div", "rrow"), r2 = el("div", "rrow"), rBody = el("div", "rrow");
+
+  for (const z of historie) {
+    const cKolo = el("div", "rcell");
+    cKolo.append(el("span", "rnum", String(z.round)));
+    rKolo.append(cKolo);
+
+    for (const [kdo, radek, jmenoSoupere] of [[1, r1, jmeno2], [2, r2, jmeno1]]) {
+      const tah      = kdo === 1 ? z.move1    : z.move2;
+      const dorazilo = kdo === 1 ? z.arrived1 : z.arrived2;
+      const vMlze    = kdo === 1 ? z.fog1     : z.fog2;
+
+      const cell = el("div", "rcell");
+      const znacka = el("span", "mv " + tah + (vMlze ? " fog" : "") + (tah !== dorazilo ? " noise" : ""), tah);
+      znacka.title = popisTahu(z, kdo, jmenoSoupere);
+      cell.append(znacka);
+      radek.append(cell);
+    }
+
+    const cBody = el("div", "rcell");
+    cBody.append(el("span", "pts", z.points1 + ":" + z.points2));
+    rBody.append(cBody);
+  }
+
+  scroll.append(rKolo, r1, r2, rBody);
+  mriz.append(popisky, scroll);
+  box.append(mriz);
+
+  const legenda = el("div", "replay-legend");
+  const polozka = (tridy, pismeno, text) => {
+    const s = el("span");
+    s.append(el("span", "mv " + tridy, pismeno), document.createTextNode(text));
+    return s;
+  };
+  legenda.append(
+    polozka("C", "C", "spolupráce"),
+    polozka("D", "D", "zrada"),
+    polozka("D fog", "D", "soupeř tenhle tah neviděl (mlha)"),
+    polozka("C noise", "C", "k soupeři dorazil opak (šum)")
+  );
+  box.append(legenda);
+
+  return box;
+}
+
+/* ============================================================
+   5. ZÁLOŽKA TURNAJ
+   ============================================================ */
+
+function postavChipy() {
+  const chipy = $("#t-chips");
+  const dostupne = seznamBotu().map((b) => b.type);
+  /* Bot odebraný z výběru nesmí zůstat přihlášený do turnaje. */
+  stav.turnaj.vybrani = stav.turnaj.vybrani.filter((t) => dostupne.includes(t));
+
+  chipy.innerHTML = "";
+  for (const b of seznamBotu()) {
+    const l = el("label", "chip");
+    const i = el("input");
+    i.type = "checkbox"; i.value = b.type;
+    i.checked = stav.turnaj.vybrani.includes(b.type);
+    i.addEventListener("change", () => {
+      stav.turnaj.vybrani = i.checked
+        ? [...stav.turnaj.vybrani, b.type]
+        : stav.turnaj.vybrani.filter((x) => x !== b.type);
+      obnovPocet();
+    });
+    l.append(i, el("span", "mark"), el("span", null, b.nazev));
+    chipy.append(l);
+  }
+  obnovPocet();
+}
+
+function initTurnaj() {
+  postavChipy();
+  postavNastaveni($("#t-settings"), stav.turnaj.nastaveni, () => {});
+  $("#t-reset").addEventListener("click", () => {
+    stav.turnaj.nastaveni = { ...VYCHOZI_NASTAVENI };
+    postavNastaveni($("#t-settings"), stav.turnaj.nastaveni, () => {});
+  });
+  $("#t-reps").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-reps]");
+    if (!b) return;
+    stav.turnaj.reps = parseInt(b.dataset.reps, 10);
+    for (const x of $("#t-reps").querySelectorAll("button")) {
+      x.setAttribute("aria-pressed", String(x === b));
+    }
+  });
+  $("#t-run").addEventListener("click", spustTurnaj);
+  obnovPocet();
+}
+
+function obnovPocet() {
+  const k = stav.turnaj.vybrani.length;
+  const zapasu = k * (k - 1) / 2;
+  $("#t-count").textContent = k < 2 ? "vyber aspoň dva" : k + " botů · " + zapasu + " zápasů";
+  $("#t-run").disabled = k < 2;
+}
+
+async function spustTurnaj() {
+  const tlacitko = $("#t-run");
+  const cil = $("#t-result");
+  const reps = stav.turnaj.reps;
+  tlacitko.disabled = true;
+  tlacitko.textContent = reps === 1 ? "počítám…" : "počítám " + reps + " turnajů…";
+
+  try {
+    const data = await api("/simulate/tournament", {
+      method: "POST",
+      telo: {
+        bots: stav.turnaj.vybrani.map(botSpec),
+        settings: stav.turnaj.nastaveni,
+        repeats: reps
+      }
+    });
+    vykresliTurnaj(cil, data);
+    $("#status").dataset.state = "up";
+    $("#statusText").textContent = "backend běží";
+  } catch (chyba) {
+    vykresliChybu(cil, chyba);
+    overSpojeni();
+  } finally {
+    tlacitko.disabled = false;
+    tlacitko.textContent = "Odehrát turnaj";
+    obnovPocet();
+  }
+}
+
+function vykresliTurnaj(cil, data) {
+  const opak = data.repeats || 1;
+  const viceKrat = opak > 1;
+  const nejvic = Math.max(...data.standings.map((s) => s.score), 1);
+  /* Při jednom turnaji jsou všechna čísla celá — desetinná místa by jen mátla. */
+  const cislo = (x) => (viceKrat ? x.toFixed(1) : String(Math.round(x)));
+
+  cil.innerHTML = "";
+  const hlava = el("div", "panel-head");
+  hlava.append(el("h2", null, "Pořadí"));
+  hlava.append(el("span", "hint", viceKrat
+    ? opak + " turnajů · průměr na jeden"
+    : data.matches.length + " odehraných zápasů"));
+  cil.append(hlava);
+
+  const wrap = el("div", "tablewrap");
+  const t = el("table");
+  t.innerHTML = "<thead><tr><th></th><th>Bot</th><th class='num'>Body</th>"
+    + (viceKrat ? "<th class='num'>Rozpětí</th>" : "")
+    + "<th class='num'>V&nbsp;/&nbsp;R&nbsp;/&nbsp;P</th>"
+    + (viceKrat ? "<th class='num'>1.&nbsp;místo</th>" : "")
+    + "</tr></thead>";
+  const tb = el("tbody");
+
+  data.standings.forEach((s, i) => {
+    const tr = el("tr", i === 0 ? "lead" : "");
+    tr.append(el("td", "rank", String(i + 1)), el("td", null, s.name));
+
+    const tdBody = el("td", "num");
+    const cell = el("div", "scorecell");
+    const bar = el("div", "scorebar");
+    bar.style.width = Math.max(4, Math.round(s.score / nejvic * 96)) + "px";
+    cell.append(bar, el("span", null, cislo(s.score)));
+    tdBody.append(cell);
+    tr.append(tdBody);
+
+    if (viceKrat) {
+      const tdR = el("td", "num");
+      const r = el("span", "wl");
+      r.textContent = Math.round(s.score_min) + "–" + Math.round(s.score_max);
+      tdR.append(r);
+      tr.append(tdR);
+    }
+
+    const tdWl = el("td", "num");
+    const wl = el("span", "wl");
+    wl.innerHTML = "<b>" + cislo(s.wins) + "</b> / " + cislo(s.ties) + " / " + cislo(s.losses);
+    tdWl.append(wl);
+    tr.append(tdWl);
+
+    if (viceKrat) {
+      const tdP = el("td", "num");
+      const cellP = el("div", "scorecell");
+      const barP = el("div", "scorebar");
+      barP.style.width = Math.max(2, Math.round(s.first_place_share / 100 * 52)) + "px";
+      barP.style.opacity = s.first_place_share > 0 ? ".8" : "0";
+      cellP.append(barP, el("span", null, s.first_place_share.toFixed(0) + " %"));
+      tdP.append(cellP);
+      tr.append(tdP);
+    }
+
+    tb.append(tr);
+  });
+
+  t.append(tb);
+  wrap.append(t);
+  cil.append(wrap);
+
+  if (viceKrat) {
+    const poznamka = el("div", "note");
+    poznamka.style.padding = "14px 20px 0";
+    poznamka.textContent = "Rozpětí je nejhorší a nejlepší výsledek napříč turnaji. Když se dvěma botům rozpětí překrývá, "
+      + "je rozdíl v průměru nejspíš jen náhoda — proto je vedle sloupec, jak často kdo doopravdy skončil první.";
+    cil.append(poznamka);
+  }
+
+  const fold = el("details", "fold");
+  fold.append(el("summary", null, viceKrat ? "Jednotlivé dvojice (průměr)" : "Jednotlivé zápasy"));
+  const mriz = el("div", "matches");
+  for (const m of data.matches) {
+    const box = el("div", "match");
+    box.append(el("div", "names", m.bot1 + " vs " + m.bot2));
+    const sc = el("div", "sc");
+    const t1 = m.score1 >= m.score2 ? "w" : "l";
+    const t2 = m.score2 >= m.score1 ? "w" : "l";
+    sc.innerHTML = "<span class='" + t1 + "'>" + cislo(m.score1) + "</span> : <span class='" + t2 + "'>" + cislo(m.score2) + "</span>";
+    box.append(sc);
+    mriz.append(box);
+  }
+  fold.append(mriz);
+  cil.append(fold);
+}
+
+/* ============================================================
+   6. ZÁLOŽKA MŮJ BOT
+   ============================================================ */
+
+const POLE_BOTA = [
+  {
+    klic: "jmeno", typ: "text", popisek: "Jméno",
+    napoveda: "Jak se bude jmenovat ve výsledcích."
+  },
+  {
+    klic: "prvni_tah", typ: "select", popisek: "První tah",
+    volby: [["C", "Spolupráce"], ["D", "Zrada"], ["random", "Náhodně"]],
+    napoveda: "Čím začne, když ještě nic neviděl."
+  },
+  {
+    klic: "zakladni_strategie", typ: "select", popisek: "Základní strategie",
+    volby: [["tit_for_tat", "Opakuj soupeřův tah"], ["pavlov", "Drž se, když to vychází"], ["opak", "Dělej opak"], ["pravdepodobnost", "Náhodně podle pravděpodobnosti"]],
+    napoveda: "Podle čeho se rozhoduje, když nezasáhne žádné z pravidel níž."
+  },
+  {
+    klic: "pravdepodobnost_c", typ: "range", popisek: "Pravděpodobnost spolupráce", jednotka: "%",
+    napoveda: "Uplatní se jen u strategie „Náhodně podle pravděpodobnosti“."
+  },
+  {
+    klic: "tolerance_d", typ: "number", popisek: "Kolik zrad odpustí", min: 1, max: 20,
+    napoveda: "Kolik zrad v řadě snese, než začne oplácet. Oplácí až o jednu víc."
+  },
+  {
+    klic: "zrada_pri_pomeru", typ: "range", popisek: "Zradí, když soupeř zrazuje aspoň", jednotka: "%",
+    napoveda: "Sleduje se až od pátého viditelného tahu. Sto procent znamená, že tohle pravidlo prakticky nezasáhne."
+  },
+  {
+    klic: "reakce_mlha", typ: "select", popisek: "Když soupeřův tah nevidí",
+    volby: [["zradit", "Zradí"], ["spolupracovat", "Spolupracuje"], ["random", "Náhodně"], ["opakovat_sebe", "Zopakuje svůj minulý tah"]],
+    napoveda: "Co udělá, když místo tahu vidí otazník."
+  },
+  {
+    klic: "posledni_tah", typ: "select", popisek: "V posledním kole",
+    volby: [["normal", "Nic zvláštního"], ["vzdy_d", "Vždy zradí"], ["vzdy_c", "Vždy spolupracuje"]],
+    napoveda: "Funguje jen tehdy, když je počet kol známý. Při neznámém počtu kol se ignoruje."
+  },
+  {
+    klic: "nikdy_neodpoustet", typ: "check", popisek: "Nikdy neodpouští",
+    napoveda: "Jakmile ho soupeř jednou zradí, zrazuje už napořád. Přebije všechno ostatní."
+  },
+  {
+    klic: "chyba_pct", typ: "range", popisek: "Chybovost", jednotka: "%",
+    napoveda: "Šance, že se splete a zahraje opak toho, co chtěl."
+  }
+];
+
+function initBot() {
+  postavFormularBota();
+  $("#b-reset").addEventListener("click", () => {
+    stav.bot = { ...VYCHOZI_BOT };
+    postavFormularBota();
+  });
+}
+
+function postavFormularBota() {
+  const kam = $("#b-form");
+  kam.innerHTML = "";
+
+  for (const p of POLE_BOTA) {
+    if (p.typ === "check") {
+      const l = el("label", "check");
+      l.innerHTML =
+        '<input type="checkbox"' + (stav.bot[p.klic] ? " checked" : "") + '>' +
+        '<span class="txt"><b>' + esc(p.popisek) + '</b><span>' + esc(p.napoveda) + "</span></span>";
+      l.querySelector("input").addEventListener("change", (e) => {
+        stav.bot[p.klic] = e.target.checked; obnovBotVystup();
+      });
+      kam.append(l);
+      continue;
+    }
+
+    if (p.typ === "range") {
+      const box = el("div", "slider");
+      const top = el("div", "top");
+      top.append(el("span", "field-label", p.popisek));
+      const val = el("span", "val", stav.bot[p.klic] + " " + p.jednotka);
+      top.append(val);
+      const r = el("input");
+      r.type = "range"; r.min = 0; r.max = 100; r.step = 1; r.value = stav.bot[p.klic];
+      r.addEventListener("input", () => {
+        stav.bot[p.klic] = parseInt(r.value, 10);
+        val.textContent = stav.bot[p.klic] + " " + p.jednotka;
+        obnovBotVystup();
+      });
+      box.append(top, r, el("div", "note", p.napoveda));
+      kam.append(box);
+      continue;
+    }
+
+    const pole = el("div", "field");
+    const id = "b-" + p.klic;
+    const lab = el("label", null, p.popisek);
+    lab.setAttribute("for", id);
+    pole.append(lab);
+
+    let vstup;
+    if (p.typ === "select") {
+      vstup = el("select");
+      for (const [hodnota, popisek] of p.volby) {
+        const o = el("option", null, popisek);
+        o.value = hodnota;
+        vstup.append(o);
+      }
+      vstup.value = stav.bot[p.klic];
+      vstup.addEventListener("change", () => { stav.bot[p.klic] = vstup.value; obnovBotVystup(); });
+    } else if (p.typ === "number") {
+      vstup = el("input");
+      vstup.type = "number"; vstup.min = p.min; vstup.max = p.max;
+      vstup.value = stav.bot[p.klic];
+      vstup.addEventListener("input", () => {
+        stav.bot[p.klic] = Math.max(p.min, Math.min(p.max, parseInt(vstup.value, 10) || p.min));
+        obnovBotVystup();
+      });
+    } else {
+      vstup = el("input");
+      vstup.type = "text";
+      vstup.value = stav.bot[p.klic];
+      vstup.addEventListener("input", () => { stav.bot[p.klic] = vstup.value; obnovBotVystup(); });
+    }
+    vstup.id = id;
+    pole.append(vstup, el("div", "note", p.napoveda));
+    kam.append(pole);
+  }
+
+  obnovBotVystup();
+}
+
+/* Slovní popis pořadí, ve kterém se pravidla vyhodnocují.
+   Odpovídá funkci custom_player v app/game/bots.py. */
+function obnovBotVystup() {
+  const b = stav.bot;
+  const kroky = [];
+
+  if (b.posledni_tah !== "normal") {
+    kroky.push(["V posledním kole", "Když je počet kol známý, v posledním kole " +
+      (b.posledni_tah === "vzdy_d" ? "vždy zradí" : "vždy spolupracuje") + " a dál se nerozhoduje."]);
+  }
+  if (b.nikdy_neodpoustet) {
+    kroky.push(["Nikdy neodpouští", "Jestli ho soupeř někdy zradil, zradí. Nic dalšího už neřeší."]);
+  }
+  kroky.push(["První tah", "Když ještě nic neviděl, zahraje " +
+    (b.prvni_tah === "random" ? "náhodně" : b.prvni_tah === "C" ? "spolupráci" : "zradu") + "."]);
+  if (b.zrada_pri_pomeru < 100) {
+    kroky.push(["Sleduje poměr", "Od pátého viditelného tahu: když soupeř zrazuje v " +
+      b.zrada_pri_pomeru + " % a víc případů, zradí."]);
+  }
+  kroky.push(["Trpělivost", b.tolerance_d === 1
+    ? "Odpustí jednu zradu. Až po dvou zradách v řadě oplatí."
+    : "Odpustí " + b.tolerance_d + " zrad v řadě. Až po " + (b.tolerance_d + 1) + " oplatí."]);
+  kroky.push(["Když nevidí", "Na otazník reaguje tak, že " +
+    ({ zradit: "zradí", spolupracovat: "spolupracuje", random: "hodí si", opakovat_sebe: "zopakuje svůj minulý tah" })[b.reakce_mlha] + "."]);
+  kroky.push(["Jinak", ({
+    tit_for_tat: "Zopakuje soupeřův poslední tah.",
+    pavlov: "Když poslední kolo dopadlo dobře, zopakuje svůj tah. Když ne, změní ho.",
+    opak: "Udělá opak soupeřova posledního tahu.",
+    pravdepodobnost: "Spolupracuje s pravděpodobností " + b.pravdepodobnost_c + " %."
+  })[b.zakladni_strategie]]);
+  if (b.chyba_pct > 0) {
+    kroky.push(["Na závěr", "S pravděpodobností " + b.chyba_pct + " % se splete a zahraje opak."]);
+  }
+
+  const kam = $("#b-explain");
+  kam.innerHTML = "";
+  kroky.forEach(([nadpis, text], i) => {
+    const radek = el("div");
+    radek.style.display = "grid";
+    radek.style.gridTemplateColumns = "26px 1fr";
+    radek.style.gap = "12px";
+    radek.style.alignItems = "baseline";
+    const c = el("div", "mono", String(i + 1));
+    c.style.color = "var(--faint)";
+    c.style.fontSize = "12px";
+    const t = el("div");
+    t.innerHTML = "<b style='font-weight:600'>" + esc(nadpis) + "</b> — <span style='color:var(--muted)'>" + esc(text) + "</span>";
+    radek.append(c, t);
+    kam.append(radek);
+  });
+
+  const { jmeno, ...config } = stav.bot;
+  $("#b-json").textContent = JSON.stringify({ type: "custom", name: jmeno, config }, null, 2);
+
+  /* Panel „Uložit bota“ ukazuje jméno — držíme ho v souladu s formulářem,
+     ale nepřekreslujeme celý panel, aby uživateli neuteklo psaní v popisu. */
+  const jmenoVPanelu = $("#b-save-name");
+  if (jmenoVPanelu) {
+    jmenoVPanelu.innerHTML = "Uloží se pod jménem <b style='color:var(--ink)'>" +
+      esc(jmeno || "(bez jména)") + "</b> — změníš ho v poli Jméno vlevo.";
+  }
+}
+
+/* ============================================================
+   7. ÚČET — registrace, přihlášení, odhlášení
+   ============================================================ */
+
+function obnovUzivatele() {
+  const kam = $("#userinfo");
+  kam.innerHTML = "";
+
+  if (stav.auth.username) {
+    const s = el("span", "whoami");
+    s.innerHTML = "přihlášen jako <b>" + esc(stav.auth.username) + "</b>";
+    const odhlasit = el("button", "linkbtn", "Odhlásit");
+    odhlasit.addEventListener("click", odhlas);
+    kam.append(s, document.createTextNode(" "), odhlasit);
+  } else {
+    const prihlasit = el("button", "linkbtn", "Přihlásit se");
+    prihlasit.addEventListener("click", () => otevriAuth("login"));
+    const nebo = el("span", "whoami", " nebo ");
+    const registrace = el("button", "linkbtn", "založit účet");
+    registrace.addEventListener("click", () => otevriAuth("register"));
+    kam.append(prihlasit, nebo, registrace);
+  }
+
+  vykresliUlozit();
+  /* Odhlášený uživatel nemá „svoje“ boty — přepneme na veřejné. */
+  if (!stav.auth.token && stav.filtrBotu === "mine") nastavFiltrBotu("public");
+  else if (!$("#p-boti").hidden) nactiSeznamBotu();
+}
+
+function odhlas() {
+  stav.auth = { token: null, username: null };
+  stav.ulozeni.id = null;
+  obnovUzivatele();
+}
+
+let authRezim = "login";
+
+function otevriAuth(rezim) {
+  authRezim = rezim;
+  vykresliAuth();
+  $("#authModal").showModal();
+}
+
+function vykresliAuth() {
+  const jeLogin = authRezim === "login";
+  $("#auth-title").textContent = jeLogin ? "Přihlášení" : "Nový účet";
+  $("#auth-sub").textContent = jeLogin
+    ? "Přihlaš se, ať si můžeš ukládat vlastní boty."
+    : "Účet potřebuješ jen k ukládání botů. Hrát můžeš i bez něj.";
+  $("#auth-submit").textContent = jeLogin ? "Přihlásit se" : "Založit účet";
+  $("#auth-err").hidden = true;
+
+  const pole = $("#auth-fields");
+  pole.innerHTML = "";
+
+  const vstup = (id, popisek, typ, napoveda) => {
+    const f = el("div", "field");
+    const l = el("label", null, popisek);
+    l.setAttribute("for", id);
+    const i = el("input");
+    i.type = typ; i.id = id; i.autocomplete = "off";
+    f.append(l, i);
+    if (napoveda) f.append(el("div", "note", napoveda));
+    pole.append(f);
+    return i;
+  };
+
+  if (jeLogin) {
+    vstup("auth-user", "Jméno nebo e-mail", "text");
+    vstup("auth-pass", "Heslo", "password");
+  } else {
+    vstup("auth-user", "Uživatelské jméno", "text", "Aspoň 3 znaky. Uvidí ho ostatní u tvých veřejných botů.");
+    vstup("auth-email", "E-mail", "text");
+    vstup("auth-pass", "Heslo", "password", "Aspoň 8 znaků.");
+  }
+
+  const prep = $("#auth-switch");
+  prep.innerHTML = "";
+  prep.append(document.createTextNode(jeLogin ? "Ještě nemáš účet? " : "Už účet máš? "));
+  const odkaz = el("button", "linkbtn", jeLogin ? "Založ si ho" : "Přihlas se");
+  odkaz.addEventListener("click", () => { authRezim = jeLogin ? "register" : "login"; vykresliAuth(); });
+  prep.append(odkaz);
+
+  /* Enter ve formuláři odešle, jako by se kliklo na tlačítko. */
+  for (const i of pole.querySelectorAll("input")) {
+    i.addEventListener("keydown", (e) => { if (e.key === "Enter") odesliAuth(); });
+  }
+  setTimeout(() => $("#auth-user").focus(), 30);
+}
+
+async function odesliAuth() {
+  const tlacitko = $("#auth-submit");
+  const chyba = $("#auth-err");
+  const jmeno = $("#auth-user").value.trim();
+  const heslo = $("#auth-pass").value;
+  const email = authRezim === "register" ? $("#auth-email").value.trim() : null;
+
+  const ukazChybu = (t) => { chyba.textContent = t; chyba.hidden = false; };
+  chyba.hidden = true;
+
+  if (!jmeno || !heslo) return ukazChybu("Vyplň prosím obě políčka.");
+  if (authRezim === "register") {
+    if (jmeno.length < 3) return ukazChybu("Uživatelské jméno musí mít aspoň 3 znaky.");
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ukazChybu("Zadej platný e-mail.");
+    if (heslo.length < 8) return ukazChybu("Heslo musí mít aspoň 8 znaků.");
+    if (heslo.length > 72) return ukazChybu("Heslo může mít nejvýš 72 znaků.");
+  }
+
+  tlacitko.disabled = true;
+  tlacitko.textContent = "moment…";
+  try {
+    if (authRezim === "register") {
+      await api("/auth/register", { method: "POST", telo: { username: jmeno, email, password: heslo } });
+    }
+    const token = await api("/auth/login", {
+      method: "POST",
+      telo: { username_or_email: jmeno, password: heslo }
+    });
+    stav.auth.token = token.access_token;
+    const ja = await api("/auth/me", { auth: true });
+    stav.auth.username = ja.username;
+    $("#authModal").close();
+    obnovUzivatele();
+  } catch (e) {
+    ukazChybu(e.message);
+  } finally {
+    tlacitko.disabled = false;
+    vykresliAuthTlacitko();
+  }
+}
+
+function vykresliAuthTlacitko() {
+  $("#auth-submit").textContent = authRezim === "login" ? "Přihlásit se" : "Založit účet";
+}
+
+/* ============================================================
+   8. UKLÁDÁNÍ BOTA DO DATABÁZE
+   ============================================================ */
+
+function konfiguraceBota() {
+  const { jmeno, ...parametry } = stav.bot;
+  return { type: "custom", ...parametry };
+}
+
+function vykresliUlozit() {
+  const kam = $("#b-save");
+  const napoveda = $("#b-save-hint");
+  kam.innerHTML = "";
+  napoveda.textContent = "";
+
+  if (!stav.auth.token) {
+    kam.append(el("div", "note", "Boti se ukládají pod tvůj účet, takže se nejdřív musíš přihlásit. Hrát a zkoušet můžeš i bez toho — jen se ti nastavení po obnovení stránky ztratí."));
+    const b = el("button", "btn btn-ghost btn-wide", "Přihlásit se nebo založit účet");
+    b.addEventListener("click", () => otevriAuth("login"));
+    kam.append(b);
+    return;
+  }
+
+  napoveda.textContent = stav.ulozeni.id ? "upravuješ uloženého bota" : "zatím neuložený";
+
+  const info = el("div", "note");
+  info.id = "b-save-name";
+  info.innerHTML = "Uloží se pod jménem <b style='color:var(--ink)'>" +
+    esc(stav.bot.jmeno || "(bez jména)") + "</b> — změníš ho v poli Jméno vlevo.";
+  kam.append(info);
+
+  const popisPole = el("div", "field");
+  const popisLabel = el("label", null, "Popis");
+  popisLabel.setAttribute("for", "b-popis");
+  const popisVstup = el("input");
+  popisVstup.type = "text"; popisVstup.id = "b-popis"; popisVstup.value = stav.ulozeni.popis;
+  popisVstup.placeholder = "Čím je tenhle bot zajímavý?";
+  popisVstup.addEventListener("input", () => { stav.ulozeni.popis = popisVstup.value; });
+  popisPole.append(popisLabel, popisVstup);
+  kam.append(popisPole);
+
+  const verejny = el("label", "check");
+  verejny.innerHTML =
+    '<input type="checkbox"' + (stav.ulozeni.verejny ? " checked" : "") + '>' +
+    '<span class="txt"><b>Zveřejnit v galerii</b>' +
+    '<span>Ostatní ho uvidí, budou si ho moct přidat a poslat proti svým botům. Soukromého bota vidíš jen ty.</span></span>';
+  verejny.querySelector("input").addEventListener("change", (e) => { stav.ulozeni.verejny = e.target.checked; });
+  kam.append(verejny);
+
+  const hlaska = el("div");
+  hlaska.id = "b-save-msg";
+  kam.append(hlaska);
+
+  if (stav.ulozeni.id) {
+    const zmeny = el("button", "btn btn-primary btn-wide", "Uložit změny");
+    zmeny.addEventListener("click", () => ulozBota(false));
+    const novy = el("button", "btn btn-ghost btn-wide", "Uložit jako nového bota");
+    novy.addEventListener("click", () => ulozBota(true));
+    kam.append(zmeny, novy);
+  } else {
+    const ulozit = el("button", "btn btn-primary btn-wide", "Uložit bota");
+    ulozit.addEventListener("click", () => ulozBota(true));
+    kam.append(ulozit);
+  }
+}
+
+async function ulozBota(jakoNovy) {
+  const hlaska = $("#b-save-msg");
+  const jmeno = (stav.bot.jmeno || "").trim();
+  hlaska.className = "";
+  hlaska.textContent = "";
+
+  if (!jmeno) {
+    hlaska.className = "formerr";
+    hlaska.textContent = "Bot musí mít jméno — doplň ho v poli Jméno vlevo.";
+    return;
+  }
+
+  const telo = {
+    name: jmeno.slice(0, 100),
+    description: stav.ulozeni.popis || null,
+    config: konfiguraceBota(),
+    is_public: stav.ulozeni.verejny
+  };
+
+  try {
+    let vysledek;
+    if (jakoNovy || !stav.ulozeni.id) {
+      vysledek = await api("/bots", { method: "POST", telo, auth: true });
+    } else {
+      vysledek = await api("/bots/" + stav.ulozeni.id, { method: "PATCH", telo, auth: true });
+    }
+    stav.ulozeni.id = vysledek.id;
+    vykresliUlozit();
+    const zprava = $("#b-save-msg");
+    zprava.className = "formok";
+    zprava.textContent = jakoNovy
+      ? "Uloženo. Najdeš ho v záložce Boti ostatních pod „Moji“."
+      : "Změny uloženy (verze " + vysledek.config_version + ").";
+    if (!$("#p-boti").hidden) nactiSeznamBotu();
+  } catch (e) {
+    hlaska.className = "formerr";
+    hlaska.textContent = e.message;
+  }
+}
+
+/* ============================================================
+   9. SEZNAM BOTŮ (galerie + moji)
+   ============================================================ */
+
+function initSeznamBotu() {
+  $("#bl-filter").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]");
+    if (b) nastavFiltrBotu(b.dataset.f);
+  });
+}
+
+function nastavFiltrBotu(filtr) {
+  stav.filtrBotu = filtr;
+  for (const b of $("#bl-filter").querySelectorAll("button")) {
+    b.setAttribute("aria-pressed", String(b.dataset.f === filtr));
+  }
+  $("#bl-title").textContent = filtr === "mine" ? "Moji boti" : "Veřejná galerie";
+  nactiSeznamBotu();
+}
+
+async function nactiSeznamBotu() {
+  const kam = $("#bl-body");
+  const filtr = stav.filtrBotu;
+
+  if (filtr === "mine" && !stav.auth.token) {
+    kam.innerHTML = "";
+    const box = el("div", "empty");
+    box.append(el("p", "big", "Tohle uvidíš po přihlášení."));
+    const b = el("button", "btn btn-ghost", "Přihlásit se");
+    b.addEventListener("click", () => otevriAuth("login"));
+    box.append(b);
+    kam.append(box);
+    return;
+  }
+
+  kam.innerHTML = '<div class="empty"><p>načítám…</p></div>';
+  try {
+    const data = filtr === "mine"
+      ? await api("/bots/mine", { auth: true })
+      : await api("/bots?public=true");
+    vykresliSeznamBotu(kam, data, filtr);
+  } catch (e) {
+    vykresliChybu(kam, e);
+  }
+}
+
+function vykresliSeznamBotu(kam, boti, filtr) {
+  kam.innerHTML = "";
+
+  if (!boti.length) {
+    const box = el("div", "empty");
+    box.append(el("p", "big", filtr === "mine" ? "Zatím sis žádného bota neuložil." : "V galerii zatím nikdo nic nezveřejnil."));
+    box.append(el("p", null, filtr === "mine"
+      ? "Nastav si strategii v záložce Můj bot a dole ji ulož."
+      : "Zveřejnit svého bota můžeš v záložce Můj bot — zaškrtni „Zveřejnit v galerii“."));
+    kam.append(box);
+    return;
+  }
+
+  const mriz = el("div", "botlist");
+  for (const bot of boti) {
+    const mujBot = bot.owner_username && bot.owner_username === stav.auth.username;
+    const jeCustom = (bot.config || {}).type === "custom";
+    const prevzat = Boolean(stav.prevzati[bot.id]);
+
+    const karta = el("div", "botcard");
+
+    const top = el("div", "top");
+    top.append(el("div", "nm", bot.name));
+    top.append(el("div", "meta", bot.owner_username ? "@" + bot.owner_username : ""));
+    karta.append(top);
+
+    const znacky = el("div", "botcard-badges");
+    znacky.style.display = "flex";
+    znacky.style.gap = "6px";
+    znacky.style.flexWrap = "wrap";
+    znacky.append(el("span", "badge" + (bot.is_public ? " pub" : ""), bot.is_public ? "veřejný" : "soukromý"));
+    if (!jeCustom) znacky.append(el("span", "badge", (bot.config || {}).type || "?"));
+    karta.append(znacky);
+
+    if (bot.description) karta.append(el("div", "desc", bot.description));
+
+    const akce = el("div", "acts");
+
+    const prevzit = el("button", "minibtn", prevzat ? "Odebrat z výběru" : "Přidat do výběru");
+    prevzit.addEventListener("click", () => {
+      if (stav.prevzati[bot.id]) delete stav.prevzati[bot.id];
+      else stav.prevzati[bot.id] = bot;
+      obnovNabidkyBotu();
+      nactiSeznamBotu();
+    });
+    akce.append(prevzit);
+
+    const editor = el("button", "minibtn", mujBot ? "Otevřít v editoru" : "Zkopírovat do editoru");
+    editor.disabled = !jeCustom;
+    if (!jeCustom) editor.title = "Editor umí jen vlastní strategie, ne vestavěné.";
+    editor.addEventListener("click", () => otevriBotaVEditoru(bot, mujBot));
+    akce.append(editor);
+
+    if (mujBot) {
+      const prepnout = el("button", "minibtn", bot.is_public ? "Skrýt z galerie" : "Zveřejnit");
+      prepnout.addEventListener("click", async () => {
+        prepnout.disabled = true;
+        try {
+          await api("/bots/" + bot.id, { method: "PATCH", telo: { is_public: !bot.is_public }, auth: true });
+          nactiSeznamBotu();
+        } catch (e) {
+          prepnout.disabled = false;
+          prepnout.textContent = e.message;
+        }
+      });
+      akce.append(prepnout);
+
+      const smazat = el("button", "minibtn", "Smazat");
+      smazat.style.marginLeft = "auto";
+      smazat.addEventListener("click", async () => {
+        /* Dvoufázové potvrzení — nativní confirm() by zablokoval stránku. */
+        if (smazat.dataset.potvrd !== "1") {
+          smazat.dataset.potvrd = "1";
+          smazat.textContent = "Opravdu smazat?";
+          smazat.style.color = "var(--defect)";
+          smazat.style.borderColor = "var(--defect)";
+          setTimeout(() => {
+            if (smazat.isConnected && smazat.dataset.potvrd === "1") {
+              smazat.dataset.potvrd = "";
+              smazat.textContent = "Smazat";
+              smazat.style.color = "";
+              smazat.style.borderColor = "";
+            }
+          }, 4000);
+          return;
+        }
+        smazat.disabled = true;
+        smazat.textContent = "mažu…";
+        try {
+          await api("/bots/" + bot.id, { method: "DELETE", auth: true });
+          /* Smazaný bot nesmí zůstat v duelu ani v turnaji. */
+          if (stav.prevzati[bot.id]) { delete stav.prevzati[bot.id]; obnovNabidkyBotu(); }
+          if (stav.ulozeni.id === bot.id) { stav.ulozeni.id = null; vykresliUlozit(); }
+          nactiSeznamBotu();
+        } catch (e) {
+          smazat.disabled = false;
+          smazat.textContent = e.message;
+        }
+      });
+      akce.append(smazat);
+    }
+
+    karta.append(akce);
+    mriz.append(karta);
+  }
+  kam.append(mriz);
+}
+
+/* Nasype konfiguraci uloženého bota do formuláře v záložce Můj bot. */
+function otevriBotaVEditoru(bot, mujBot) {
+  const config = bot.config || {};
+  const novy = { ...VYCHOZI_BOT };
+  for (const klic of Object.keys(VYCHOZI_BOT)) {
+    if (klic !== "jmeno" && config[klic] !== undefined) novy[klic] = config[klic];
+  }
+  novy.jmeno = mujBot ? bot.name : bot.name + " (kopie)";
+  stav.bot = novy;
+
+  /* Cizího bota přepsat nemůžeš — uloží se jako nový pod tvým účtem. */
+  stav.ulozeni = {
+    id: mujBot ? bot.id : null,
+    popis: bot.description || "",
+    verejny: mujBot ? bot.is_public : false
+  };
+
+  postavFormularBota();
+  vykresliUlozit();
+  prepniZalozku("tab-bot");
+}
+
+/* ============================================================
+   10. EVOLUCE
+   ============================================================ */
+
+const MAX_DRUHU = 8;
+const SVGNS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs) => {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+};
+const barvaSerie = (i) => "var(--s" + ((i % 8) + 1) + ")";
+
+function initEvoluce() {
+  postavChipyEvoluce();
+  postavEvoNastaveni();
+  postavNastaveni($("#e-settings"), stav.evoluce.nastaveni, () => {});
+  $("#e-reset").addEventListener("click", () => {
+    stav.evoluce.nastaveni = { ...VYCHOZI_NASTAVENI };
+    postavNastaveni($("#e-settings"), stav.evoluce.nastaveni, () => {});
+  });
+  $("#e-run").addEventListener("click", spustEvoluci);
+}
+
+function postavChipyEvoluce() {
+  const chipy = $("#e-chips");
+  const dostupne = seznamBotu().map((b) => b.type);
+  stav.evoluce.vybrani = stav.evoluce.vybrani.filter((t) => dostupne.includes(t));
+
+  chipy.innerHTML = "";
+  for (const b of seznamBotu()) {
+    const vybran = stav.evoluce.vybrani.includes(b.type);
+    const l = el("label", "chip");
+    const i = el("input");
+    i.type = "checkbox"; i.value = b.type; i.checked = vybran;
+    /* Osm je strop — devátá čára už by v grafu nešla odlišit barvou. */
+    i.disabled = !vybran && stav.evoluce.vybrani.length >= MAX_DRUHU;
+    if (i.disabled) l.style.opacity = ".45";
+    i.addEventListener("change", () => {
+      stav.evoluce.vybrani = i.checked
+        ? [...stav.evoluce.vybrani, b.type]
+        : stav.evoluce.vybrani.filter((x) => x !== b.type);
+      postavChipyEvoluce();
+      postavEvoNastaveni();
+    });
+    l.append(i, el("span", "mark"), el("span", null, b.nazev));
+    chipy.append(l);
+  }
+  obnovPocetDruhu();
+}
+
+function obnovPocetDruhu() {
+  const k = stav.evoluce.vybrani.length;
+  $("#e-count").textContent = k < 2 ? "vyber aspoň dva" : k + " z " + MAX_DRUHU;
+  $("#e-run").disabled = k < 2;
+}
+
+function postavEvoNastaveni() {
+  const kam = $("#e-evo");
+  kam.innerHTML = "";
+  const ev = stav.evoluce;
+
+  const generace = el("div", "field");
+  const gl = el("label", null, "Počet generací");
+  gl.setAttribute("for", "e-gen");
+  const gi = el("input");
+  gi.type = "number"; gi.id = "e-gen"; gi.min = 1; gi.max = 1000; gi.value = ev.generace;
+  gi.addEventListener("input", () => {
+    ev.generace = Math.max(1, Math.min(1000, parseInt(gi.value, 10) || 1));
+  });
+  generace.append(gl, gi, el("div", "note", "Každá generace znamená odehrát zápas každého s každým. Osm druhů na tisíc generací je pár vteřin počítání."));
+  kam.append(generace);
+
+  const rozl = el("div", "field");
+  const rl = el("label", null, "Počáteční rozložení");
+  rl.setAttribute("for", "e-rozl");
+  const rs = el("select");
+  rs.id = "e-rozl";
+  for (const [h, p] of [["equal", "Všem stejně"], ["random", "Náhodně"], ["manual", "Ručně podle vah"]]) {
+    const o = el("option", null, p); o.value = h; rs.append(o);
+  }
+  rs.value = ev.rozlozeni;
+  rs.addEventListener("change", () => { ev.rozlozeni = rs.value; postavEvoNastaveni(); });
+  rozl.append(rl, rs);
+  kam.append(rozl);
+
+  if (ev.rozlozeni === "manual") {
+    const mriz = el("div", "vahy");
+    for (const typ of ev.vybrani) {
+      const bot = seznamBotu().find((b) => b.type === typ);
+      if (!bot) continue;
+      const id = "e-vaha-" + typ.replace(/[^a-z0-9]/gi, "");
+      const l = el("label", null, bot.nazev);
+      l.setAttribute("for", id);
+      const i = el("input");
+      i.type = "number"; i.id = id; i.min = 0; i.max = 1000;
+      i.value = ev.vahy[typ] !== undefined ? ev.vahy[typ] : 10;
+      ev.vahy[typ] = Number(i.value);
+      i.addEventListener("input", () => { ev.vahy[typ] = Math.max(0, Number(i.value) || 0); });
+      mriz.append(l, i);
+    }
+    kam.append(mriz, el("div", "note", "Poměr, ne počty — přepočítá se na tisíc jedinců."));
+  }
+
+  const box = el("div", "slider");
+  const top = el("div", "top");
+  top.append(el("span", "field-label", "Mutace"));
+  const val = el("span", "val", ev.mutace.toFixed(1) + " %");
+  top.append(val);
+  const r = el("input");
+  r.type = "range"; r.min = 0; r.max = 100; r.step = 1; r.value = Math.round(ev.mutace * 10);
+  r.addEventListener("input", () => {
+    ev.mutace = parseInt(r.value, 10) / 10;
+    val.textContent = ev.mutace.toFixed(1) + " %";
+  });
+  box.append(top, r, el("div", "note", "Kolik procent jedinců každou generaci přeběhne k jiné strategii. Díky mutacím nikdo nevymře nadobro a i poražené strategie se můžou vrátit."));
+  kam.append(box);
+
+  obnovPocetDruhu();
+}
+
+async function spustEvoluci() {
+  const tlacitko = $("#e-run");
+  const cil = $("#e-result");
+  const ev = stav.evoluce;
+
+  tlacitko.disabled = true;
+  tlacitko.textContent = "počítám " + ev.generace + " generací…";
+
+  const telo = {
+    bots: ev.vybrani.map(botSpec),
+    settings: ev.nastaveni,
+    generations: ev.generace,
+    distribution: ev.rozlozeni,
+    mutation: ev.mutace
+  };
+  if (ev.rozlozeni === "manual") telo.weights = ev.vybrani.map((t) => ev.vahy[t] ?? 0);
+
+  try {
+    const data = await api("/simulate/evolution", { method: "POST", telo });
+    vykresliEvoluci(cil, data);
+    $("#status").dataset.state = "up";
+    $("#statusText").textContent = "backend běží";
+  } catch (chyba) {
+    vykresliChybu(cil, chyba);
+    overSpojeni();
+  } finally {
+    tlacitko.disabled = false;
+    tlacitko.textContent = "Spustit evoluci";
+    obnovPocetDruhu();
+  }
+}
+
+function vykresliEvoluci(cil, data) {
+  const jmena = data.names;
+  const historie = data.history;
+  const G = data.generations;
+  const CELKEM = data.total_population;
+
+  /* Index v `names` → údaje z `species` (to je seřazené podle konečné velikosti). */
+  const podleJmena = new Map(data.species.map((s) => [s.name, s]));
+
+  cil.innerHTML = "";
+  const hlava = el("div", "panel-head");
+  hlava.append(el("h2", null, "Vývoj populace"));
+  const prezilo = data.species.filter((s) => s.final > 0).length;
+  const genSlovo = G === 1 ? "generace" : (G >= 2 && G <= 4 ? "generace" : "generací");
+  hlava.append(el("span", "hint", G + " " + genSlovo + " · přežilo " + prezilo + " z " + jmena.length));
+  cil.append(hlava);
+
+  const stage = el("div", "stage");
+
+  /* ---- geometrie grafu ---- */
+  /* Souřadnice viewBoxu držíme blízko skutečné šířce panelu — jinak by se
+     texty v grafu zmenšily spolu s ním a nedaly by se přečíst. */
+  const W = 760, H = 344, ML = 42, MR = 122, MT = 14, MB = 32;
+  const px0 = ML, px1 = W - MR, py0 = MT, py1 = H - MB;
+  const X = (g) => px0 + (G === 0 ? 0 : (g / G) * (px1 - px0));
+  const Y = (p) => py1 - (p / CELKEM) * (py1 - py0);
+
+  const wrap = el("div", "chartwrap");
+  const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "chart", role: "img" });
+  svg.setAttribute("aria-label",
+    "Graf vývoje populace jednotlivých strategií během " + G + " generací. Konečné hodnoty jsou i v tabulce pod grafem.");
+
+  /* mřížka */
+  const grid = svgEl("g", { class: "grid" });
+  for (const hodnota of [0, 250, 500, 750, 1000]) {
+    const y = Y(hodnota);
+    grid.append(svgEl("line", { x1: px0, y1: y, x2: px1, y2: y }));
+    const t = svgEl("text", { x: px0 - 9, y: y + 3.5, "text-anchor": "end" });
+    t.textContent = hodnota;
+    grid.append(t);
+  }
+  svg.append(grid);
+  svg.append(svgEl("line", { class: "baseline", x1: px0, y1: py1, x2: px1, y2: py1 }));
+
+  /* osa generací */
+  const krokTicku = Math.max(1, Math.round(G / 4));
+  for (let g = 0; g <= G; g += krokTicku) {
+    const t = svgEl("text", { x: X(g), y: py1 + 18, "text-anchor": "middle" });
+    t.textContent = g;
+    svg.append(t);
+  }
+  const popisOsy = svgEl("text", { x: px1, y: py1 + 30, "text-anchor": "end" });
+  popisOsy.textContent = "generace";
+  svg.append(popisOsy);
+
+  /* ---- čáry ---- */
+  /* U tisíce generací nemá smysl kreslit tisíc bodů na čáru — prořídíme je,
+     ale hodnoty pod kurzorem se čtou z plné historie, takže se nic neztratí. */
+  const krok = Math.max(1, Math.ceil(historie.length / 400));
+  const indexy = [];
+  for (let i = 0; i < historie.length; i += krok) indexy.push(i);
+  if (indexy[indexy.length - 1] !== historie.length - 1) indexy.push(historie.length - 1);
+
+  jmena.forEach((jmeno, i) => {
+    const d = indexy.map((gi, k) => (k === 0 ? "M" : "L") + X(gi) + "," + Y(historie[gi][i])).join(" ");
+    svg.append(svgEl("path", { class: "serie", d, stroke: barvaSerie(i) }));
+
+    const s = podleJmena.get(jmeno);
+    if (s && s.extinct_at !== null && s.extinct_at !== undefined) {
+      svg.append(svgEl("circle", { cx: X(s.extinct_at), cy: Y(0), r: 3.5, fill: barvaSerie(i), class: "vymrel" }));
+    }
+  });
+
+  /* ---- přímé popisky u konců čar (nejsilnější čtyři) ---- */
+  const koncove = jmena
+    .map((jmeno, i) => ({ jmeno, i, hodnota: historie[historie.length - 1][i] }))
+    .filter((x) => x.hodnota > 0)
+    .sort((a, b) => b.hodnota - a.hodnota)
+    .slice(0, 4)
+    .sort((a, b) => a.hodnota - b.hodnota);
+
+  /* Popisky se nesmí překrýt — kdo je blíž než 17 bodů, posune se dolů. */
+  let posledniY = Infinity;
+  for (const k of [...koncove].reverse()) {
+    let y = Y(k.hodnota);
+    if (y < posledniY - 17) posledniY = y; else { y = posledniY + 17; posledniY = y; }
+    svg.append(svgEl("rect", { x: px1 + 8, y: y - 4.5, width: 9, height: 9, rx: 2, fill: barvaSerie(k.i) }));
+    const t = svgEl("text", { x: px1 + 22, y: y + 4, class: "lbl" });
+    t.textContent = k.jmeno.length > 14 ? k.jmeno.slice(0, 13) + "…" : k.jmeno;
+    svg.append(t);
+  }
+
+  /* ---- vrstva pro ukazovátko ---- */
+  const kriz = svgEl("line", { class: "crosshair", x1: 0, y1: py0, x2: 0, y2: py1, opacity: 0 });
+  svg.append(kriz);
+  const plocha = svgEl("rect", { x: px0, y: py0, width: px1 - px0, height: py1 - py0, fill: "transparent" });
+  svg.append(plocha);
+
+  wrap.append(svg);
+  const tip = el("div", "tip");
+  tip.hidden = true;
+  wrap.append(tip);
+
+  const ukazTip = (e) => {
+    const r = svg.getBoundingClientRect();
+    const sx = ((e.clientX - r.left) / r.width) * W;
+    let g = Math.round(((sx - px0) / (px1 - px0)) * G);
+    g = Math.max(0, Math.min(G, g));
+
+    kriz.setAttribute("x1", X(g));
+    kriz.setAttribute("x2", X(g));
+    kriz.setAttribute("opacity", 1);
+
+    const radky = jmena
+      .map((jmeno, i) => ({ jmeno, i, hodnota: historie[g][i] }))
+      .sort((a, b) => b.hodnota - a.hodnota);
+
+    tip.innerHTML = "";
+    tip.append(el("div", "tg", "generace " + g));
+    for (const rr of radky) {
+      const radek = el("div", "tr" + (rr.hodnota === 0 ? " pryc" : ""));
+      const dot = el("span", "swatch-dot");
+      dot.style.background = barvaSerie(rr.i);
+      if (rr.hodnota === 0) dot.style.opacity = ".4";
+      radek.append(dot, el("span", "nm", rr.jmeno), el("span", "vv", Math.round(rr.hodnota)));
+      tip.append(radek);
+    }
+    tip.hidden = false;
+
+    const vlevo = (X(g) / W) * r.width;
+    const sirka = tip.offsetWidth;
+    tip.style.left = Math.max(0, Math.min(r.width - sirka, vlevo + 16)) + "px";
+    tip.style.top = "8px";
+  };
+
+  plocha.addEventListener("mousemove", ukazTip);
+  plocha.addEventListener("mouseleave", () => { tip.hidden = true; kriz.setAttribute("opacity", 0); });
+
+  stage.append(wrap);
+
+  /* ---- legenda ---- */
+  const legenda = el("div", "legenda");
+  legenda.style.marginTop = "18px";
+  jmena.forEach((jmeno, i) => {
+    const s = podleJmena.get(jmeno);
+    const vymrel = s && s.final === 0;
+    const p = el("span", "pol" + (vymrel ? " pryc" : ""));
+    const dot = el("span", "swatch-dot");
+    dot.style.background = barvaSerie(i);
+    if (vymrel) dot.style.opacity = ".4";
+    p.append(dot, document.createTextNode(jmeno));
+    legenda.append(p);
+  });
+  stage.append(legenda);
+  cil.append(stage);
+
+  /* ---- tabulka ---- */
+  const wrapT = el("div", "tablewrap");
+  wrapT.style.borderRadius = "0";
+  wrapT.style.border = "0";
+  wrapT.style.borderTop = "1px solid " + "var(--line-soft)";
+  wrapT.style.boxShadow = "none";
+  const t = el("table");
+  t.innerHTML = "<thead><tr><th></th><th>Druh</th><th class='num'>Start</th><th class='num'>Konec</th><th class='num'>Podíl</th><th>Osud</th></tr></thead>";
+  const tb = el("tbody");
+  data.species.forEach((s) => {
+    const i = jmena.indexOf(s.name);
+    const tr = el("tr");
+    const tdB = el("td");
+    tdB.style.width = "26px";
+    const dot = el("span", "swatch-dot");
+    dot.style.background = barvaSerie(i);
+    dot.style.display = "inline-block";
+    tdB.append(dot);
+    tr.append(tdB, el("td", null, s.name),
+      el("td", "num", String(Math.round(s.start))),
+      el("td", "num", String(Math.round(s.final))),
+      el("td", "num", s.share.toFixed(1) + " %"),
+      el("td", null, s.extinct_at !== null && s.extinct_at !== undefined
+        ? "vymřel v generaci " + s.extinct_at
+        : "přežil"));
+    tb.append(tr);
+  });
+  t.append(tb);
+  wrapT.append(t);
+  cil.append(wrapT);
+}
+
+/* ============================================================
+   11. CHYBY A ZÁLOŽKY
+   ============================================================ */
+
+function vykresliChybu(cil, chyba) {
+  const nedosazitelny = chyba instanceof TypeError || /fetch|Failed|NetworkError|Load failed/i.test(chyba.message);
+  cil.innerHTML = "";
+  const box = el("div", "errorbox");
+
+  if (!nedosazitelny) {
+    box.append(el("p", "big", "Server požadavek odmítl."));
+    box.append(el("p", null, chyba.message));
+  } else if (bezimeLokalne()) {
+    box.append(el("p", "big", "Backend neodpovídá."));
+    const p = el("p");
+    p.innerHTML = "Spusť ho ve složce <code>backend/</code>:";
+    box.append(p, el("code", "mono", "source venv/bin/activate && uvicorn app.main:app --reload"));
+    box.append(el("p", null, "Až naběhne, klikni znovu na Spustit."));
+  } else {
+    box.append(el("p", "big", "Server neodpovídá."));
+    box.append(el("p", null, "Po delší nečinnosti se uspává a probuzení trvá asi minutu. "
+      + "Zkus to za chvíli znovu — jestli to nepomůže, je nejspíš mimo provoz."));
+  }
+
+  cil.append(box);
+}
+
+function prepniZalozku(idZalozky) {
+  for (const y of document.querySelectorAll(".tab")) {
+    const aktivni = y.id === idZalozky;
+    y.setAttribute("aria-selected", String(aktivni));
+    document.getElementById(y.getAttribute("aria-controls")).hidden = !aktivni;
+  }
+  /* Seznam botů se načítá až při otevření, ať zbytečně nechodíme do databáze. */
+  if (idZalozky === "tab-boti") nactiSeznamBotu();
+}
+
+function initZalozky() {
+  for (const z of document.querySelectorAll(".tab")) {
+    z.addEventListener("click", () => prepniZalozku(z.id));
+  }
+}
+
+/* ============================================================
+   12. START
+   ============================================================ */
+
+(async function start() {
+  initZalozky();
+  initDuel();
+  initTurnaj();
+  initEvoluce();
+  initBot();
+  initSeznamBotu();
+  obnovUzivatele();
+
+  $("#auth-submit").addEventListener("click", odesliAuth);
+  /* Kliknutí mimo dialog ho zavře (Escape funguje sám od sebe). */
+  $("#authModal").addEventListener("click", (e) => {
+    if (e.target === $("#authModal")) $("#authModal").close();
+  });
+  $("#api-base").value = VYCHOZI_API;
+  $("#footer-note").innerHTML = bezimeLokalne()
+    ? 'Backend servíruje i tuhle stránku — stačí <span class="mono">uvicorn app.main:app --reload</span> ve složce <span class="mono">backend/</span>.'
+    : "Iterované vězňovo dilema s mlhou války. Boti se skládají z nastavení, ne z kódu.";
+  $("#api-base").addEventListener("change", () => overSpojeni());
+
+  /* Stránka se nemá otevřít prázdná — když backend běží, rovnou
+     odehrajeme výchozí duel, ať je hned vidět, co aplikace dělá. */
+  /* Nasazená aplikace může být uspaná — dáme jí několik pokusů, než to
+     vzdáme. Lokálně nemá cenu čekat, tam buď backend běží, nebo ne. */
+  if (await overSpojeni(bezimeLokalne() ? 1 : 12)) {
+    spustDuel();
+  } else {
+    vykresliChybu($("#d-result"), new TypeError("fetch failed"));
+  }
+})();
+</script>
+</body>
+</html>

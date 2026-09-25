@@ -1,0 +1,26 @@
+# Blueprint pro Render. Když v Renderu zvolíš "New > Blueprint" a ukážeš na
+# tenhle repozitář, vytvoří se z něj služba i s nastavením — nemusíš nic
+# vyklikávat. Jedna služba stačí: FastAPI servíruje API i stránku.
+services:
+  - type: web
+    name: the-game-theory
+    runtime: python
+    plan: free
+    region: frankfurt          # nejblíž k Česku
+    rootDir: backend           # requirements.txt a balík app/ jsou tady
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health   # Render tímhle pozná, že aplikace naběhla
+    envVars:
+      # Verze Pythonu se bere ze souboru .python-version (je v kořeni
+      # repozitáře i v backend/), aby se tady nemusela psát konkrétní
+      # záplatová verze, která by časem přestala existovat.
+      - key: DATABASE_URL
+        sync: false            # doplníš ručně: connection string z Neonu
+      - key: SECRET_KEY
+        generateValue: true    # Render vygeneruje náhodný klíč sám
+      # Free instance má desetinu procesoru, takže tady platí přísnější strop
+      # na velikost jedné simulace než na notebooku. Bez něj by jeden nenasytný
+      # požadavek zpomalil hru všem ostatním.
+      - key: MAX_SIMULATION_ROUNDS
+        value: "1000000"

@@ -1,0 +1,19 @@
+# Virtuální prostředí a mezivýsledky Pythonu
+backend/venv/
+venv/
+__pycache__/
+*.pyc
+
+# Tajné údaje — NIKDY necommitovat.
+# Connection string k databázi a klíč na podepisování tokenů se na Renderu
+# nastavují jako proměnné prostředí, ne souborem.
+.env
+backend/.env
+
+# macOS a editory
+.DS_Store
+.vscode/
+.idea/
+
+# Výstupy z Claude Cowork
+Claude outputs/

@@ -1,0 +1,12 @@
+# Virtuální prostředí
+venv/
+__pycache__/
+*.pyc
+
+# Tajné údaje - NIKDY necommitovat
+.env
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
