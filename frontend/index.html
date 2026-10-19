@@ -937,7 +937,7 @@ body::before {
 
 /* ---------- formuláře ---------- */
 select, input[type="text"], input[type="number"] {
-  background: var(--white); border: 1.5px solid var(--line); border-radius: 12px; font-size: 15px;
+  background-color: var(--white); border: 1.5px solid var(--line); border-radius: 12px; font-size: 15px;
 }
 .field > label, .field-label { font-weight: 800; letter-spacing: .08em; }
 .seg { border: 1.5px solid var(--line); border-radius: 999px; background: var(--white); }
@@ -1281,6 +1281,126 @@ footer { color: var(--faint); }
   * { transition: none !important; animation: none !important; }
   .evo-line { stroke-dasharray: none; }
 }
+/* ============================================================
+   PRAVIDLOVÝ EDITOR BOTA
+   ============================================================ */
+.bot-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 980px) { .bot-layout { grid-template-columns: 1fr; } }
+.panel-foot { padding: 0 20px 18px; }
+
+.rb-top { display: grid; grid-template-columns: 1fr 1.25fr; gap: 16px; }
+@media (max-width: 640px) { .rb-top { grid-template-columns: 1fr; } }
+.rb-preset { display: flex; gap: 8px; }
+.rb-preset .btn { padding: 8px 14px; flex: none; }
+
+.rb-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 4px; }
+.rb-head h3 { margin: 0; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-size: 18px; font-weight: 600; }
+.rb-head span { font-size: 13px; color: var(--faint); }
+.rb-list { display: flex; flex-direction: column; gap: 14px; }
+.rb-empty { font-size: 14px; color: var(--muted); padding: 16px; border: 1.5px dashed var(--line); border-radius: 10px; text-align: center; }
+.rb-add { align-self: flex-start; }
+
+.rule {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rule.otherwise { background: var(--accent-2); border-style: dashed; }
+.rule-head { display: flex; align-items: center; gap: 10px; }
+.rule-no {
+  width: 26px; height: 26px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink);
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 14px;
+}
+.rule-title { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 16px; }
+.rule-sub { font-size: 13px; color: var(--faint); }
+.rule-tools { margin-left: auto; display: flex; gap: 4px; }
+.iconbtn {
+  appearance: none; font: inherit; font-size: 14px; line-height: 1;
+  width: 30px; height: 30px; flex: none;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel-2); color: var(--muted); cursor: pointer;
+}
+.iconbtn:hover:not(:disabled) { border-color: var(--accent); color: var(--ink); }
+.iconbtn:disabled { opacity: .35; cursor: default; }
+.iconbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.rule-when, .rule-then { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: start; }
+.kw {
+  font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); padding-top: 10px;
+}
+.conds { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cond { display: grid; grid-template-columns: minmax(0, 1.25fr) 96px minmax(0, 1fr) 30px; gap: 6px; align-items: center; }
+.cond select, .cond input, .then-body select, .then-body input { padding: 7px 10px; font-size: 13.5px; }
+.cond select { padding-right: 30px; }
+.cond .iconbtn { width: 30px; height: 32px; }
+.cond-help { grid-column: 1 / -1; font-size: 12px; color: var(--faint); line-height: 1.4; margin: -1px 0 2px 2px; }
+.cond-and { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding-left: 4px; }
+.cond-always { font-size: 14px; color: var(--muted); padding: 8px 0 2px; font-style: italic; }
+.cond-add { align-self: flex-start; font-size: 13px; padding: 2px 0; }
+.cond-num { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.cond-num input { min-width: 0; }
+.cond-num .unit { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.then-body { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.then-body select { width: auto; min-width: 230px; flex: 1 1 230px; }
+.then-body .cond-num { flex: 0 1 190px; }
+.then-body .cond-num input { width: 76px; }
+
+@media (max-width: 640px) {
+  .rule-when, .rule-then { grid-template-columns: 1fr; gap: 4px; }
+  .kw { padding-top: 0; }
+  .cond { grid-template-columns: 96px minmax(0, 1fr) 30px; }
+  .cond .cond-metric { grid-column: 1 / -1; }
+  .then-body select { min-width: 0; }
+}
+
+.mem { margin-left: 62px; font-size: 13px; }
+@media (max-width: 640px) { .mem { margin-left: 0; } }
+.mem summary { cursor: pointer; color: var(--muted); font-weight: 600; padding: 2px 0; }
+.mem summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.mem-sum { font-weight: 400; color: var(--accent); margin-left: 6px; }
+.rb-mem3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+@media (max-width: 520px) { .rb-mem3 { grid-template-columns: 1fr; } }
+.rb-mem3 select, .rb-mem3 input { padding: 7px 10px; font-size: 13.5px; }
+.rb-mem3 select { padding-right: 30px; }
+
+.rb-adv { border-top: 1px solid var(--line-soft); padding-top: 14px; }
+.rb-adv summary {
+  cursor: pointer; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 16px;
+}
+.rb-adv summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.rb-adv-body { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.rb-adv-body .note { font-size: 13px; color: var(--faint); line-height: 1.45; }
+
+ol.explain { margin: 0; padding: 0; list-style: none; counter-reset: krok; display: flex; flex-direction: column; gap: 10px; }
+ol.explain li { font-size: 14px; line-height: 1.5; color: var(--muted); padding-left: 30px; position: relative; }
+ol.explain li::before {
+  counter-increment: krok; content: counter(krok);
+  position: absolute; left: 0; top: 1px;
+  width: 21px; height: 21px; border-radius: 50%;
+  border: 1.5px solid var(--line); color: var(--faint);
+  display: grid; place-items: center; font-size: 11.5px; font-weight: 700;
+}
+ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
+#b-explain .warn {
+  font-size: 13px; line-height: 1.45; color: var(--defect);
+  border: 1.5px solid color-mix(in srgb, var(--defect) 40%, var(--line));
+  border-radius: 8px; padding: 8px 10px;
+}
+#b-explain .note { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
+
 </style>
 </head>
 <body>
@@ -1602,26 +1722,29 @@ footer { color: var(--faint); }
 
   <!-- ============ MŮJ BOT ============ -->
   <section id="p-bot" role="tabpanel" aria-labelledby="tab-bot" hidden>
-    <p class="mode-lead"><b>Customize your own bot.</b> Build custom behavior using priority rules. Save it to use in duels, tournaments and evolution &mdash; or publish it for others.</p>
-    <div class="split">
-
-      <aside>
-        <div class="panel">
-          <div class="panel-head">
-            <h2>Your strategy</h2>
-            <button class="btn btn-ghost" id="b-reset" style="padding:4px 10px;font-size:12px">Defaults</button>
-          </div>
-          <div class="panel-body" id="b-form"></div>
-        </div>
-      </aside>
+    <p class="mode-lead"><b>Customize your own bot.</b> Stack priority rules: your bot checks them from the top and follows the first one whose conditions all hold. Rules can look past the noise, wait out the fog and remember things for a few rounds. Save it to use in duels, tournaments and evolution &mdash; or publish it for others.</p>
+    <div class="bot-layout">
 
       <div>
         <div class="panel">
           <div class="panel-head">
-            <h2>How it decides</h2>
-            <span class="hint">in this order</span>
+            <h2>Your strategy</h2>
+            <button class="btn btn-ghost" id="b-reset" type="button" style="padding:4px 10px;font-size:12px">Start over</button>
           </div>
-          <div class="panel-body" id="b-explain" style="gap:14px"></div>
+          <div class="panel-body" id="b-form"></div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>How it decides</h2>
+            <span class="hint">in plain words</span>
+          </div>
+          <div class="panel-body" id="b-explain" style="gap:12px"></div>
+          <div class="panel-foot">
+            <button class="linkbtn" id="b-try" type="button">Try it in a duel &rarr;</button>
+          </div>
         </div>
 
         <div class="panel">
@@ -1632,17 +1755,7 @@ footer { color: var(--faint); }
           <div class="panel-body" id="b-save"></div>
         </div>
 
-        <div class="panel">
-          <div class="panel-head">
-            <h2>What is sent to the server</h2>
-            <span class="hint">no code — just values</span>
-          </div>
-          <div class="panel-body">
-            <pre class="jsonview" id="b-json"></pre>
-            <div class="note">The server plugs these values into one fixed, pre-written function. Nothing else can be run.</div>
-          </div>
-        </div>
-      </div>
+      </aside>
 
     </div>
   </section>
@@ -1707,18 +1820,7 @@ const BOTI = [
    kdokoli zeptat, takže by posuvník Mlha neměl vůbec žádný účinek. */
 const VYCHOZI_NASTAVENI = { kola: 10, neznama_kola: false, mlha: 0, delay: 1, zkresleni: 0 };
 
-const VYCHOZI_BOT = {
-  jmeno: "Custom Bot",
-  prvni_tah: "C",
-  zakladni_strategie: "tit_for_tat",
-  pravdepodobnost_c: 100,
-  tolerance_d: 1,
-  zrada_pri_pomeru: 100,
-  reakce_mlha: "zradit",
-  posledni_tah: "normal",
-  nikdy_neodpoustet: false,
-  chyba_pct: 0
-};
+/* Výchozí vlastní bot je předvolba Tit-for-Two-Tats — viz PRESETY v sekci 6. */
 
 /* Stav aplikace. Drží se v paměti — po obnovení stránky se vrátí výchozí
    a odhlásíš se. Trvalé přihlášení by chtělo token uložit do prohlížeče. */
@@ -1733,7 +1835,7 @@ const stav = {
     vahy: {},
     mutace: 0
   },
-  bot:    { ...VYCHOZI_BOT },
+  bot:    null,   /* naplní initBot() — pravidlový bot, viz sekce 6 */
   /* Metadata k ukládání bota do databáze. `id` je vyplněné, jen když
      upravuješ bota, který už v databázi je a patří tobě. */
   ulozeni: { id: null, popis: "", verejny: false },
@@ -1821,8 +1923,7 @@ function botSpec(hodnota) {
     return { type: config.type || "custom", name: b.name, config };
   }
   if (hodnota === "custom") {
-    const { jmeno, ...config } = stav.bot;
-    return { type: "custom", name: jmeno || "Custom Bot", config };
+    return { type: "custom", name: stav.bot.jmeno || "Custom Bot", config: konfiguraceV2(stav.bot) };
   }
   return { type: hodnota };
 }
@@ -2412,197 +2513,746 @@ function vykresliTurnaj(cil, data) {
 }
 
 /* ============================================================
-   6. ZÁLOŽKA MŮJ BOT
-   ============================================================ */
+   6. ZÁLOŽKA MŮJ BOT — pravidlový editor (schema_version 2)
+   ============================================================
+   Bot je jen seznam pravidel (podmínky + akce) a záložní akce. Server je
+   dosadí do jedné pevné funkce (backend/app/game/rules.py) — žádný kód.
 
-const POLE_BOTA = [
+   Katalog METRIKY musí odpovídat METRIKY v rules.py; rozsahy a povolené
+   hodnoty hlídá backend/tests/test_rules_frontend.py. */
+
+const SKUPINY_METRIK = [
+  ["recent", "Opponent — recent rounds"],
+  ["match", "Opponent — whole match"],
+  ["together", "Last round together"],
+  ["score", "Score (as far as your bot can see)"],
+  ["memory", "My memory"],
+  ["game", "The game"]
+];
+
+/* typ: "enum" (výběr), "count"/"num" (číslo), "rate" (podíl 0–1, v editoru v %) */
+const METRIKY = {
+  opp_last_move:                { sk: "recent", typ: "enum", popisek: "Opponent’s last move",
+                                  volby: [["C", "cooperated"], ["D", "defected"], ["?", "hidden by fog"]],
+                                  napoveda: "What reached your bot last round. Noise may have flipped it." },
+  opp_defections_last_5:        { sk: "recent", typ: "count", min: 0, max: 5, popisek: "Opponent defections in the last 5 rounds",
+                                  napoveda: "Hidden moves don’t count. A short window shrugs off one noisy flip." },
+  opp_defections_last_10:       { sk: "recent", typ: "count", min: 0, max: 10, popisek: "Opponent defections in the last 10 rounds",
+                                  napoveda: "Hidden moves don’t count." },
+  consecutive_opp_defections:   { sk: "recent", typ: "count", min: 0, max: 1000, popisek: "Opponent defections in a row",
+                                  napoveda: "Counted over moves your bot could see — fog is skipped, not a break." },
+  consecutive_opp_cooperations: { sk: "recent", typ: "count", min: 0, max: 1000, popisek: "Opponent cooperations in a row",
+                                  napoveda: "Counted over moves your bot could see — fog is skipped, not a break." },
+  fog_count_last_5:             { sk: "recent", typ: "count", min: 0, max: 5, popisek: "Hidden moves in the last 5 rounds",
+                                  napoveda: "How foggy it has been lately." },
+  opp_coop_rate_recent:         { sk: "match", typ: "rate", popisek: "Opponent cooperation rate, last 10 rounds",
+                                  napoveda: "Share of visible moves that were cooperation. Unknown until it has seen a move." },
+  opp_coop_rate_overall:        { sk: "match", typ: "rate", popisek: "Opponent cooperation rate, whole match",
+                                  napoveda: "Share of all visible moves that were cooperation. Unknown until it has seen a move." },
+  opp_defections_total:         { sk: "match", typ: "count", min: 0, max: 1000, popisek: "Opponent defections in total",
+                                  napoveda: "Every visible defection so far." },
+  visible_moves:                { sk: "match", typ: "count", min: 0, max: 1000, popisek: "Opponent moves seen so far",
+                                  napoveda: "Rounds where the opponent’s move was not hidden. Useful to wait for enough evidence." },
+  my_last_move:                 { sk: "together", typ: "enum", popisek: "My last move",
+                                  volby: [["C", "cooperate"], ["D", "defect"]],
+                                  napoveda: "What your bot actually played last round." },
+  last_outcome:                 { sk: "together", typ: "enum", popisek: "Last round (me / them)",
+                                  volby: [["CC", "both cooperated"], ["CD", "I cooperated, they defected"], ["DC", "I defected, they cooperated"],
+                                          ["DD", "both defected"], ["C?", "I cooperated, theirs hidden"], ["D?", "I defected, theirs hidden"]],
+                                  napoveda: "Both moves of the last round as your bot saw them." },
+  times_exploited:              { sk: "together", typ: "count", min: 0, max: 1000, popisek: "Times I was exploited",
+                                  napoveda: "Rounds where I cooperated and saw them defect." },
+  times_i_exploited:            { sk: "together", typ: "count", min: 0, max: 1000, popisek: "Times I exploited them",
+                                  napoveda: "Rounds where I defected and saw them cooperate." },
+  my_last_payoff:               { sk: "score", typ: "count", min: 0, max: 5, popisek: "My points last round",
+                                  napoveda: "0, 1, 3 or 5 — from what your bot saw. Unknown when their move was hidden." },
+  score_diff:                   { sk: "score", typ: "count", min: -5000, max: 5000, popisek: "My score minus theirs",
+                                  napoveda: "Counted from visible rounds only. Your bot never learns the true score — that would reveal hidden and flipped moves." },
+  my_avg_payoff:                { sk: "score", typ: "num", min: 0, max: 5, krok: 0.1, popisek: "My average points per round",
+                                  napoveda: "Over visible rounds. 3 = steady cooperation, 1 = mutual defection." },
+  bot_mode:                     { sk: "memory", typ: "enum", popisek: "My mode",
+                                  volby: [["DEFAULT", "Default"], ["COOP", "Cooperative"], ["PROBING", "Probing"], ["RETALIATING", "Retaliating"], ["GRUDGE", "Grudge"]],
+                                  napoveda: "A label your bot sets itself with “Also change memory”." },
+  trust_score:                  { sk: "memory", typ: "count", min: -10, max: 10, popisek: "My trust score",
+                                  napoveda: "A number from −10 to 10 that your rules raise or lower." },
+  timer:                        { sk: "memory", typ: "count", min: 0, max: 20, popisek: "My timer",
+                                  napoveda: "Counts down by 1 at the start of every round. Set it to remember something for a few rounds." },
+  round_number:                 { sk: "game", typ: "count", min: 1, max: 1000, popisek: "Round number",
+                                  napoveda: "1 = the first round." },
+  rounds_left:                  { sk: "game", typ: "count", min: 0, max: 1000, popisek: "Rounds left after this one",
+                                  napoveda: "0 = this is the last round. Unknown (never true) when the number of rounds is hidden." },
+  env_noise:                    { sk: "game", typ: "rate", popisek: "Noise in this game",
+                                  napoveda: "The noise setting of the match." },
+  env_fog:                      { sk: "game", typ: "rate", popisek: "Fog in this game",
+                                  napoveda: "The fog setting of the match." }
+};
+
+const OPERATORY_CISLA = [["==", "="], ["!=", "≠"], ["<", "<"], ["<=", "≤"], [">", ">"], [">=", "≥"]];
+const OPERATORY_VYCTU = [["==", "is"], ["!=", "is not"]];
+
+const AKCE_UI = [
+  ["C", "Cooperate"],
+  ["D", "Defect"],
+  ["P", "Cooperate with a probability…"],
+  ["REPEAT_MY_LAST", "Repeat my own last move"],
+  ["MIRROR_OPP_LAST_VISIBLE", "Copy their last visible move"]
+];
+
+const REZIMY_BOTA = METRIKY.bot_mode.volby;
+const MAX_PRAVIDEL = 20;
+const MAX_PODMINEK = 6;
+
+/* ---------- malé stavební kousky konfigurace ---------- */
+
+const pod = (metric, op, value) => ({ metric, op, value });
+const novaAkce = (type, cooperate_prob, pamet = {}) => ({
+  type, cooperate_prob: type === "PROBABILITY" ? cooperate_prob : undefined,
+  set_mode: null, add_trust: 0, set_timer: null, ...pamet
+});
+const SPOLUPRACUJ = (pamet) => novaAkce("PROBABILITY", 1, pamet);
+const ZRAD = (pamet) => novaAkce("PROBABILITY", 0, pamet);
+const S_PST = (p, pamet) => novaAkce("PROBABILITY", p, pamet);
+const OPAKUJ = (pamet) => novaAkce("REPEAT_MY_LAST", undefined, pamet);
+const ZRCADLI = (pamet) => novaAkce("MIRROR_OPP_LAST_VISIBLE", undefined, pamet);
+const pravidlo = (podminky, a) => ({ conditions: podminky, action: a });
+
+const VYCHOZI_PAMET = { bot_mode: "DEFAULT", trust_score: 0, timer: 0 };
+
+const novyBot = (jmeno, pravidla, zaloha, extra = {}) => ({
+  jmeno,
+  schema_version: 2,
+  initial_state: { ...VYCHOZI_PAMET, ...(extra.initial_state || {}) },
+  rules: pravidla,
+  fallback_action: zaloha,
+  error_rate: extra.error_rate || 0
+});
+
+/* Hotové strategie jako výchozí bod. Jsou to jen hodnoty — stejné, jaké by
+   uživatel naklikal sám. */
+const PRESETY = [
   {
-    klic: "jmeno", typ: "text", popisek: "Name",
-    napoveda: "How it will be called in results."
+    id: "t2t", nazev: "Tit-for-Two-Tats (noise-proof)",
+    popis: "Forgives a single defection — one noisy flip won’t start a feud. In fog it keeps doing what it did.",
+    bot: () => novyBot("Tit-for-Two-Tats", [
+      pravidlo([pod("opp_last_move", "==", "?")], OPAKUJ()),
+      pravidlo([pod("consecutive_opp_defections", ">=", 2)], ZRAD())
+    ], SPOLUPRACUJ())
   },
   {
-    klic: "prvni_tah", typ: "select", popisek: "First move in match",
-    volby: [["C", "Cooperate"], ["D", "Defect"], ["random", "Random (50/50)"]],
-    napoveda: "What it plays before it has seen anything."
+    id: "tft", nazev: "Tit-for-Tat",
+    popis: "Copies the opponent’s last visible move. Starts by cooperating.",
+    bot: () => novyBot("My Tit-for-Tat", [], ZRCADLI())
   },
   {
-    klic: "zakladni_strategie", typ: "select", popisek: "Base strategy",
-    volby: [["tit_for_tat", "Tit-for-Tat"], ["pavlov", "Pavlov (Win = Repeat, Lose = Switch)"], ["opak", "Do the exact opposite"], ["pravdepodobnost", "Roll dice (Probability)"]],
-    napoveda: "How it decides when none of the rules below applies."
+    id: "pavlov", nazev: "Pavlov (win-stay, lose-shift)",
+    popis: "Keeps its move after a good round, switches after a bad one.",
+    bot: () => novyBot("My Pavlov", [
+      pravidlo([pod("last_outcome", "==", "CD")], ZRAD()),
+      pravidlo([pod("last_outcome", "==", "DD")], SPOLUPRACUJ())
+    ], OPAKUJ())
   },
   {
-    klic: "pravdepodobnost_c", typ: "range", popisek: "Probability of cooperation", jednotka: "%",
-    napoveda: "Only used with the “Roll dice (Probability)” base strategy."
+    id: "grudger", nazev: "Grudger with memory",
+    popis: "Switches to Grudge mode after the first visible defection and never leaves it.",
+    bot: () => novyBot("My Grudger", [
+      pravidlo([pod("bot_mode", "==", "GRUDGE")], ZRAD()),
+      pravidlo([pod("opp_last_move", "==", "D")], ZRAD({ set_mode: "GRUDGE" }))
+    ], SPOLUPRACUJ(), { initial_state: { bot_mode: "COOP" } })
   },
   {
-    klic: "tolerance_d", typ: "number", popisek: "Tolerance", min: 1, max: 20,
-    napoveda: "Forgive N consecutive defects before retaliating. It strikes back at N + 1."
+    id: "avenger", nazev: "Cautious avenger",
+    popis: "Trusts by default. When it is falling behind and sees two defections in five rounds, it punishes for a few rounds, then gives peace a chance.",
+    bot: () => novyBot("Cautious Avenger", [
+      pravidlo([pod("timer", ">", 0)], ZRAD()),
+      pravidlo([pod("opp_last_move", "==", "?")], OPAKUJ()),
+      pravidlo([pod("opp_defections_last_5", ">=", 2), pod("score_diff", "<", 0)],
+        S_PST(0.15, { set_mode: "RETALIATING", add_trust: -2, set_timer: 3 })),
+      pravidlo([pod("trust_score", "<=", -6)], ZRAD())
+    ], SPOLUPRACUJ({ add_trust: 1 }), { initial_state: { bot_mode: "COOP" } })
   },
   {
-    klic: "zrada_pri_pomeru", typ: "range", popisek: "Greed limit", jednotka: "%",
-    napoveda: "Always defect if the opponent’s defect ratio is at least X %. Checked from the fifth visible move on; 100 % practically switches this rule off."
-  },
-  {
-    klic: "reakce_mlha", typ: "select", popisek: "In fog (unknown move)",
-    volby: [["zradit", "Defect (caution)"], ["spolupracovat", "Cooperate (trust)"], ["random", "Random (50/50)"], ["opakovat_sebe", "Repeat your own last move"]],
-    napoveda: "What it does when it sees a question mark instead of a move."
-  },
-  {
-    klic: "posledni_tah", typ: "select", popisek: "In the last round",
-    volby: [["normal", "Keep normal logic"], ["vzdy_d", "Always defect"], ["vzdy_c", "Always cooperate"]],
-    napoveda: "Only works when the number of rounds is known. Ignored when it is hidden."
-  },
-  {
-    klic: "nikdy_neodpoustet", typ: "check", popisek: "Never forgive",
-    napoveda: "Grudger mode — one defect triggers eternal defection. Overrides everything else."
-  },
-  {
-    klic: "chyba_pct", typ: "range", popisek: "Chybovost", jednotka: "%",
-    napoveda: "Execution error chance (trembling hand) — it plays the opposite of what it meant to."
+    id: "blank", nazev: "Blank — just cooperate",
+    popis: "No rules yet. Build your own from scratch.",
+    bot: () => novyBot("Custom Bot", [], SPOLUPRACUJ())
   }
 ];
 
+const vychoziBot = () => ({ ...PRESETY[0].bot(), jmeno: "Custom Bot" });
+
+/* ---------- převod starého (klasického) bota na pravidla ----------
+   Boti uložení dřív mají parametry (prvni_tah, tolerance_d, …). Server je
+   hraje dál beze změny; editor je při otevření převede na pravidla se
+   stejným chováním. Pořadí odpovídá custom_player v app/game/bots.py. */
+function zKlasickehoBota(c, jmeno) {
+  const n = {
+    prvni_tah: "C", zakladni_strategie: "tit_for_tat", pravdepodobnost_c: 100, tolerance_d: 1,
+    zrada_pri_pomeru: 100, reakce_mlha: "zradit", posledni_tah: "normal", nikdy_neodpoustet: false, chyba_pct: 0,
+    ...c
+  };
+  const tah = (t) => (t === "C" ? SPOLUPRACUJ() : t === "D" ? ZRAD() : S_PST(0.5));
+  const r = [];
+
+  if (n.posledni_tah !== "normal") r.push(pravidlo([pod("rounds_left", "==", 0)], n.posledni_tah === "vzdy_c" ? SPOLUPRACUJ() : ZRAD()));
+  if (n.nikdy_neodpoustet) r.push(pravidlo([pod("opp_defections_total", ">=", 1)], ZRAD()));
+  r.push(pravidlo([pod("round_number", "==", 1)], tah(n.prvni_tah)));
+  /* Pravidlo poměru zrad: při 100 % ho stejně pokryje tolerance, pokud
+     nepovoluje víc než čtyři zrady v řadě. */
+  if (n.zrada_pri_pomeru < 100 || n.tolerance_d + 1 > 5) {
+    r.push(pravidlo([pod("visible_moves", ">=", 5), pod("opp_coop_rate_overall", "<=", Math.round((1 - n.zrada_pri_pomeru / 100) * 1e6) / 1e6)], ZRAD()));
+  }
+  r.push(pravidlo([pod("consecutive_opp_defections", ">=", Math.min(1000, n.tolerance_d + 1))], ZRAD()));
+  r.push(pravidlo([pod("opp_last_move", "==", "?")],
+    ({ zradit: ZRAD(), spolupracovat: SPOLUPRACUJ(), random: S_PST(0.5), opakovat_sebe: OPAKUJ() })[n.reakce_mlha]));
+
+  let zaloha;
+  if (n.zakladni_strategie === "pavlov") {
+    r.push(pravidlo([pod("my_last_move", "==", "C"), pod("opp_last_move", "==", "D")], ZRAD()));
+    r.push(pravidlo([pod("my_last_move", "==", "D"), pod("opp_last_move", "==", "D")], SPOLUPRACUJ()));
+    zaloha = OPAKUJ();
+  } else if (n.zakladni_strategie === "opak") {
+    r.push(pravidlo([pod("opp_last_move", "==", "C")], ZRAD()));
+    zaloha = SPOLUPRACUJ();
+  } else if (n.zakladni_strategie === "pravdepodobnost") {
+    zaloha = S_PST(n.pravdepodobnost_c / 100);
+  } else {
+    zaloha = ZRCADLI();
+  }
+  return novyBot(jmeno || n.jmeno || "Custom Bot", r, zaloha, { error_rate: n.chyba_pct / 100 });
+}
+
+/* Čistá konfigurace pro server: bez jména z formuláře, bez prázdných polí. */
+function cistaAkce(a) {
+  const v = { type: a.type };
+  if (a.type === "PROBABILITY") v.cooperate_prob = a.cooperate_prob;
+  v.set_mode = a.set_mode || null;
+  v.add_trust = a.add_trust || 0;
+  v.set_timer = a.set_timer === null || a.set_timer === undefined || a.set_timer === "" ? null : a.set_timer;
+  return v;
+}
+
+function konfiguraceV2(b) {
+  return {
+    schema_version: 2,
+    name: b.jmeno || "Custom Bot",
+    initial_state: { ...b.initial_state },
+    rules: b.rules.map((r) => ({
+      conditions: r.conditions.map((c) => ({ metric: c.metric, op: c.op, value: c.value })),
+      action: cistaAkce(r.action)
+    })),
+    fallback_action: cistaAkce(b.fallback_action),
+    error_rate: b.error_rate
+  };
+}
+
+/* ---------- slovní popis ---------- */
+
+const procenta = (x) => (Math.round(x * 1000) / 10).toLocaleString("en-US") + " %";
+const znamenko = (n) => (n > 0 ? "+" + n : String(n).replace("-", "−"));
+
+function hodnotaSlovy(metrika, hodnota) {
+  const m = METRIKY[metrika];
+  if (m.typ === "enum") return (m.volby.find(([v]) => v === hodnota) || [, hodnota])[1];
+  if (m.typ === "rate") return procenta(hodnota);
+  return String(hodnota).replace("-", "−");
+}
+
+function podminkaSlovy(c) {
+  const m = METRIKY[c.metric];
+  if (m.typ === "enum") return m.popisek.toLowerCase() + (c.op === "==" ? " is " : " is not ") + "“" + hodnotaSlovy(c.metric, c.value) + "”";
+  const op = OPERATORY_CISLA.find(([o]) => o === c.op)[1];
+  return m.popisek.toLowerCase() + " " + op + " " + hodnotaSlovy(c.metric, c.value);
+}
+
+function akceSlovy(a) {
+  let t;
+  if (a.type === "PROBABILITY") {
+    t = a.cooperate_prob >= 1 ? "cooperate" : a.cooperate_prob <= 0 ? "defect" : "cooperate with a " + procenta(a.cooperate_prob) + " chance";
+  } else if (a.type === "REPEAT_MY_LAST") {
+    t = "repeat its own last move";
+  } else {
+    t = "copy the opponent’s last visible move";
+  }
+  const pamet = pametSlovy(a);
+  return pamet ? t + ", and " + pamet : t;
+}
+
+function pametSlovy(a) {
+  const kusy = [];
+  if (a.set_mode) kusy.push("switch to " + hodnotaSlovy("bot_mode", a.set_mode) + " mode");
+  if (a.add_trust) kusy.push("change trust by " + znamenko(a.add_trust));
+  if (a.set_timer !== null && a.set_timer !== undefined && a.set_timer !== "") kusy.push("set the timer to " + a.set_timer);
+  return kusy.join(", ");
+}
+
+/* ---------- editor ---------- */
+
 function initBot() {
+  if (!stav.bot) stav.bot = vychoziBot();
   postavFormularBota();
   $("#b-reset").addEventListener("click", () => {
-    stav.bot = { ...VYCHOZI_BOT };
+    stav.bot = vychoziBot();
     postavFormularBota();
+  });
+  $("#b-try").addEventListener("click", () => {
+    const s = $("#d-bot1");
+    s.value = "custom";
+    s.dispatchEvent(new Event("change"));
+    location.hash = "#duel";
   });
 }
 
-function postavFormularBota() {
+/* Překreslí celý formulář (po změně struktury — přidání pravidla, jiné
+   metriky…). Fokus se vrátí na prvek se stejným data-f. */
+function postavFormularBota(fokus) {
   const kam = $("#b-form");
+  const b = stav.bot;
   kam.innerHTML = "";
 
-  for (const p of POLE_BOTA) {
-    if (p.typ === "check") {
-      const l = el("label", "check");
-      l.innerHTML =
-        '<input type="checkbox"' + (stav.bot[p.klic] ? " checked" : "") + '>' +
-        '<span class="txt"><b>' + esc(p.popisek) + '</b><span>' + esc(p.napoveda) + "</span></span>";
-      l.querySelector("input").addEventListener("change", (e) => {
-        stav.bot[p.klic] = e.target.checked; obnovBotVystup();
-      });
-      kam.append(l);
-      continue;
-    }
+  /* Jméno + předvolby */
+  const horni = el("div", "rb-top");
+  const poleJmeno = el("div", "field");
+  poleJmeno.innerHTML = '<label for="b-jmeno">Name</label>';
+  const jmeno = el("input");
+  jmeno.type = "text"; jmeno.id = "b-jmeno"; jmeno.maxLength = 100; jmeno.value = b.jmeno;
+  jmeno.addEventListener("input", () => { b.jmeno = jmeno.value; obnovBotVystup(); });
+  poleJmeno.append(jmeno, el("div", "note", "How it will be called in results."));
 
-    if (p.typ === "range") {
-      const box = el("div", "slider");
-      const top = el("div", "top");
-      top.append(el("span", "field-label", p.popisek));
-      const val = el("span", "val", stav.bot[p.klic] + " " + p.jednotka);
-      top.append(val);
-      const r = el("input");
-      r.type = "range"; r.min = 0; r.max = 100; r.step = 1; r.value = stav.bot[p.klic];
-      r.addEventListener("input", () => {
-        stav.bot[p.klic] = parseInt(r.value, 10);
-        val.textContent = stav.bot[p.klic] + " " + p.jednotka;
-        obnovBotVystup();
-      });
-      box.append(top, r, el("div", "note", p.napoveda));
-      kam.append(box);
-      continue;
-    }
-
-    const pole = el("div", "field");
-    const id = "b-" + p.klic;
-    const lab = el("label", null, p.popisek);
-    lab.setAttribute("for", id);
-    pole.append(lab);
-
-    let vstup;
-    if (p.typ === "select") {
-      vstup = el("select");
-      for (const [hodnota, popisek] of p.volby) {
-        const o = el("option", null, popisek);
-        o.value = hodnota;
-        vstup.append(o);
-      }
-      vstup.value = stav.bot[p.klic];
-      vstup.addEventListener("change", () => { stav.bot[p.klic] = vstup.value; obnovBotVystup(); });
-    } else if (p.typ === "number") {
-      vstup = el("input");
-      vstup.type = "number"; vstup.min = p.min; vstup.max = p.max;
-      vstup.value = stav.bot[p.klic];
-      vstup.addEventListener("input", () => {
-        stav.bot[p.klic] = Math.max(p.min, Math.min(p.max, parseInt(vstup.value, 10) || p.min));
-        obnovBotVystup();
-      });
-    } else {
-      vstup = el("input");
-      vstup.type = "text";
-      vstup.value = stav.bot[p.klic];
-      vstup.addEventListener("input", () => { stav.bot[p.klic] = vstup.value; obnovBotVystup(); });
-    }
-    vstup.id = id;
-    pole.append(vstup, el("div", "note", p.napoveda));
-    kam.append(pole);
+  const polePreset = el("div", "field");
+  polePreset.innerHTML = '<label for="b-preset">Start from a preset</label>';
+  const radek = el("div", "rb-preset");
+  const vyber = el("select");
+  vyber.id = "b-preset";
+  vyber.append(el("option", null, "Choose a strategy…"));
+  vyber.options[0].value = "";
+  for (const p of PRESETY) {
+    const o = el("option", null, p.nazev);
+    o.value = p.id;
+    vyber.append(o);
   }
+  const nacist = el("button", "btn btn-ghost", "Load");
+  nacist.type = "button";
+  nacist.disabled = true;
+  const popisPresetu = el("div", "note", "Loading a preset replaces your rules.");
+  vyber.addEventListener("change", () => {
+    const p = PRESETY.find((x) => x.id === vyber.value);
+    nacist.disabled = !p;
+    popisPresetu.textContent = p ? p.popis + " Loading it replaces your rules." : "Loading a preset replaces your rules.";
+  });
+  nacist.addEventListener("click", () => {
+    const p = PRESETY.find((x) => x.id === vyber.value);
+    if (!p) return;
+    const jmenoTed = b.jmeno;
+    stav.bot = p.bot();
+    /* Vlastní jméno si nech, výchozí „Custom Bot“ nahraď jménem předvolby. */
+    if (jmenoTed && jmenoTed !== "Custom Bot") stav.bot.jmeno = jmenoTed;
+    postavFormularBota("b-preset");
+  });
+  radek.append(vyber, nacist);
+  polePreset.append(radek, popisPresetu);
+  horni.append(poleJmeno, polePreset);
+  kam.append(horni);
+
+  /* Pravidla */
+  const nadpis = el("div", "rb-head");
+  nadpis.innerHTML = "<h3>Rules</h3><span>checked from the top &mdash; the first rule whose conditions all hold decides the move</span>";
+  kam.append(nadpis);
+
+  const seznam = el("div", "rb-list");
+  if (!b.rules.length) {
+    seznam.append(el("div", "rb-empty", "No rules yet — your bot always does what “Otherwise” says. Add a rule or load a preset."));
+  }
+  b.rules.forEach((r, i) => seznam.append(kartaPravidla(r, i)));
+  kam.append(seznam);
+
+  const pridat = el("button", "btn btn-ghost rb-add", "+ Add a rule");
+  pridat.type = "button";
+  pridat.dataset.f = "add-rule";
+  pridat.disabled = b.rules.length >= MAX_PRAVIDEL;
+  if (pridat.disabled) pridat.textContent = "A bot can have at most " + MAX_PRAVIDEL + " rules";
+  pridat.addEventListener("click", () => {
+    b.rules.push(pravidlo([pod("opp_last_move", "==", "D")], ZRAD()));
+    postavFormularBota("r" + (b.rules.length - 1) + "-c0-metric");
+  });
+  kam.append(pridat);
+
+  /* Jinak */
+  const jinak = el("div", "rule otherwise");
+  const hl = el("div", "rule-head");
+  hl.innerHTML = '<span class="rule-no">✱</span><span class="rule-title">Otherwise</span><span class="rule-sub">when no rule matches</span>';
+  jinak.append(hl, radekAkce(b.fallback_action, "fb"), blokPameti(b.fallback_action, "fb"));
+  kam.append(jinak);
+
+  /* Pokročilé */
+  const pokrocile = el("details", "rb-adv");
+  const zmeneno = b.error_rate > 0 || b.initial_state.bot_mode !== "DEFAULT" || b.initial_state.trust_score !== 0 || b.initial_state.timer !== 0;
+  pokrocile.open = zmeneno;
+  pokrocile.innerHTML = "<summary>Starting memory and mistakes</summary>";
+  const vnitrek = el("div", "rb-adv-body");
+  vnitrek.append(el("div", "note", "Memory is a small notebook your bot carries through one match: a mode, a trust score and a countdown timer. It starts fresh every match."));
+  const trojice = el("div", "rb-mem3");
+  trojice.append(
+    poleRezimu("Mode at the start", b.initial_state.bot_mode, false, "init-mode", (v) => { b.initial_state.bot_mode = v; }),
+    poleCisla("Trust at the start", b.initial_state.trust_score, -10, 10, 1, "init-trust", (v) => { b.initial_state.trust_score = v; }),
+    poleCisla("Timer at the start", b.initial_state.timer, 0, 20, 1, "init-timer", (v) => { b.initial_state.timer = v; })
+  );
+  vnitrek.append(trojice);
+
+  const chyba = el("div", "slider");
+  const top = el("div", "top");
+  top.append(el("span", "field-label", "Mistake chance"));
+  const val = el("span", "val", procenta(b.error_rate));
+  top.append(val);
+  const rozsah = el("input");
+  rozsah.type = "range"; rozsah.min = 0; rozsah.max = 50; rozsah.step = 1;
+  rozsah.value = Math.round(b.error_rate * 100);
+  rozsah.dataset.f = "error";
+  rozsah.setAttribute("aria-label", "Mistake chance");
+  rozsah.addEventListener("input", () => {
+    b.error_rate = parseInt(rozsah.value, 10) / 100;
+    val.textContent = procenta(b.error_rate);
+    obnovBotVystup();
+  });
+  chyba.append(top, rozsah, el("div", "note", "A trembling hand: after deciding, it plays the opposite with this chance."));
+  vnitrek.append(chyba);
+  pokrocile.append(vnitrek);
+  kam.append(pokrocile);
 
   obnovBotVystup();
+
+  if (fokus) {
+    const cil = kam.querySelector('[data-f="' + fokus + '"]') || $("#" + fokus);
+    if (cil) cil.focus();
+  }
 }
 
-/* Slovní popis pořadí, ve kterém se pravidla vyhodnocují.
-   Odpovídá funkci custom_player v app/game/bots.py. */
+function kartaPravidla(r, i) {
+  const b = stav.bot;
+  const karta = el("div", "rule");
+
+  const hlava = el("div", "rule-head");
+  hlava.innerHTML = '<span class="rule-no">' + (i + 1) + '</span><span class="rule-title">Rule ' + (i + 1) + "</span>";
+  const nastroje = el("span", "rule-tools");
+  const nastroj = (znak, popis, f, zakazano, akce_) => {
+    const t = el("button", "iconbtn", znak);
+    t.type = "button"; t.title = popis; t.setAttribute("aria-label", popis + " (rule " + (i + 1) + ")");
+    t.dataset.f = "r" + i + "-" + f;
+    t.disabled = zakazano;
+    t.addEventListener("click", akce_);
+    nastroje.append(t);
+  };
+  nastroj("↑", "Move up", "up", i === 0, () => {
+    [b.rules[i - 1], b.rules[i]] = [b.rules[i], b.rules[i - 1]];
+    postavFormularBota("r" + (i - 1) + "-up");
+  });
+  nastroj("↓", "Move down", "down", i === b.rules.length - 1, () => {
+    [b.rules[i + 1], b.rules[i]] = [b.rules[i], b.rules[i + 1]];
+    postavFormularBota("r" + (i + 1) + "-down");
+  });
+  nastroj("⧉", "Duplicate", "dup", b.rules.length >= MAX_PRAVIDEL, () => {
+    b.rules.splice(i + 1, 0, JSON.parse(JSON.stringify(r)));
+    postavFormularBota("r" + (i + 1) + "-dup");
+  });
+  nastroj("✕", "Delete", "del", false, () => {
+    b.rules.splice(i, 1);
+    postavFormularBota(b.rules.length ? "r" + Math.min(i, b.rules.length - 1) + "-del" : "add-rule");
+  });
+  hlava.append(nastroje);
+  karta.append(hlava);
+
+  const kdyz = el("div", "rule-when");
+  kdyz.append(el("span", "kw", "When"));
+  const podminky = el("div", "conds");
+  if (!r.conditions.length) podminky.append(el("div", "cond-always", "always (no conditions)"));
+  r.conditions.forEach((c, j) => {
+    if (j > 0) podminky.append(el("div", "cond-and", "and"));
+    podminky.append(radekPodminky(r, c, i, j));
+  });
+  const dalsi = el("button", "linkbtn cond-add", r.conditions.length ? "+ and another condition" : "+ add a condition");
+  dalsi.type = "button";
+  dalsi.dataset.f = "r" + i + "-addc";
+  dalsi.hidden = r.conditions.length >= MAX_PODMINEK;
+  dalsi.addEventListener("click", () => {
+    r.conditions.push(pod("opp_defections_last_5", ">=", 2));
+    postavFormularBota("r" + i + "-c" + (r.conditions.length - 1) + "-metric");
+  });
+  podminky.append(dalsi);
+  kdyz.append(podminky);
+  karta.append(kdyz);
+
+  karta.append(radekAkce(r.action, "r" + i), blokPameti(r.action, "r" + i));
+  return karta;
+}
+
+function radekPodminky(r, c, i, j) {
+  const radek = el("div", "cond");
+  const f = "r" + i + "-c" + j;
+  const m = METRIKY[c.metric];
+
+  const metrika = el("select", "cond-metric");
+  metrika.dataset.f = f + "-metric";
+  metrika.setAttribute("aria-label", "Rule " + (i + 1) + ", condition " + (j + 1) + ": what to check");
+  for (const [sk, nazev] of SKUPINY_METRIK) {
+    const g = el("optgroup");
+    g.label = nazev;
+    for (const [klic, md] of Object.entries(METRIKY)) {
+      if (md.sk !== sk) continue;
+      const o = el("option", null, md.popisek);
+      o.value = klic;
+      g.append(o);
+    }
+    metrika.append(g);
+  }
+  metrika.value = c.metric;
+  metrika.addEventListener("change", () => {
+    const nova = METRIKY[metrika.value];
+    c.metric = metrika.value;
+    if (nova.typ === "enum") {
+      if (!["==", "!="].includes(c.op)) c.op = "==";
+      c.value = nova.volby[0][0];
+    } else {
+      if (!OPERATORY_CISLA.some(([o]) => o === c.op)) c.op = ">=";
+      c.value = nova.typ === "rate" ? 0.5 : Math.max(nova.min, Math.min(nova.max, typeof c.value === "number" ? Math.round(c.value) : nova.min));
+    }
+    postavFormularBota(f + "-metric");
+  });
+
+  const op = el("select", "cond-op");
+  op.dataset.f = f + "-op";
+  op.setAttribute("aria-label", "Rule " + (i + 1) + ", condition " + (j + 1) + ": comparison");
+  for (const [v, t] of (m.typ === "enum" ? OPERATORY_VYCTU : OPERATORY_CISLA)) {
+    const o = el("option", null, t);
+    o.value = v;
+    op.append(o);
+  }
+  op.value = c.op;
+  op.addEventListener("change", () => { c.op = op.value; obnovBotVystup(); });
+
+  let hodnota;
+  if (m.typ === "enum") {
+    hodnota = el("select", "cond-val");
+    for (const [v, t] of m.volby) {
+      const o = el("option", null, t);
+      o.value = v;
+      hodnota.append(o);
+    }
+    hodnota.value = c.value;
+    hodnota.addEventListener("change", () => { c.value = hodnota.value; obnovBotVystup(); });
+  } else {
+    hodnota = el("span", "cond-num" + (m.typ === "rate" ? " pct" : ""));
+    const vstup = el("input");
+    vstup.type = "number";
+    const [min, max, krok] = m.typ === "rate" ? [0, 100, 1] : [m.min, m.max, m.krok || 1];
+    vstup.min = min; vstup.max = max; vstup.step = krok;
+    vstup.value = m.typ === "rate" ? Math.round(c.value * 1000) / 10 : c.value;
+    vstup.dataset.f = f + "-val";
+    vstup.setAttribute("aria-label", "Rule " + (i + 1) + ", condition " + (j + 1) + ": value");
+    vstup.addEventListener("input", () => {
+      let v = parseFloat(vstup.value);
+      if (!Number.isFinite(v)) return;
+      v = Math.max(min, Math.min(max, v));
+      if (krok >= 1) v = Math.round(v);
+      else v = Math.round(v / krok) * krok;
+      c.value = m.typ === "rate" ? Math.round(v * 10) / 1000 : Math.round(v * 1000) / 1000;
+      obnovBotVystup();
+    });
+    vstup.addEventListener("change", () => {
+      vstup.value = m.typ === "rate" ? Math.round(c.value * 1000) / 10 : c.value;
+    });
+    hodnota.append(vstup);
+    if (m.typ === "rate") hodnota.append(el("span", "unit", "%"));
+  }
+  if (m.typ === "enum") {
+    hodnota.dataset.f = f + "-val";
+    hodnota.setAttribute("aria-label", "Rule " + (i + 1) + ", condition " + (j + 1) + ": value");
+  }
+
+  const pryc = el("button", "iconbtn", "✕");
+  pryc.type = "button";
+  pryc.title = "Remove this condition";
+  pryc.setAttribute("aria-label", "Remove condition " + (j + 1) + " of rule " + (i + 1));
+  pryc.addEventListener("click", () => {
+    r.conditions.splice(j, 1);
+    postavFormularBota(r.conditions.length ? "r" + i + "-c" + Math.min(j, r.conditions.length - 1) + "-metric" : "r" + i + "-addc");
+  });
+
+  radek.append(metrika, op, hodnota, pryc, el("div", "cond-help", m.napoveda));
+  return radek;
+}
+
+function akceNaVolbu(a) {
+  if (a.type !== "PROBABILITY") return a.type;
+  return a.cooperate_prob >= 1 ? "C" : a.cooperate_prob <= 0 ? "D" : "P";
+}
+
+function radekAkce(a, f) {
+  const radek = el("div", "rule-then");
+  radek.append(el("span", "kw", "Then"));
+  const obal = el("div", "then-body");
+
+  const vyber = el("select", "then-action");
+  vyber.dataset.f = f + "-action";
+  vyber.setAttribute("aria-label", (f === "fb" ? "Otherwise" : "Rule " + (parseInt(f.slice(1), 10) + 1)) + ": what to do");
+  for (const [v, t] of AKCE_UI) {
+    const o = el("option", null, t);
+    o.value = v;
+    vyber.append(o);
+  }
+  vyber.value = akceNaVolbu(a);
+  vyber.addEventListener("change", () => {
+    const v = vyber.value;
+    if (v === "C" || v === "D" || v === "P") {
+      a.type = "PROBABILITY";
+      a.cooperate_prob = v === "C" ? 1 : v === "D" ? 0 : (a.cooperate_prob > 0 && a.cooperate_prob < 1 ? a.cooperate_prob : 0.5);
+    } else {
+      a.type = v;
+      delete a.cooperate_prob;
+    }
+    postavFormularBota(f + "-action");
+  });
+  obal.append(vyber);
+
+  if (vyber.value === "P") {
+    const p = el("span", "cond-num pct");
+    const vstup = el("input");
+    vstup.type = "number"; vstup.min = 1; vstup.max = 99; vstup.step = 1;
+    vstup.value = Math.round(a.cooperate_prob * 1000) / 10;
+    vstup.dataset.f = f + "-prob";
+    vstup.setAttribute("aria-label", "Chance to cooperate");
+    vstup.addEventListener("input", () => {
+      const v = parseFloat(vstup.value);
+      if (!Number.isFinite(v)) return;
+      /* 0 a 100 by z „pravděpodobnosti“ udělaly obyčejné Defect/Cooperate. */
+      a.cooperate_prob = Math.round(Math.max(0.1, Math.min(99.9, v)) * 10) / 1000;
+      obnovBotVystup();
+    });
+    p.append(vstup, el("span", "unit", "% cooperate"));
+    obal.append(p);
+  }
+  radek.append(obal);
+  return radek;
+}
+
+function blokPameti(a, f) {
+  const box = el("details", "mem");
+  const shrnuti = pametSlovy(a);
+  box.open = Boolean(shrnuti);
+  const s = el("summary");
+  s.dataset.f = f + "-mem";
+  s.append(document.createTextNode("Also change memory"));
+  const sum = el("span", "mem-sum", shrnuti ? "— " + shrnuti : "");
+  s.append(sum);
+  box.append(s);
+
+  const obnovShrnuti = () => {
+    const t = pametSlovy(a);
+    sum.textContent = t ? "— " + t : "";
+    obnovBotVystup();
+  };
+
+  const trojice = el("div", "rb-mem3");
+  trojice.append(
+    poleRezimu("Set mode", a.set_mode, true, f + "-setmode", (v) => { a.set_mode = v || null; obnovShrnuti(); }),
+    poleCisla("Change trust by", a.add_trust || 0, -10, 10, 1, f + "-trust", (v) => { a.add_trust = v; obnovShrnuti(); }),
+    poleCasovace(a, f, obnovShrnuti)
+  );
+  box.append(trojice);
+  return box;
+}
+
+function poleRezimu(popisek, hodnota, sKeep, f, priZmene) {
+  const p = el("div", "field");
+  const id = "b-" + f;
+  p.innerHTML = '<label for="' + id + '">' + esc(popisek) + "</label>";
+  const s = el("select");
+  s.id = id; s.dataset.f = f;
+  if (sKeep) { const o = el("option", null, "keep as it is"); o.value = ""; s.append(o); }
+  for (const [v, t] of REZIMY_BOTA) { const o = el("option", null, t); o.value = v; s.append(o); }
+  s.value = hodnota || "";
+  s.addEventListener("change", () => { priZmene(s.value); if (!sKeep) obnovBotVystup(); });
+  p.append(s);
+  return p;
+}
+
+function poleCisla(popisek, hodnota, min, max, krok, f, priZmene) {
+  const p = el("div", "field");
+  const id = "b-" + f;
+  p.innerHTML = '<label for="' + id + '">' + esc(popisek) + "</label>";
+  const i = el("input");
+  i.type = "number"; i.min = min; i.max = max; i.step = krok; i.value = hodnota;
+  i.id = id; i.dataset.f = f;
+  i.addEventListener("input", () => {
+    const v = parseInt(i.value, 10);
+    if (!Number.isFinite(v)) return;
+    priZmene(Math.max(min, Math.min(max, v)));
+    obnovBotVystup();
+  });
+  i.addEventListener("change", () => { if (!Number.isFinite(parseInt(i.value, 10))) i.value = 0; i.dispatchEvent(new Event("input")); });
+  p.append(i);
+  return p;
+}
+
+function poleCasovace(a, f, priZmene) {
+  const p = el("div", "field");
+  const id = "b-" + f + "-timer";
+  p.innerHTML = '<label for="' + id + '">Set timer to</label>';
+  const i = el("input");
+  i.type = "number"; i.min = 0; i.max = 20; i.step = 1;
+  i.placeholder = "keep";
+  i.value = a.set_timer === null || a.set_timer === undefined ? "" : a.set_timer;
+  i.id = id; i.dataset.f = f + "-timer";
+  i.addEventListener("input", () => {
+    if (i.value.trim() === "") { a.set_timer = null; priZmene(); return; }
+    const v = parseInt(i.value, 10);
+    if (!Number.isFinite(v)) return;
+    a.set_timer = Math.max(0, Math.min(20, v));
+    priZmene();
+  });
+  p.append(i);
+  return p;
+}
+
+/* Pravá strana: slovní popis, JSON a jméno v panelu Uložit. */
 function obnovBotVystup() {
   const b = stav.bot;
   const kroky = [];
+  const pouziva = (metrika) => b.rules.some((r) => r.conditions.some((c) => c.metric === metrika));
+  const nastavuje = (klic) => [...b.rules.map((r) => r.action), b.fallback_action].some((a) => a[klic] !== null && a[klic] !== undefined && a[klic] !== 0);
 
-  if (b.posledni_tah !== "normal") {
-    kroky.push(["Last round", "When the number of rounds is known, in the last round it " +
-      (b.posledni_tah === "vzdy_d" ? "always defects" : "always cooperates") + " and decides nothing else."]);
+  if (pouziva("timer") || nastavuje("set_timer")) {
+    kroky.push(["Every round", "First the timer counts down by 1 (it never goes below 0)."]);
   }
-  if (b.nikdy_neodpoustet) {
-    kroky.push(["Never forgive", "If the opponent has ever defected, it defects. Nothing else matters."]);
-  }
-  kroky.push(["First move", "Before it has seen anything, it plays " +
-    (b.prvni_tah === "random" ? "at random" : b.prvni_tah === "C" ? "cooperate" : "defect") + "."]);
-  if (b.zrada_pri_pomeru < 100) {
-    kroky.push(["Greed limit", "From the fifth visible move on: if the opponent defects in " +
-      b.zrada_pri_pomeru + " % of cases or more, it defects."]);
-  }
-  kroky.push(["Tolerance", b.tolerance_d === 1
-    ? "Forgives one defect. Retaliates only after two in a row."
-    : "Forgives " + b.tolerance_d + " defects in a row. Retaliates after " + (b.tolerance_d + 1) + "."]);
-  kroky.push(["In fog", "When it sees a question mark, it " +
-    ({ zradit: "defects", spolupracovat: "cooperates", random: "flips a coin", opakovat_sebe: "repeats its own last move" })[b.reakce_mlha] + "."]);
-  kroky.push(["Otherwise", ({
-    tit_for_tat: "Repeats the opponent’s last move.",
-    pavlov: "If the last round went well, it repeats its move. If not, it switches.",
-    opak: "Does the exact opposite of the opponent’s last move.",
-    pravdepodobnost: "Cooperates with a probability of " + b.pravdepodobnost_c + " %."
-  })[b.zakladni_strategie]]);
-  if (b.chyba_pct > 0) {
-    kroky.push(["Finally", "With a " + b.chyba_pct + " % chance its hand trembles and it plays the opposite."]);
+  let mrtve = -1;
+  b.rules.forEach((r, i) => {
+    const kdy = r.conditions.length ? "If " + r.conditions.map(podminkaSlovy).join(" and ") : "Always";
+    kroky.push(["Rule " + (i + 1), kdy + " → " + akceSlovy(r.action) + "."]);
+    if (!r.conditions.length && mrtve < 0 && i < b.rules.length - 1) mrtve = i;
+  });
+  kroky.push(["Otherwise", akceSlovy(b.fallback_action).replace(/^./, (c) => c.toUpperCase()) + "."]);
+  if (b.error_rate > 0) {
+    kroky.push(["Finally", "With a " + procenta(b.error_rate) + " chance its hand trembles and it plays the opposite."]);
   }
 
   const kam = $("#b-explain");
   kam.innerHTML = "";
-  kroky.forEach(([nadpis, text], i) => {
-    const radek = el("div");
-    radek.style.display = "grid";
-    radek.style.gridTemplateColumns = "26px 1fr";
-    radek.style.gap = "12px";
-    radek.style.alignItems = "baseline";
-    const c = el("div", "mono", String(i + 1));
-    c.style.color = "var(--faint)";
-    c.style.fontSize = "12px";
-    const t = el("div");
-    t.innerHTML = "<b style='font-weight:600'>" + esc(nadpis) + "</b> — <span style='color:var(--muted)'>" + esc(text) + "</span>";
-    radek.append(c, t);
-    kam.append(radek);
-  });
+  const ol = el("ol", "explain");
+  for (const [nadpis, text] of kroky) {
+    const li = el("li");
+    li.innerHTML = "<b>" + esc(nadpis) + "</b> " + esc(text);
+    ol.append(li);
+  }
+  kam.append(ol);
+  if (mrtve >= 0) {
+    kam.append(el("div", "warn", "Rule " + (mrtve + 1) + " has no conditions, so it always matches — the rules below it never get a turn."));
+  }
+  const zdroje = (pouziva("score_diff") || pouziva("my_avg_payoff") || pouziva("my_last_payoff"));
+  if (zdroje) {
+    kam.append(el("div", "note", "Score checks use only what your bot saw. With noise or fog it can be wrong about the real score — just like a real player."));
+  }
 
-  const { jmeno, ...config } = stav.bot;
-  $("#b-json").textContent = JSON.stringify({ type: "custom", name: jmeno, config }, null, 2);
-
-  /* Panel „Uložit bota“ ukazuje jméno — držíme ho v souladu s formulářem,
-     ale nepřekreslujeme celý panel, aby uživateli neuteklo psaní v popisu. */
   const jmenoVPanelu = $("#b-save-name");
   if (jmenoVPanelu) {
     jmenoVPanelu.innerHTML = "It will be saved as <b style='color:var(--ink)'>" +
-      esc(jmeno || "(no name)") + "</b> — change it in the Name field on the left.";
+      esc(b.jmeno || "(no name)") + "</b> — change it in the Name field.";
   }
 }
 
@@ -2746,8 +3396,7 @@ function vykresliAuthTlacitko() {
    ============================================================ */
 
 function konfiguraceBota() {
-  const { jmeno, ...parametry } = stav.bot;
-  return { type: "custom", ...parametry };
+  return { type: "custom", ...konfiguraceV2(stav.bot) };
 }
 
 function vykresliUlozit() {
@@ -2769,7 +3418,7 @@ function vykresliUlozit() {
   const info = el("div", "note");
   info.id = "b-save-name";
   info.innerHTML = "It will be saved as <b style='color:var(--ink)'>" +
-    esc(stav.bot.jmeno || "(no name)") + "</b> — change it in the Name field on the left.";
+    esc(stav.bot.jmeno || "(no name)") + "</b> — change it in the Name field.";
   kam.append(info);
 
   const popisPole = el("div", "field");
@@ -2815,7 +3464,7 @@ async function ulozBota(jakoNovy) {
 
   if (!jmeno) {
     hlaska.className = "formerr";
-    hlaska.textContent = "The bot needs a name — fill in the Name field on the left.";
+    hlaska.textContent = "The bot needs a name — fill in the Name field.";
     return;
   }
 
@@ -3006,12 +3655,22 @@ function vykresliSeznamBotu(kam, boti, filtr) {
 /* Nasype konfiguraci uloženého bota do formuláře v záložce Můj bot. */
 function otevriBotaVEditoru(bot, mujBot) {
   const config = bot.config || {};
-  const novy = { ...VYCHOZI_BOT };
-  for (const klic of Object.keys(VYCHOZI_BOT)) {
-    if (klic !== "jmeno" && config[klic] !== undefined) novy[klic] = config[klic];
+  const jmeno = mujBot ? bot.name : bot.name + " (copy)";
+  /* Pravidlový bot se otevře tak, jak je; starý (klasický) se převede na
+     pravidla se stejným chováním — po uložení už bude pravidlový. */
+  if (config.schema_version === 2) {
+    const kopie = JSON.parse(JSON.stringify(config));
+    stav.bot = novyBot(jmeno, kopie.rules || [], kopie.fallback_action || SPOLUPRACUJ(), {
+      initial_state: kopie.initial_state || {}, error_rate: kopie.error_rate || 0
+    });
+    for (const a of [...stav.bot.rules.map((r) => r.action), stav.bot.fallback_action]) {
+      a.set_mode = a.set_mode || null;
+      a.add_trust = a.add_trust || 0;
+      if (a.set_timer === undefined) a.set_timer = null;
+    }
+  } else {
+    stav.bot = zKlasickehoBota(config, jmeno);
   }
-  novy.jmeno = mujBot ? bot.name : bot.name + " (copy)";
-  stav.bot = novy;
 
   /* Cizího bota přepsat nemůžeš — uloží se jako nový pod tvým účtem. */
   stav.ulozeni = {

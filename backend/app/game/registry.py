@@ -20,7 +20,7 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional
 
-from . import bots
+from . import bots, rules
 
 # Název typu bota -> (čistá funkce, český název, popis)
 BUILTIN_BOTS: Dict[str, tuple] = {
@@ -80,10 +80,24 @@ class NevalidniKonfiguraceError(ValueError):
 def zkontroluj_custom_config(config: Optional[dict]) -> dict:
     """Ověří konfiguraci vlastního bota a vrátí ji doplněnou o výchozí hodnoty.
 
-    Vyhodí `NevalidniKonfiguraceError` s českým vysvětlením, když je něco
+    Dva formáty: `schema_version: 2` = pravidlový bot (app/game/rules.py),
+    cokoli jiného = původní parametrický bot (custom_player), který dál
+    funguje beze změny - uložení boti v databázi se tedy nijak nemění.
+
+    Vyhodí `NevalidniKonfiguraceError` s vysvětlením, když je něco
     špatně. Nikdy nic tiše neopravuje - špatná hodnota je chyba uživatele,
     ne něco, co by se mělo mlčky přepsat na výchozí.
     """
+    if rules.je_v2(config):
+        try:
+            return rules.zkontroluj_v2(config)
+        except rules.ChybaPravidel as exc:
+            raise NevalidniKonfiguraceError(str(exc)) from exc
+    if isinstance(config, dict) and "schema_version" in config:
+        raise NevalidniKonfiguraceError(
+            f"Unknown schema_version {config['schema_version']!r}. Use 2 for rule-based bots, "
+            "or leave it out for the classic format."
+        )
     if config is None:
         config = {}
     if not isinstance(config, dict):
@@ -166,7 +180,10 @@ def resolve_bot(bot_type: str, config: Optional[dict] = None, name: Optional[str
     množinu strategií. U vlastního bota se navíc ověří i hodnoty parametrů.
     """
     if bot_type == CUSTOM_BOT_TYPE:
-        return partial(bots.custom_player, config=zkontroluj_custom_config(config))
+        overena = zkontroluj_custom_config(config)
+        if rules.je_v2(overena):
+            return rules.RuleBot(overena)
+        return partial(bots.custom_player, config=overena)
 
     entry = BUILTIN_BOTS.get(bot_type)
     if entry is None:
@@ -181,7 +198,8 @@ def bot_display_name(bot_type: str, config: Optional[dict], fallback_name: Optio
     if fallback_name:
         return fallback_name
     if bot_type == CUSTOM_BOT_TYPE:
-        return (config or {}).get("jmeno") or "Custom Bot"
+        config = config or {}
+        return config.get("name") or config.get("jmeno") or "Custom Bot"
     entry = BUILTIN_BOTS.get(bot_type)
     return entry[1] if entry else bot_type
 

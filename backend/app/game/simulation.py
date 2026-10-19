@@ -78,7 +78,17 @@ def _odehraj_kola(f1: BotFn, f2: BotFn, cfg: NastaveniZapasu, kola: int):
     nikoho nezajímá) i pro `odehraj_zapas_s_poctem_kol` (duel, kde se záznam
     posílá do frontendu jako průběh zápasu).
     """
-    info = {"celkem_kol": None if cfg.neznama_kola else kola}
+    # Boti s pamětí (pravidloví boti, schema_version 2) dostanou na začátku
+    # každého zápasu čerstvou instanci - paměť se nesmí přenášet ze zápasu do
+    # zápasu, a když hraje bot sám se sebou (evoluce), každá strana má svou.
+    if hasattr(f1, "novy_zapas"):
+        f1 = f1.novy_zapas()
+    if hasattr(f2, "novy_zapas"):
+        f2 = f2.novy_zapas()
+
+    # `sum` a `mlha` jsou pro pravidlové boty (env_noise, env_fog); vestavěné
+    # strategie je ignorují.
+    info = {"celkem_kol": None if cfg.neznama_kola else kola, "sum": cfg.zkresleni, "mlha": cfg.mlha}
     true1, true2, perc1, perc2, fog1, fog2 = [], [], [], [], [], []
     s1, s2 = 0, 0
     zaznam = []

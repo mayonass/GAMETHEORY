@@ -32,7 +32,10 @@ class BotSpec(BaseModel):
     config: Optional[dict] = Field(
         default=None,
         description=(
-            "Povinné jen pro type='custom'. Povolené položky: prvni_tah "
+            "Povinné jen pro type='custom'. Dva formáty: (1) pravidlový bot se "
+            "schema_version=2 - initial_state, rules (conditions + action), "
+            "fallback_action, error_rate; viz app/game/rules.py. (2) Klasický "
+            "formát bez schema_version - povolené položky: prvni_tah "
             "(C|D|random), zakladni_strategie (tit_for_tat|pavlov|"
             "pravdepodobnost|opak), pravdepodobnost_c (0-100), tolerance_d "
             "(1-1000), zrada_pri_pomeru (0-100), reakce_mlha (zradit|"
