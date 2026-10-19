@@ -6,7 +6,7 @@
 <title>The Game Theory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
 <style>
 /* ============================================================
    BAREVNÉ A TYPOGRAFICKÉ TOKENY
@@ -15,22 +15,32 @@
    ============================================================ */
 :root {
   color-scheme: light;
-  --bg:        #F6F7F9;
+  /* papír a sešit */
+  --paper:     #FCFDFF;
+  --grid:      #E4ECF7;
+  --margin:    #F0A9AC;
+  --marker:    #FFE680;
+  /* plochy */
+  --bg:        var(--paper);
   --white:     #FFFFFF;
   --panel:     #FFFFFF;
-  --panel-2:   #F4F6F8;
-  --ink:       #0F1419;
-  --muted:     #57616C;
-  --faint:     #8B949E;
-  --line:      #DFE3E8;
-  --line-soft: #ECEFF2;
-  --accent:    #1C6E8C;
+  --panel-2:   #F5F8FD;
+  /* inkoust */
+  --ink:       #1F2A44;
+  --muted:     #56617A;
+  --faint:     #737D95;
+  --line:      #D3DCEA;
+  --line-soft: #E7EDF6;
+  /* modrá propiska */
+  --accent:    #2B4C9B;
+  --accent-deep:#1C3474;
   --accent-ink:#FFFFFF;
-  --accent-2:  #EAF3F7;
-  --coop:      #1F8A58;
-  --defect:    #C2412D;
-  --shadow:    0 1px 2px rgba(15,20,25,.04), 0 10px 28px -18px rgba(15,20,25,.22);
-  --shadow-sm: 0 1px 2px rgba(15,20,25,.05);
+  --accent-2:  #EAF0FB;
+  /* tahy: spolupráce zeleně, zrada červeně */
+  --coop:      #2E9E5B;
+  --defect:    #D9443A;
+  --shadow:    0 3px 0 rgba(31,42,68,.06), 0 16px 32px -24px rgba(31,42,68,.4);
+  --shadow-sm: 0 2px 0 rgba(31,42,68,.06);
 }
 * { box-sizing: border-box; }
 
@@ -40,13 +50,13 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-.mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+.mono { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; }
 
 /* ============================================================
    HLAVIČKA
@@ -67,14 +77,14 @@ body {
 }
 .brand { display: flex; flex-direction: column; gap: 1px; }
 .brand .name {
-  font-family: Spectral, Georgia, "Times New Roman", serif;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -.01em;
   line-height: 1.1;
 }
 .brand .tag {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 10.5px;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -156,7 +166,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
 }
 .panel-head h2 {
   margin: 0;
-  font-family: Spectral, Georgia, serif;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
   font-size: 17px;
   font-weight: 600;
   letter-spacing: -.005em;
@@ -209,7 +219,7 @@ select:focus, input:focus {
 .slider { display: flex; flex-direction: column; gap: 7px; }
 .slider .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .slider .val {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -276,7 +286,7 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
   border-right: 1px solid var(--line);
   font: inherit;
   font-size: 13px;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--muted);
   padding: 8px 4px;
   cursor: pointer;
@@ -334,7 +344,7 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
   overflow-wrap: anywhere;
 }
 .side .num {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: clamp(38px, 7vw, 58px);
   font-weight: 500;
   line-height: 1;
@@ -344,7 +354,7 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
 .side.win .num { color: var(--accent); }
 .side.lose .num { color: var(--faint); }
 .vs {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12px;
   letter-spacing: .18em;
   color: var(--faint);
@@ -421,10 +431,10 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
 .rscroll { overflow-x: auto; min-width: 0; flex: 1 1 auto; padding-left: 4px; }
 .rrow { display: flex; height: 34px; align-items: center; }
 .rcell { width: 34px; flex: none; display: flex; align-items: center; justify-content: center; }
-.rnum { font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--faint); }
-.pts  { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rnum { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10px; color: var(--faint); }
+.pts  { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .mv {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 13px;
   font-weight: 500;
   width: 25px; height: 25px;
@@ -470,9 +480,9 @@ tbody td {
   vertical-align: middle;
 }
 tbody tr:last-child td { border-bottom: 0; }
-th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace; }
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; }
 .rank {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: var(--faint);
   width: 34px;
   font-size: 13px;
@@ -481,7 +491,7 @@ tbody tr.lead td { background: var(--accent-2); }
 tbody tr.lead .rank { color: var(--accent); }
 .scorecell { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
 .scorebar { height: 5px; border-radius: 999px; background: var(--accent); opacity: .55; flex: none; }
-.wl { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.wl { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 13px; color: var(--muted); white-space: nowrap; }
 .wl b { color: var(--ink); font-weight: 500; }
 
 .matches { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1px; background: var(--line-soft); }
@@ -495,7 +505,7 @@ tbody tr.lead .rank { color: var(--accent); }
   font-size: 13px;
 }
 .match .names { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.match .sc { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.match .sc { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .match .sc .w { color: var(--ink); font-weight: 500; }
 .match .sc .l { color: var(--faint); }
 
@@ -516,7 +526,7 @@ details.fold > summary:hover { color: var(--ink); }
    MŮJ BOT
    ============================================================ */
 .jsonview {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12px;
   line-height: 1.65;
   background: var(--panel-2);
@@ -543,8 +553,8 @@ details.fold > summary:hover { color: var(--ink); }
 svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
 svg.chart .grid line { stroke: var(--line-soft); stroke-width: 1; }
 svg.chart .baseline { stroke: var(--line); stroke-width: 1; }
-svg.chart text { font-family: "IBM Plex Mono", monospace; font-size: 11px; fill: var(--faint); }
-svg.chart text.lbl { font-family: "IBM Plex Sans", sans-serif; font-size: 12px; fill: var(--ink); }
+svg.chart text { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; fill: var(--faint); }
+svg.chart text.lbl { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; fill: var(--ink); }
 svg.chart .serie { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 svg.chart .crosshair { stroke: var(--faint); stroke-width: 1; stroke-dasharray: 3 3; }
 svg.chart .vymrel { stroke: var(--panel); stroke-width: 2; }
@@ -561,10 +571,10 @@ svg.chart .vymrel { stroke: var(--panel); stroke-width: 2; }
   min-width: 178px;
   z-index: 5;
 }
-.tip .tg { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+.tip .tg { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 10.5px; color: var(--faint); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
 .tip .tr { display: flex; align-items: center; gap: 8px; line-height: 1.7; }
 .tip .tr .nm { flex: 1 1 auto; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tip .tr .vv { font-family: "IBM Plex Mono", monospace; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tip .tr .vv { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); font-variant-numeric: tabular-nums; }
 .tip .tr.pryc .nm, .tip .tr.pryc .vv { color: var(--faint); }
 
 .swatch-dot { width: 9px; height: 9px; border-radius: 2px; flex: none; }
@@ -602,7 +612,7 @@ dialog.modal {
 }
 dialog.modal::backdrop { background: rgba(8, 14, 18, .45); }
 .modal-head { padding: 20px 24px 0; display: flex; flex-direction: column; gap: 4px; }
-.modal-head h2 { font-family: Spectral, Georgia, serif; font-size: 20px; font-weight: 600; margin: 0; }
+.modal-head h2 { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-size: 20px; font-weight: 600; margin: 0; }
 .modal-head p { margin: 0; font-size: 13px; color: var(--faint); }
 .modal-body { padding: 18px 24px 22px; display: flex; flex-direction: column; gap: 15px; }
 .modal-switch { font-size: 13px; color: var(--muted); text-align: center; }
@@ -628,7 +638,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 18, .45); }
 .botcard { background: var(--panel); padding: 17px 20px; display: flex; flex-direction: column; gap: 9px; }
 .botcard .top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .botcard .nm { font-weight: 600; font-size: 15px; overflow-wrap: anywhere; }
-.botcard .meta { font-size: 12px; color: var(--faint); font-family: "IBM Plex Mono", monospace; white-space: nowrap; }
+.botcard .meta { font-size: 12px; color: var(--faint); font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; white-space: nowrap; }
 .botcard .desc { font-size: 13.5px; color: var(--muted); }
 .botcard .acts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
 .badge {
@@ -660,13 +670,13 @@ dialog.modal::backdrop { background: rgba(8, 14, 18, .45); }
 }
 .empty p, .errorbox p { margin: 0; color: var(--muted); font-size: 14px; max-width: 46ch; }
 .empty .big, .errorbox .big {
-  font-family: Spectral, Georgia, serif;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
   font-size: 18px;
   color: var(--ink);
 }
 .errorbox { border-left: 3px solid var(--defect); text-align: left; align-items: flex-start; }
 .errorbox code {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12.5px;
   background: var(--panel-2);
   border: 1px solid var(--line-soft);
@@ -692,7 +702,7 @@ footer {
 }
 footer label { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 footer input {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 12px;
   width: 210px;
   padding: 5px 9px;
@@ -722,12 +732,12 @@ footer input {
 
 .home-text { display: flex; flex-direction: column; gap: 18px; }
 .eyebrow {
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
   color: var(--accent);
 }
 .home h1 {
-  font-family: Spectral, Georgia, "Times New Roman", serif;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
   font-weight: 600;
   font-size: clamp(36px, 5vw, 56px);
   line-height: 1.06;
@@ -774,7 +784,7 @@ footer input {
 .menu { max-width: 1180px; margin: 0 auto; padding: 44px 24px 64px; display: flex; flex-direction: column; gap: 36px; }
 .menu-head { display: flex; flex-direction: column; gap: 10px; }
 .menu-head h1 {
-  font-family: Spectral, Georgia, serif; font-weight: 600;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600;
   font-size: clamp(30px, 4vw, 42px); line-height: 1.1; margin: 0; letter-spacing: -.01em;
 }
 .menu-head p { margin: 0; color: var(--muted); font-size: 16.5px; max-width: 66ch; }
@@ -792,7 +802,7 @@ footer input {
 }
 @media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
 .rules h2 { grid-column: 1 / -1; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.matrix { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.matrix { border-collapse: collapse; font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
 .matrix th, .matrix td { border: 1px solid var(--line); padding: 10px 16px; text-align: center; font-size: 14px; }
 .matrix thead th, .matrix tbody th { background: var(--panel-2); font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
 .matrix .corner { background: transparent; border: 0; }
@@ -825,8 +835,8 @@ footer input {
 }
 .card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
 .card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
-.card .tag { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
-.card h3 { margin: 0; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1.15; }
+.card .tag { font-family: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.card h3 { margin: 0; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-size: 25px; font-weight: 600; line-height: 1.15; }
 .card p { margin: 0; font-size: 14.5px; line-height: 1.65; color: var(--muted); }
 .card p.see { color: var(--ink); font-size: 14px; }
 .card .go { margin-top: auto; padding-top: 6px; font-size: 14px; font-weight: 600; color: var(--accent); }
@@ -849,8 +859,427 @@ footer input {
 .mode-lead { margin: 0 0 22px; font-size: 15px; color: var(--muted); max-width: 80ch; }
 .mode-lead b { color: var(--ink); font-weight: 600; }
 
+/* ============================================================
+   ŠKOLNÍ SEŠIT — vzhled celé hry
+   Čtverečkovaný papír, červená linka okraje, kresba propiskou.
+   Tenhle blok je schválně na konci stylů: přepisuje vzhled starších
+   komponent, aniž by se musely přepisovat jedna po druhé.
+   ============================================================ */
+
+body {
+  font-size: 16px;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}
+
+/* Červená linka okraje, jako v sešitě. Na úzké obrazovce by překážela. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; bottom: 0;
+  left: max(14px, calc(50% - 628px));
+  width: 2px;
+  background: var(--margin);
+  opacity: .75;
+  pointer-events: none;
+  z-index: 0;
+}
+@media (max-width: 760px) { body::before { display: none; } }
+.topbar, .screen, footer { position: relative; z-index: 1; }
+
+/* Zvýrazňovač — jedno výrazné gesto, šetřit s ním. */
+.hl { background: linear-gradient(transparent 58%, var(--marker) 58%, var(--marker) 92%, transparent 92%); padding: 0 .08em; }
+
+/* ---------- hlavička ---------- */
+.topbar { background: rgba(255,255,255,.92); border-bottom: 2px solid var(--line); backdrop-filter: blur(4px); }
+.brand .name { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 23px; letter-spacing: 0; display: flex; align-items: center; gap: 10px; }
+.brand .name svg { width: 30px; height: 30px; }
+.brand .tag { font-family: "Nunito", system-ui, sans-serif; letter-spacing: .12em; font-weight: 700; font-size: 10.5px; color: var(--faint); }
+.status { background: var(--white); border: 1.5px solid var(--line); font-weight: 600; }
+
+/* ---------- záložky režimů ---------- */
+.tabs { padding-top: 14px; padding-bottom: 4px; gap: 8px; }
+.tablist { gap: 6px; }
+.tab {
+  border: 1.5px solid var(--line); border-bottom-width: 1.5px;
+  border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 14.5px;
+  background: var(--white); color: var(--muted);
+}
+.tab:hover { color: var(--ink); border-color: var(--accent); }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 var(--accent-deep); }
+.tab-menu { border-right: 0; padding: 8px 14px 8px 0; font-weight: 700; font-size: 14.5px; }
+
+/* ---------- panely = listy papíru ---------- */
+.panel {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.panel-head { border-bottom: 1.5px dashed var(--line); }
+.panel-head h2 { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 19px; }
+.mode-lead { font-size: 16px; }
+.mode-lead b { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; }
+
+/* ---------- tlačítka ---------- */
+.btn { border-radius: 999px; font-weight: 700; font-size: 15px; padding: 12px 22px; transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 0 var(--accent-deep); }
+.btn-primary:hover:not(:disabled) { opacity: 1; transform: translateY(-1px); box-shadow: 0 5px 0 var(--accent-deep); }
+.btn-primary:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--accent-deep); }
+.btn-ghost { background: var(--white); border: 1.5px solid var(--line); box-shadow: 0 3px 0 var(--line); }
+.btn-ghost:hover:not(:disabled) { border-color: var(--accent); }
+.minibtn { border-radius: 999px; border-width: 1.5px; font-weight: 700; padding: 6px 13px; background: var(--white); }
+.linkbtn { font-weight: 700; }
+
+/* ---------- formuláře ---------- */
+select, input[type="text"], input[type="number"] {
+  background: var(--white); border: 1.5px solid var(--line); border-radius: 12px; font-size: 15px;
+}
+.field > label, .field-label { font-weight: 800; letter-spacing: .08em; }
+.seg { border: 1.5px solid var(--line); border-radius: 999px; background: var(--white); }
+.seg button { font-family: "Nunito", system-ui, sans-serif; font-weight: 800; }
+.chip { border: 1.5px solid var(--line); background: var(--white); font-weight: 700; padding: 6px 14px 6px 8px; }
+.chip .who-mini { width: 22px; height: 30px; flex: none; margin: -4px 0; }
+input[type="range"] { height: 6px; background: var(--line-soft); }
+input[type="range"]::-webkit-slider-thumb { width: 18px; height: 18px; border: 3px solid var(--white); box-shadow: 0 0 0 1.5px var(--accent); }
+
+/* ---------- čísla ---------- */
+.side .num, .val, .pts, .rnum, td.num, th.num, .wl, .matrix, .match .sc { font-variant-numeric: tabular-nums; }
+.side .num { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; }
+
+/* ---------- výsledky duelu se stickmany ---------- */
+.side { gap: 2px; }
+.side .avatar { width: 64px; height: 92px; }
+.side.right .avatar { align-self: flex-end; transform: scaleX(-1); }
+.mv { border-radius: 8px; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; }
+
+/* ---------- tabulky ---------- */
+thead th { font-family: "Nunito", system-ui, sans-serif; font-weight: 800; }
+.rank-av { display: inline-flex; align-items: center; gap: 10px; }
+.rank-av svg { width: 22px; height: 32px; flex: none; }
+
+/* ---------- galerie ---------- */
+.botlist { background: transparent; gap: 16px; padding: 18px; border-top: 0; }
+.botcard { border: 1.5px solid var(--line); border-radius: 16px; box-shadow: 0 3px 0 var(--line-soft); }
+.botcard .top { align-items: center; }
+.botcard .face { width: 44px; height: 62px; flex: none; }
+.badge { font-weight: 800; }
+
+/* ---------- dialog ---------- */
+dialog.modal { border: 1.5px solid var(--line); border-radius: 20px; }
+.modal-head h2 { font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; }
+
+footer { color: var(--faint); }
+
+/* ============================================================
+   TITULNÍ STRANA, MENU A PŘÍBĚH — sešitová verze
+   ============================================================ */
+
+/* ---------- titulní strana ---------- */
+#screen-home { background: transparent; border-bottom: 0; }
+.home {
+  max-width: 860px;
+  padding: 36px 24px 24px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+}
+.home-cast {
+  display: flex; justify-content: center; align-items: flex-end; gap: 4px;
+  min-height: 132px; margin-bottom: 6px;
+}
+.home-cast svg { width: 70px; height: 109px; flex: none; }
+.home-cast svg:nth-child(odd) { transform: translateY(-4px); }
+.home-cast svg.me { width: 82px; height: 128px; }
+@media (max-width: 640px) {
+  .home-cast { gap: 0; min-height: 90px; flex-wrap: nowrap; overflow: hidden; }
+  .home-cast svg { width: 44px; height: 69px; }
+  .home-cast svg.me { width: 52px; height: 81px; }
+}
+.home-text {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 34px 40px 32px;
+  box-shadow: 0 6px 0 var(--line-soft);
+  gap: 16px;
+}
+@media (max-width: 640px) { .home-text { padding: 24px 20px; } }
+.home h1 { font-size: clamp(34px, 5.4vw, 54px); letter-spacing: -.01em; }
+.home-text p { color: var(--muted); max-width: none; }
+.home-text p.lead { color: var(--ink); font-weight: 600; }
+
+.play-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 10px; }
+.play {
+  margin-top: 0;
+  font-family: "Fredoka", "Nunito", system-ui, sans-serif;
+  font-size: 26px; font-weight: 600;
+  padding: 18px 46px 18px 36px;
+  box-shadow: 0 6px 0 var(--accent-deep);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.play:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--accent-deep); }
+.play:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--accent-deep); }
+.play svg { width: 20px; height: 20px; }
+.play-side { display: flex; flex-direction: column; gap: 4px; }
+.play-note { font-size: 14px; color: var(--muted); font-weight: 600; }
+.play-side .linkbtn { font-size: 15px; align-self: flex-start; }
+
+.home-video { max-width: 860px; margin: 0 auto; padding: 28px 24px 72px; display: flex; flex-direction: column; gap: 16px; }
+.home-video-head h2 { margin: 0 0 4px; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: 24px; }
+.home-video-head p { margin: 0; color: var(--muted); }
+/* Video jako fotka přilepená páskou do sešitu. */
+.video { border-radius: 10px; border: 6px solid var(--white); box-shadow: 0 2px 0 var(--line), 0 18px 34px -22px rgba(31,42,68,.55); overflow: visible; }
+.video iframe { border-radius: 5px; }
+.video::before, .video::after {
+  content: ""; position: absolute; top: -16px; width: 92px; height: 26px;
+  background: rgba(255, 230, 128, .78); border-left: 2px dashed rgba(255,255,255,.6); border-right: 2px dashed rgba(255,255,255,.6);
+  z-index: 2; pointer-events: none;
+}
+.video::before { left: 26px; transform: rotate(-5deg); }
+.video::after { right: 26px; transform: rotate(4deg); }
+.video-cap { font-size: 13.5px; }
+
+/* ---------- herní menu ---------- */
+.menu-head h1 { font-size: clamp(32px, 4.4vw, 46px); }
+.menu-head p .linkbtn { font-size: inherit; }
+.rules { border: 1.5px solid var(--line); border-radius: 18px; box-shadow: 0 5px 0 var(--line-soft); }
+.rules h2, .group > h2 { font-family: "Nunito", system-ui, sans-serif; font-weight: 800; color: var(--muted); }
+.group > h2 { display: inline-flex; align-items: center; gap: 10px; }
+.matrix { font-family: "Fredoka", "Nunito", system-ui, sans-serif; }
+.matrix th, .matrix td { border: 1.5px solid var(--line); font-size: 16px; padding: 12px 18px; }
+.matrix thead th, .matrix tbody th { font-family: "Nunito", system-ui, sans-serif; font-weight: 800; font-size: 13px; }
+.matrix .C, .matrix .D { font-weight: 800; }
+
+.card {
+  border: 1.5px solid var(--line); border-radius: 18px;
+  box-shadow: 0 5px 0 var(--line-soft);
+  padding: 20px 24px 22px; gap: 10px;
+}
+.card:hover { border-color: var(--accent); box-shadow: 0 7px 0 var(--accent-2); transform: translateY(-2px); }
+.card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line-soft); }
+.card .tag { font-weight: 800; }
+.card .go { font-weight: 800; }
+.card-art {
+  display: flex; align-items: flex-end; justify-content: center; gap: 2px;
+  height: 108px; margin: -4px -8px 4px;
+  background: var(--panel-2); border-radius: 12px;
+  border: 1.5px dashed var(--line);
+  padding: 8px 10px 4px; overflow: hidden;
+}
+.card-art svg { height: 92px; width: auto; flex: none; }
+.card-art .sm svg, .card-art svg.sm { height: 66px; }
+.card-art .art-vs { align-self: center; font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; color: var(--faint); font-size: 18px; margin: 0 4px; }
+.card-art .art-evo { height: 92px; width: 160px; }
+
+/* ---------- příběh ---------- */
+.story { max-width: 900px; margin: 0 auto; padding: 22px 24px 64px; display: flex; flex-direction: column; gap: 22px; }
+.story-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.story-top .linkbtn { font-size: 14.5px; white-space: nowrap; }
+@media (max-width: 560px) {
+  .dot-step { width: 18px; } .dot-step.on { width: 30px; } .story-dots { gap: 5px; }
+  .story-top .linkbtn { font-size: 13.5px; }
+  .story-top { gap: 10px; }
+  .story-nav .btn { font-size: 15px; padding: 11px 18px; }
+}
+.story-dots { display: flex; gap: 8px; }
+.dot-step {
+  appearance: none; width: 30px; height: 10px; border-radius: 999px; padding: 0; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--white);
+  transition: background .2s ease, width .2s ease;
+}
+.dot-step.done { background: var(--accent-2); border-color: var(--accent); }
+.dot-step.on { background: var(--accent); border-color: var(--accent); width: 46px; }
+.dot-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.story-body {
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  box-shadow: 0 6px 0 var(--line-soft);
+  padding: 34px 40px 36px;
+  display: flex; flex-direction: column; gap: 22px;
+  min-height: 420px;
+  animation: slide-in .35s ease both;
+}
+@keyframes slide-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) { .story-body { padding: 24px 18px 26px; } .story { padding: 16px 12px 48px; } }
+.slide-head { display: flex; flex-direction: column; gap: 10px; }
+.slide-head h1 { margin: 0; font-family: "Fredoka", "Nunito", system-ui, sans-serif; font-weight: 600; font-size: clamp(30px, 4.6vw, 44px); line-height: 1.1; letter-spacing: -.01em; }
+.slide-head p, .slide-text { margin: 0; font-size: 17.5px; line-height: 1.65; color: var(--ink); max-width: 66ch; }
+.slide-head b { font-weight: 800; }
+.story-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.story-nav .btn { font-size: 16.5px; padding: 13px 26px; }
+.story-nav .btn[hidden] { display: inline-flex !important; visibility: hidden; }
+.story-count { white-space: nowrap; font-weight: 800; color: var(--faint); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+.mv-word.C, .C-word { color: var(--coop); font-weight: 800; }
+.mv-word.D, .D-word { color: var(--defect); font-weight: 800; }
+
+/* výplaty */
+.payoffs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .payoffs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.po {
+  border: 1.5px solid var(--line); border-radius: 14px; background: var(--panel-2);
+  padding: 12px 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+}
+.po b { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 24px; font-variant-numeric: tabular-nums; }
+.po > span:last-child { font-size: 13px; color: var(--muted); font-weight: 600; line-height: 1.3; }
+.pair { display: flex; gap: 4px; }
+.pair i, .mv {
+  font-style: normal; display: inline-grid; place-items: center;
+  width: 26px; height: 26px; border-radius: 8px;
+  font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 14px; color: #fff;
+}
+.pair i.C, .trail .mv.C, .bubble.C { background: var(--coop); }
+.pair i.D, .trail .mv.D, .bubble.D { background: var(--defect); }
+
+/* aréna — hra proti neznámému */
+.arena {
+  border: 2px dashed var(--line); border-radius: 18px; background: var(--panel-2);
+  padding: 22px 20px 20px; display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.duo { display: flex; align-items: flex-end; justify-content: center; gap: clamp(16px, 7vw, 72px); width: 100%; }
+.fig { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 110px; }
+.fig-svg { width: 110px; height: 171px; }
+@media (max-width: 520px) { .fig-svg { width: 84px; height: 131px; } .fig { min-width: 88px; } }
+.fig-name { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 18px; }
+.fig-score { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
+.vs-round { align-self: center; font-weight: 800; color: var(--faint); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
+.bubble {
+  position: relative; display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 50%; margin-bottom: 6px;
+  font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 22px; color: #fff;
+  animation: pop .3s ease both;
+}
+.bubble::after { content: ""; position: absolute; bottom: -7px; left: 50%; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: inherit; }
+.bubble.C::after { border-top-color: var(--coop); }
+.bubble.D::after { border-top-color: var(--defect); }
+.bubble.wait { background: var(--white); color: var(--faint); border: 1.5px dashed var(--line); animation: none; }
+@keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.trail { display: flex; flex-direction: column; gap: 6px; max-width: 100%; overflow-x: auto; padding-bottom: 2px; }
+.trail-row { display: flex; align-items: center; gap: 4px; }
+.trail-row > span { width: 92px; flex: none; font-size: 13px; font-weight: 800; color: var(--muted); text-align: right; padding-right: 8px; }
+.trail .mv { width: 24px; height: 24px; font-size: 13px; flex: none; }
+
+.choice { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.big-choice {
+  appearance: none; border: 0; cursor: pointer; border-radius: 999px;
+  font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 21px;
+  padding: 14px 34px; color: #fff; min-width: 170px;
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.big-choice.C { background: var(--coop); box-shadow: 0 5px 0 #1F7543; }
+.big-choice.D { background: var(--defect); box-shadow: 0 5px 0 #A52D25; }
+.big-choice:hover:not(:disabled) { transform: translateY(-2px); }
+.big-choice:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,.25); }
+.big-choice:disabled { opacity: .55; cursor: wait; }
+.big-choice:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.reveal {
+  width: 100%; background: var(--white); border: 1.5px solid var(--line); border-radius: 14px;
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+  animation: slide-in .35s ease both;
+}
+.reveal h3 { margin: 0; font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 22px; }
+.reveal p { margin: 0; font-size: 16px; line-height: 1.6; }
+.story-error { margin: 0; color: var(--defect); font-weight: 700; }
+.loading { margin: 0; color: var(--muted); font-weight: 700; }
+.loading::after { content: ""; display: inline-block; width: 1em; animation: dots 1.2s steps(4) infinite; overflow: hidden; vertical-align: bottom; }
+@keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+
+/* postavy */
+.cast-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.cast-card {
+  border: 1.5px solid var(--line); border-radius: 16px; background: var(--white);
+  padding: 12px 16px 16px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
+  box-shadow: 0 4px 0 var(--line-soft);
+}
+.cast-svg { width: 74px; height: 115px; }
+.cast-card h3 { margin: 0; font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 18px; }
+.cast-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+/* tip na vítěze */
+.guess { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .guess { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.guess-btn {
+  appearance: none; cursor: pointer; font: inherit; color: inherit;
+  border: 1.5px solid var(--line); border-radius: 16px; background: var(--white);
+  padding: 10px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  box-shadow: 0 4px 0 var(--line-soft);
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.guess-btn span { font-weight: 800; font-size: 14px; line-height: 1.2; }
+.guess-svg { width: 62px; height: 97px; }
+.guess-btn:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-2px); }
+.guess-btn:disabled { cursor: default; opacity: .6; }
+.guess-btn.picked, .guess-btn.picked:disabled { opacity: 1; border-color: var(--accent); background: var(--accent-2); box-shadow: 0 4px 0 var(--accent); }
+.guess-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.story-result { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.story-result:empty { display: none; }
+.hbars { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.hbar { display: grid; grid-template-columns: 22px 30px minmax(110px, 180px) 1fr 44px; align-items: center; gap: 10px; padding: 4px 8px; border-radius: 12px; }
+.hbar.guessed { background: var(--accent-2); }
+.hb-rank { font-weight: 800; color: var(--faint); text-align: right; }
+.hb-svg { width: 30px; height: 47px; }
+.hb-name { font-weight: 800; font-size: 15px; }
+.hb-name em { font-style: normal; font-weight: 700; font-size: 12px; color: var(--accent); margin-left: 4px; white-space: nowrap; }
+.hb-track { height: 16px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.hb-track i { display: block; height: 100%; background: var(--accent); border-radius: 999px; animation: grow .6s ease both; transform-origin: left; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+.hb-val { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .hbar { grid-template-columns: 16px 26px minmax(80px, 1fr) 1fr 36px; gap: 6px; } .hb-name em { display: none; } }
+
+.story-caption { margin: 0; font-size: 16.5px; line-height: 1.65; max-width: 68ch; }
+.story-caption.strong { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 500; font-size: 20px; line-height: 1.45; }
+
+/* evoluce */
+.evo-wrap { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; background: var(--white); padding: 10px 6px 4px; }
+.evo-mini { display: block; width: 100%; height: auto; }
+.evo-mini .g { stroke: var(--line-soft); stroke-width: 1; }
+.evo-mini .ax { font: 600 12px Nunito, sans-serif; fill: var(--faint); }
+.evo-mini .lbl { font: 800 13px Nunito, sans-serif; fill: var(--ink); }
+.evo-line { fill: none; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2000; animation: draw 1.6s ease both; }
+@keyframes draw { from { stroke-dashoffset: 2000; } to { stroke-dashoffset: 0; } }
+
+/* šum */
+.noise-head { display: flex; align-items: flex-end; gap: 0; }
+.noise-svg { width: 40px; height: 62px; }
+.noise-head h3 { margin: 0 0 6px 12px; font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 20px; }
+.noise-trail .trail-row > span { display: none; }
+.noise-trail .trail-row { gap: 3px; }
+.noise-trail .mv { width: 20px; height: 20px; font-size: 11px; border-radius: 6px; }
+.noise-trail .mv.noise, .noise-key .mv.noise { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--ink); }
+.noise-trail .mv.noise::after, .noise-key .mv.noise::after { display: none; }
+.noise-trail { padding: 5px 4px; }
+#noise-pav { border-top: 1.5px dashed var(--line); padding-top: 18px; }
+.noise-key { font-size: 13.5px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.noise-key .mv { width: 20px; height: 20px; font-size: 11px; border-radius: 6px; background: var(--coop); color: #fff; }
+#noise-sum { border-top: 1.5px dashed var(--line); padding-top: 18px; }
+
+/* konec */
+.lineup { display: flex; justify-content: center; align-items: flex-end; flex-wrap: wrap; gap: 2px; }
+.lineup-svg { width: 64px; height: 100px; }
+.lineup-svg.me { width: 90px; height: 140px; }
+.story-exits { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.btn.big { font-size: 18px; padding: 15px 30px; }
+
+/* stickmani v režimech */
+.brand { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: center; justify-content: start; }
+.brand > svg.logo { grid-row: 1 / span 2; width: 30px; height: 47px; }
+.side .avatar { width: 58px; height: 90px; margin-bottom: 4px; }
+.side.right .avatar { transform: none; }
+.side.right { align-items: flex-end; }
+.botcard .top { gap: 12px; }
+.botcard .top .nm { flex: 1; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+  .evo-line { stroke-dasharray: none; }
 }
 </style>
 </head>
@@ -874,18 +1303,31 @@ footer input {
 <!-- ============ TITULNÍ STRANA ============ -->
 <section id="screen-home" class="screen">
   <div class="home">
+    <div class="home-cast" id="home-cast" aria-hidden="true"></div>
     <div class="home-text">
       <div class="eyebrow">Start here</div>
       <h1>Game Theory &mdash; An Introduction</h1>
       <p class="lead">Game theory is a branch of mathematics and economics that studies strategic interactions between rational decision-makers.</p>
       <p>It analyzes situations where the outcome of one person&rsquo;s decisions depends on the decisions of others.</p>
-      <p>In essence, it&rsquo;s about predicting how individuals or groups will behave when their choices affect each other, and finding optimal strategies to achieve the best possible outcome considering all players&rsquo; actions and preferences.</p>
+      <p>In essence, it&rsquo;s about predicting how individuals or groups will behave when their choices affect each other, and finding <span class="hl">optimal strategies</span> to achieve the best possible outcome considering all players&rsquo; actions and preferences.</p>
       <p>It&rsquo;s widely used in various fields like economics, political science, and biology, and even in everyday situations like business negotiations or social interactions.</p>
-      <button class="play" id="play" type="button">
-        <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 2.5v13a.8.8 0 0 0 1.2.7l11-6.5a.8.8 0 0 0 0-1.4l-11-6.5A.8.8 0 0 0 4 2.5Z" fill="currentColor"/></svg>
-        Play
-      </button>
-      <div class="play-note">Game theory, Iterated Prisoner&rsquo;s Dilemma, and Evolutionary Dynamics in noisy environments.</div>
+      <div class="play-row">
+        <button class="play" id="play" type="button">
+          <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 2.5v13a.8.8 0 0 0 1.2.7l11-6.5a.8.8 0 0 0 0-1.4l-11-6.5A.8.8 0 0 0 4 2.5Z" fill="currentColor"/></svg>
+          Play
+        </button>
+        <div class="play-side">
+          <span class="play-note">An interactive story in 6 short steps &middot; about 10 minutes</span>
+          <a class="linkbtn" href="#menu">Skip to the game menu &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-video">
+    <div class="home-video-head">
+      <h2>Prefer to watch first?</h2>
+      <p>Veritasium explains why cooperation wins in the long run &mdash; the same game you are about to play.</p>
     </div>
     <div class="video-wrap">
       <div class="video">
@@ -898,13 +1340,29 @@ footer input {
   </div>
 </section>
 
+<!-- ============ PŘÍBĚH ============ -->
+<section id="screen-story" class="screen" hidden>
+  <div class="story">
+    <div class="story-top">
+      <div class="story-dots" id="story-dots" role="group" aria-label="Story progress"></div>
+      <a class="linkbtn" href="#menu">Skip to the game &rarr;</a>
+    </div>
+    <div class="story-body" id="story-body" aria-live="polite"></div>
+    <div class="story-nav">
+      <button class="btn btn-ghost" id="story-back" type="button">&larr; Back</button>
+      <span class="story-count" id="story-count"></span>
+      <button class="btn btn-primary" id="story-next" type="button">Next &rarr;</button>
+    </div>
+  </div>
+</section>
+
 <!-- ============ HERNÍ MENU ============ -->
 <section id="screen-menu" class="screen" hidden>
   <div class="menu">
     <div class="menu-head">
       <div class="eyebrow">Game menu</div>
       <h1>Choose how to play</h1>
-      <p>Every mode uses the same game &mdash; the iterated prisoner&rsquo;s dilemma. Here is how a single round works, then pick a mode below.</p>
+      <p>Every mode uses the same game &mdash; the iterated prisoner&rsquo;s dilemma. Here is how a single round works, then pick a mode below. New here? <a class="linkbtn" href="#story/1">Play the short story first</a>.</p>
     </div>
 
     <div class="rules">
@@ -926,6 +1384,7 @@ footer input {
       <h2>Play</h2>
       <div class="cards three">
         <button class="card" type="button" data-go="duel">
+          <span class="card-art" data-art="duel" aria-hidden="true"></span>
           <span class="tag">1 vs 1</span>
           <h3>Duel</h3>
           <p>Pick two bots and watch them play a match. You see every round: what each bot did, what the noise flipped and what the fog hid.</p>
@@ -933,6 +1392,7 @@ footer input {
           <span class="go">Open Duel &rarr;</span>
         </button>
         <button class="card" type="button" data-go="tournament">
+          <span class="card-art" data-art="tournament" aria-hidden="true"></span>
           <span class="tag">Everyone vs everyone</span>
           <h3>Tournament</h3>
           <p>Every bot plays every other bot once &mdash; the format Robert Axelrod used in his famous 1980 tournament. The ranking is by total points, not by wins.</p>
@@ -940,6 +1400,7 @@ footer input {
           <span class="go">Open Tournament &rarr;</span>
         </button>
         <button class="card" type="button" data-go="evolution">
+          <span class="card-art" data-art="evolution" aria-hidden="true"></span>
           <span class="tag">1000 players</span>
           <h3>Evolution</h3>
           <p>A population where strategies that score well multiply and the rest shrink. Watch who takes over, who goes extinct and what mutation does to the balance.</p>
@@ -953,6 +1414,7 @@ footer input {
       <h2>Your bots</h2>
       <div class="cards two">
         <button class="card" type="button" data-go="bot">
+          <span class="card-art" data-art="bot" aria-hidden="true"></span>
           <span class="tag">Your rules</span>
           <h3>Customize your own bot</h3>
           <p>Build custom behavior using priority rules: the first move, how many betrayals it forgives, how it reacts in the fog, whether its hand ever trembles.</p>
@@ -960,6 +1422,7 @@ footer input {
           <span class="go">Open the editor &rarr;</span>
         </button>
         <button class="card" type="button" data-go="gallery">
+          <span class="card-art" data-art="gallery" aria-hidden="true"></span>
           <span class="tag">Community</span>
           <h3>Public gallery of Bots</h3>
           <p>Strategies published by other players. Add any of them to your own matches, or copy one into the editor and improve it.</p>
@@ -1557,7 +2020,7 @@ async function spustDuel() {
         Array.from({ length: davka }, () => api("/simulate/duel", { method: "POST", telo }))
       ));
     }
-    vykresliDuel(cil, vysledky);
+    vykresliDuel(cil, vysledky, [postavaPro(stav.duel.bot1), postavaPro(stav.duel.bot2)]);
     $("#status").dataset.state = "up";
     $("#statusText").textContent = "server online";
   } catch (chyba) {
@@ -1569,7 +2032,7 @@ async function spustDuel() {
   }
 }
 
-function vykresliDuel(cil, vysledky) {
+function vykresliDuel(cil, vysledky, postavy = ["mystery", "mystery"]) {
   const n = vysledky.length;
   const prvni = vysledky[0];
   const jmeno1 = prvni.bot1_name, jmeno2 = prvni.bot2_name;
@@ -1597,9 +2060,11 @@ function vykresliDuel(cil, vysledky) {
   /* Skóre */
   const radek = el("div", "scoreline");
   const levy = el("div", "side" + (vedeBot1 ? " win" : vedeBot2 ? " lose" : ""));
+  levy.insertAdjacentHTML("beforeend", stickman(postavy[0], { trida: "avatar" }));
   levy.append(el("div", "who", jmeno1), el("div", "num", cislo(prumer1)));
   const stred = el("div", "vs", "vs");
   const pravy = el("div", "side right" + (vedeBot2 ? " win" : vedeBot1 ? " lose" : ""));
+  pravy.insertAdjacentHTML("beforeend", stickman(postavy[1], { trida: "avatar", otocit: true }));
   pravy.append(el("div", "who", jmeno2), el("div", "num", cislo(prumer2)));
   radek.append(levy, stred, pravy);
   stage.append(radek);
@@ -1784,7 +2249,9 @@ function postavChipy() {
         : stav.turnaj.vybrani.filter((x) => x !== b.type);
       obnovPocet();
     });
-    l.append(i, el("span", "mark"), el("span", null, b.nazev));
+    l.append(i, el("span", "mark"));
+    l.insertAdjacentHTML("beforeend", stickman(postavaPro(b.type), { trida: "who-mini" }));
+    l.append(el("span", null, b.nazev));
     chipy.append(l);
   }
   obnovPocet();
@@ -1869,9 +2336,15 @@ function vykresliTurnaj(cil, data) {
     + "</tr></thead>";
   const tb = el("tbody");
 
+  const postavaPodleJmena = Object.fromEntries(seznamBotu().map((b) => [b.nazev, postavaPro(b.type)]));
   data.standings.forEach((s, i) => {
     const tr = el("tr", i === 0 ? "lead" : "");
-    tr.append(el("td", "rank", String(i + 1)), el("td", null, s.name));
+    const tdJmeno = el("td");
+    const av = el("span", "rank-av");
+    av.innerHTML = stickman(postavaPodleJmena[s.name] || "custom");
+    av.append(el("span", null, s.name));
+    tdJmeno.append(av);
+    tr.append(el("td", "rank", String(i + 1)), tdJmeno);
 
     const tdBody = el("td", "num");
     const cell = el("div", "scorecell");
@@ -2442,6 +2915,8 @@ function vykresliSeznamBotu(kam, boti, filtr) {
     const karta = el("div", "botcard");
 
     const top = el("div", "top");
+    const typ = (bot.config || {}).type;
+    top.insertAdjacentHTML("beforeend", stickman(POSTAVY[typ] ? typ : "custom", { trida: "face" }));
     top.append(el("div", "nm", bot.name));
     top.append(el("div", "meta", bot.owner_username ? "@" + bot.owner_username : ""));
     karta.append(top);
@@ -2561,7 +3036,8 @@ const svgEl = (tag, attrs) => {
   for (const k in attrs) n.setAttribute(k, attrs[k]);
   return n;
 };
-const barvaSerie = (i) => "var(--s" + ((i % 8) + 1) + ")";
+/* Barva patří postavě: Tit-for-Tat je modrý v příběhu i tady. */
+const barvaSerie = (i) => (stav.evoluce.barvy && stav.evoluce.barvy[i]) || "var(--s" + ((i % 8) + 1) + ")";
 
 function initEvoluce() {
   postavChipyEvoluce();
@@ -2595,7 +3071,9 @@ function postavChipyEvoluce() {
       postavChipyEvoluce();
       postavEvoNastaveni();
     });
-    l.append(i, el("span", "mark"), el("span", null, b.nazev));
+    l.append(i, el("span", "mark"));
+    l.insertAdjacentHTML("beforeend", stickman(postavaPro(b.type), { trida: "who-mini" }));
+    l.append(el("span", null, b.nazev));
     chipy.append(l);
   }
   obnovPocetDruhu();
@@ -2690,6 +3168,7 @@ async function spustEvoluci() {
 
   try {
     const data = await api("/simulate/evolution", { method: "POST", telo });
+    ev.barvy = barvyProVyber(ev.vybrani);
     vykresliEvoluci(cil, data);
     $("#status").dataset.state = "up";
     $("#statusText").textContent = "server online";
@@ -2949,7 +3428,11 @@ function ukazObrazovku(id) {
 
 function navigace() {
   const cil = (location.hash || "#home").slice(1);
-  if (cil === "menu") {
+  if (cil === "story" || cil.startsWith("story/")) {
+    ukazObrazovku("screen-story");
+    zastavVideo();
+    vykresliPribeh(parseInt(cil.split("/")[1], 10) || 1);
+  } else if (cil === "menu") {
     ukazObrazovku("screen-menu");
     zastavVideo();
   } else if (REZIMY[cil]) {
@@ -2970,7 +3453,7 @@ function initZalozky() {
   for (const k of document.querySelectorAll(".card[data-go]")) {
     k.addEventListener("click", () => { location.hash = "#" + k.dataset.go; });
   }
-  $("#play").addEventListener("click", () => { location.hash = "#menu"; });
+  $("#play").addEventListener("click", () => { location.hash = "#story/1"; });
   $("#nav-menu").addEventListener("click", () => { location.hash = "#menu"; });
   const domu = () => { location.hash = "#home"; };
   $("#brand").addEventListener("click", domu);
@@ -2987,11 +3470,10 @@ function initZalozky() {
    ============================================================ */
 
 const VIDEO_ID = "mScpHTIi-kM";
-const VIDEO_ZACATEK = 190;          /* 3:10, jak je v odkazu */
 const VIDEO_PRODLEVA = 20;          /* vteřin do automatického spuštění */
 const videoUrl = (automaticky) =>
   "https://www.youtube-nocookie.com/embed/" + VIDEO_ID +
-  "?start=" + VIDEO_ZACATEK + "&rel=0&playsinline=1" +
+  "?rel=0&playsinline=1" +
   (automaticky ? "&autoplay=1&mute=1" : "");
 
 const video = { odpocet: null, hraje: false, zruseno: false };
@@ -3056,6 +3538,646 @@ window.addEventListener("blur", () => {
 });
 
 /* ============================================================
+   POSTAVY — stickmani kreslení propiskou
+   Každá strategie má vlastní postavu s rekvizitou, která prozrazuje
+   její povahu. Barva postavy je zároveň barvou její čáry v grafech,
+   takže strategie má všude stejnou identitu („barva patří postavě").
+   ============================================================ */
+
+const INKOUST = "#1F2A44";
+
+const POSTAVY = {
+  always_cooperate: { barva: "#E87BA4", ruce: "otevrene", pusa: "usmev",     rekvizita: "svatozar" },
+  always_defect:    { barva: "#4A3AA7", ruce: "boky",     pusa: "usklebek",  obocí: true, rekvizita: "rohy" },
+  tit_for_tat:      { barva: "#2A78D6", ruce: "zrcadlo",  pusa: "klid",      rekvizita: "zrcadlo" },
+  grudger:          { barva: "#EB6834", ruce: "zkrizene", pusa: "zamraceny", obocí: true, rekvizita: "mrak" },
+  pavlov:           { barva: "#1BAF7A", ruce: "zvonek",   pusa: "o",         rekvizita: "zvonek" },
+  zd_extortioner:   { barva: "#008300", ruce: "mesec",    pusa: "usklebek",  rekvizita: "cylindr" },
+  zd_generous:      { barva: "#EDA100", ruce: "darek",    pusa: "usmev",     rekvizita: "darek" },
+  custom:           { barva: "#E34948", ruce: "tuzka",    pusa: "usmev",     rekvizita: "tuzka" },
+  you:              { barva: "#2B4C9B", ruce: "dolu",     pusa: "usmev" },
+  mystery:          { barva: "#B9C2D3", ruce: "dolu",     pusa: "otaznik" }
+};
+
+const RUCE = {
+  otevrene: "M50 60 L27 41 M50 60 L73 41",
+  boky:     "M50 60 L33 72 L45 86 M50 60 L67 72 L55 86",
+  dolu:     "M50 60 L36 86 M50 60 L64 86",
+  zrcadlo:  "M50 60 L36 86 M50 60 L72 64",
+  zkrizene: "M50 60 L37 72 L62 77 M50 60 L63 72 L38 77",
+  zvonek:   "M50 60 L36 86 M50 60 L69 47",
+  mesec:    "M50 60 L36 86 M50 60 L68 79",
+  darek:    "M50 60 L40 77 M50 60 L60 77",
+  tuzka:    "M50 60 L36 86 M50 60 L69 71"
+};
+
+const PUSA = {
+  usmev:     '<path d="M43.5 36.5 Q50 42.5 56.5 36.5" fill="none"/>',
+  usklebek:  '<path d="M43 38 Q51 41.5 57 34.5" fill="none"/>',
+  klid:      '<path d="M44.5 37.5 Q50 40 55.5 37.5" fill="none"/>',
+  zamraceny: '<path d="M44 40.5 Q50 35 56 40.5" fill="none"/>',
+  o:         '<circle cx="50" cy="38.5" r="2.8" fill="none"/>',
+  otaznik:   ""
+};
+
+function rekvizita(druh, b) {
+  const tah = 'stroke="' + INKOUST + '" stroke-width="2.6"';
+  switch (druh) {
+    case "svatozar":
+      return '<ellipse cx="50" cy="9" rx="14" ry="4.2" fill="none" stroke="' + b + '" stroke-width="3.8"/>';
+    case "rohy":
+      return '<path d="M38 20 L33 5 L45 15.5 Z M62 20 L67 5 L55 15.5 Z" fill="' + b + '" ' + tah + '/>';
+    case "zrcadlo":
+      return '<path d="M72 64 L77 58" fill="none"/>' +
+             '<ellipse cx="81" cy="48" rx="7.5" ry="10.5" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M78 42 Q79 39.5 82 39" fill="none" stroke="#fff" stroke-width="2"/>';
+    case "mrak":
+      return '<path d="M33 9 C26 9 27 0 34 1 C35 -5 45 -6 48 -1 C51 -6 61 -5 62 1 C70 0 71 9 64 9 Z" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M40 13 L38.5 17 M50 13 L48.5 17 M60 13 L58.5 17" stroke="' + b + '" stroke-width="2.4"/>';
+    case "zvonek":
+      return '<path d="M65 34 Q65 24 73 24 Q81 24 81 34 L83.5 40 L62.5 40 Z" fill="' + b + '" ' + tah + '/>' +
+             '<circle cx="73" cy="42.5" r="2.4" fill="' + INKOUST + '" stroke="none"/>' +
+             '<path d="M86 26 L90 22.5 M87.5 33 L92.5 33" fill="none" stroke-width="2.4"/>';
+    case "cylindr":
+      return '<rect x="40" y="-3" width="20" height="17" rx="1.5" fill="' + b + '" ' + tah + '/>' +
+             '<rect x="33.5" y="13" width="33" height="4.5" rx="2.2" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M40.5 9 L59.5 9" stroke="#fff" stroke-width="2.2"/>' +
+             '<circle cx="55.5" cy="29" r="5.2" fill="none" stroke-width="2"/>' +
+             '<path d="M60.5 30.5 Q64 39 60 45" fill="none" stroke-width="1.4"/>' +
+             '<path d="M62 84 Q59.5 99 70 99 Q80.5 99 78 84 Q76 78 70 78 Q64 78 62 84 Z" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M65.5 78.5 L74.5 78.5" stroke-width="2.4"/>' +
+             '<text x="70" y="94" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" stroke="none" font-family="Nunito, sans-serif">$</text>';
+    case "darek":
+      return '<rect x="38.5" y="72" width="23" height="18" rx="2" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M50 72 L50 90" stroke="#fff" stroke-width="2.6"/>' +
+             '<path d="M50 72 C44 64 41 70 46 71.5 M50 72 C56 64 59 70 54 71.5" fill="none" stroke-width="2.2"/>';
+    case "tuzka":
+      return '<path d="M67 75 L85 53 L90.5 57.5 L72.5 79.5 Z" fill="' + b + '" ' + tah + '/>' +
+             '<path d="M67 75 L72.5 79.5 L65 82 Z" fill="#F5DFAE" ' + tah + '/>' +
+             '<path d="M85 53 L90.5 57.5 L92.5 55 Q90 50 87 50.5 Z" fill="#F7B6C8" ' + tah + '/>';
+    default:
+      return "";
+  }
+}
+
+/* Vrátí <svg> se stickmanem.
+   klic: typ bota (tit_for_tat …), "custom", "you" nebo "mystery".
+   volby: { trida, popis (pro čtečky), otocit: true = kouká doleva } */
+function stickman(klic, volby = {}) {
+  const p = POSTAVY[klic] || POSTAVY.mystery;
+  const b = p.barva;
+  const hlava = klic === "mystery"
+    ? '<circle cx="50" cy="31" r="16" fill="#EEF2F8"/>' +
+      '<text x="50" y="38.5" text-anchor="middle" font-size="21" font-weight="800" fill="' + INKOUST + '" stroke="none" font-family="Fredoka, Nunito, sans-serif">?</text>'
+    : '<circle cx="50" cy="31" r="16" fill="#fff"/>' +
+      '<circle cx="44.5" cy="29" r="2.1" fill="' + INKOUST + '" stroke="none"/>' +
+      '<circle cx="55.5" cy="29" r="2.1" fill="' + INKOUST + '" stroke="none"/>' +
+      (p.obocí ? '<path d="M39.5 22.5 L47.5 25.5 M60.5 22.5 L52.5 25.5" fill="none" stroke-width="2.6"/>' : "") +
+      PUSA[p.pusa];
+
+  /* Rekvizity držené v ruce se kreslí PŘED tělem? Ne — až po něm,
+     ať je ruka vidět, jak ji drží. Svatozář, rohy a mrak jsou nad hlavou. */
+  const telo =
+    '<ellipse cx="50" cy="140" rx="27" ry="5.5" fill="' + b + '" opacity=".26" stroke="none"/>' +
+    '<path d="M50 96 L37 135 M50 96 L63 135 M50 47 L50 96" fill="none"/>' +
+    '<path d="' + (RUCE[p.ruce] || RUCE.dolu) + '" fill="none"/>';
+
+  const otoc = volby.otocit ? ' transform="translate(100 0) scale(-1 1)"' : "";
+  const popis = volby.popis ? '<title>' + esc(volby.popis) + '</title>' : "";
+  return '<svg class="' + (volby.trida || "stickman") + '" viewBox="0 -8 100 156" role="img"' +
+    (volby.popis ? "" : ' aria-hidden="true"') + '>' + popis +
+    '<g' + otoc + ' stroke="' + INKOUST + '" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">' +
+    telo + hlava + rekvizita(p.rekvizita, b) +
+    '</g></svg>';
+}
+
+/* Který stickman patří k hodnotě z výběru botů. */
+function postavaPro(hodnota) {
+  if (!hodnota) return "mystery";
+  if (hodnota.startsWith && hodnota.startsWith("saved:")) {
+    const ulozeny = stav.prevzati[hodnota.slice(6)];
+    const typ = ulozeny && ulozeny.config && ulozeny.config.type;
+    return POSTAVY[typ] ? typ : "custom";
+  }
+  return POSTAVY[hodnota] ? hodnota : "custom";
+}
+
+/* Barva čáry v grafu pro každou sérii — podle postavy, ne podle pořadí.
+   Kdyby dvě série měly stejnou postavu (dva vlastní boti), druhá dostane
+   první volnou barvu z ověřené palety. */
+const PALETA = ["#2A78D6", "#EB6834", "#1BAF7A", "#EDA100", "#E87BA4", "#008300", "#4A3AA7", "#E34948"];
+function barvyProVyber(hodnoty) {
+  const pouzite = new Set();
+  return hodnoty.map((h) => {
+    let barva = POSTAVY[postavaPro(h)].barva.toUpperCase();
+    if (pouzite.has(barva)) barva = PALETA.find((x) => !pouzite.has(x)) || barva;
+    pouzite.add(barva);
+    return barva;
+  });
+}
+
+/* ============================================================
+   PŘÍBĚH — interaktivní průvodce po kliknutí na Play
+   Šest kroků. Všechno, co se tu hraje a počítá, jde přes stejné API
+   jako zbytek hry — nic se nepředstírá a texty pod výsledky se skládají
+   ze skutečných čísel, ne z toho, co „by mělo" vyjít.
+   ============================================================ */
+
+const PRIBEH_KROKU = 6;
+const pribeh = {
+  krok: 1,
+  hra: null,          /* krok 1: rozehraná hra proti neznámému */
+  tip: null,          /* krok 3: tip na vítěze turnaje */
+  turnaj: null,
+  evoluce: null,
+  sum: {}             /* krok 5: výsledky duelů se šumem */
+};
+
+const JMENO = Object.fromEntries(BOTI.map((b) => [b.type, b.nazev]));
+const C_D = (t) => '<span class="mv-word ' + t + '">' + (t === "C" ? "cooperate" : "defect") + "</span>";
+
+function vykresliPribeh(n) {
+  pribeh.krok = Math.max(1, Math.min(PRIBEH_KROKU, n || 1));
+  const kam = $("#story-body");
+  kam.innerHTML = "";
+  [null, krok1, krok2, krok3, krok4, krok5, krok6][pribeh.krok](kam);
+
+  /* tečky postupu a navigace */
+  const tecky = $("#story-dots");
+  tecky.innerHTML = "";
+  for (let i = 1; i <= PRIBEH_KROKU; i++) {
+    const t = el("button", "dot-step" + (i === pribeh.krok ? " on" : "") + (i < pribeh.krok ? " done" : ""));
+    t.type = "button";
+    t.setAttribute("aria-label", "Step " + i);
+    if (i === pribeh.krok) t.setAttribute("aria-current", "step");
+    t.addEventListener("click", () => { location.hash = "#story/" + i; });
+    tecky.append(t);
+  }
+  $("#story-back").hidden = pribeh.krok === 1;
+  const dalsi = $("#story-next");
+  dalsi.hidden = pribeh.krok === PRIBEH_KROKU;
+  dalsi.textContent = ["", "Meet the others →", "Run a tournament →", "Now let them evolve →",
+    "But people make mistakes →", "Your turn →", ""][pribeh.krok];
+  $("#story-count").textContent = pribeh.krok + " / " + PRIBEH_KROKU;
+}
+
+function nadpis(kam, eyebrow, h, odstavce) {
+  const hlava = el("div", "slide-head");
+  hlava.innerHTML = '<div class="eyebrow">' + eyebrow + "</div><h1>" + h + "</h1>" +
+    odstavce.map((t) => "<p>" + t + "</p>").join("");
+  kam.append(hlava);
+}
+
+/* ---------- 1. Zahraj si ---------- */
+
+const HRA_KOL = 6;
+
+function krok1(kam) {
+  nadpis(kam, "Step 1 · Play", "One choice. Two players.",
+    ["You and a stranger each secretly choose to <b>cooperate</b> or <b>defect</b>. Then you both reveal. Here is what each of you gets:"]);
+
+  const vyplaty = el("div", "payoffs");
+  vyplaty.innerHTML =
+    '<div class="po"><span class="pair"><i class="C">C</i><i class="C">C</i></span><b>3 : 3</b><span>both cooperate</span></div>' +
+    '<div class="po"><span class="pair"><i class="D">D</i><i class="C">C</i></span><b>5 : 0</b><span>you defect, they don’t</span></div>' +
+    '<div class="po"><span class="pair"><i class="C">C</i><i class="D">D</i></span><b>0 : 5</b><span>they defect, you don’t</span></div>' +
+    '<div class="po"><span class="pair"><i class="D">D</i><i class="D">D</i></span><b>1 : 1</b><span>both defect</span></div>';
+  kam.append(vyplaty);
+
+  const p = el("p", "slide-text");
+  p.innerHTML = 'Defecting always pays more in a single round. But if you <span class="hl">both</span> defect, you both do worse than if you had trusted each other. You’ll meet the same stranger ' + HRA_KOL + " times.";
+  kam.append(p);
+
+  if (!pribeh.hra) pribeh.hra = { ja: [], on: [], body: [0, 0], ceka: false };
+  const arena = el("div", "arena");
+  arena.id = "arena";
+  kam.append(arena);
+  vykresliArenu();
+}
+
+function vykresliArenu() {
+  const h = pribeh.hra;
+  const arena = $("#arena");
+  if (!arena) return;
+  const kolo = h.ja.length;
+  const konec = kolo >= HRA_KOL;
+  const posledni = kolo ? [h.ja[kolo - 1], h.on[kolo - 1]] : null;
+  const bublina = (t) => t ? '<div class="bubble ' + t + '">' + (t === "C" ? "C" : "D") + "</div>" : '<div class="bubble wait">…</div>';
+
+  arena.innerHTML =
+    '<div class="duo">' +
+      '<div class="fig">' + bublina(posledni && posledni[0]) + stickman("you", { trida: "fig-svg", popis: "You" }) +
+        '<div class="fig-name">You</div><div class="fig-score">' + h.body[0] + "</div></div>" +
+      '<div class="vs-round">' + (konec ? "done" : "round " + (kolo + 1) + " of " + HRA_KOL) + "</div>" +
+      '<div class="fig">' + bublina(posledni && posledni[1]) +
+        stickman(konec ? "tit_for_tat" : "mystery", { trida: "fig-svg", otocit: true, popis: konec ? "Tit-for-Tat" : "The stranger" }) +
+        '<div class="fig-name">' + (konec ? "Tit-for-Tat" : "Stranger") + '</div><div class="fig-score">' + h.body[1] + "</div></div>" +
+    "</div>";
+
+  /* stopa dosavadních kol */
+  if (kolo) {
+    const stopa = el("div", "trail");
+    stopa.innerHTML = '<div class="trail-row"><span>You</span>' + h.ja.map((t) => '<i class="mv ' + t + '">' + t + "</i>").join("") + "</div>" +
+      '<div class="trail-row"><span>' + (konec ? "Tit-for-Tat" : "Stranger") + "</span>" + h.on.map((t) => '<i class="mv ' + t + '">' + t + "</i>").join("") + "</div>";
+    arena.append(stopa);
+  }
+
+  if (!konec) {
+    const volba = el("div", "choice");
+    const c = el("button", "big-choice C", "Cooperate");
+    const d = el("button", "big-choice D", "Defect");
+    for (const [btn, tah] of [[c, "C"], [d, "D"]]) {
+      btn.type = "button";
+      btn.disabled = h.ceka;
+      btn.addEventListener("click", () => odehrajKolo(tah));
+    }
+    volba.append(c, d);
+    arena.append(volba);
+    if (h.chyba) arena.append(el("p", "story-error", h.chyba));
+    return;
+  }
+
+  /* odhalení */
+  const moje = h.ja.filter((t) => t === "D").length;
+  const reveal = el("div", "reveal");
+  let ponauceni;
+  if (moje === 0) {
+    ponauceni = "You cooperated every round, and so did it — " + h.body[0] + " points each, the most two players can make together.";
+  } else if (h.ja.every((t) => t === "D")) {
+    ponauceni = "You defected every time. It trusted you once, then defected right back — and you both got stuck at 1 point a round.";
+  } else {
+    const oplaceno = h.ja.slice(0, -1).filter((t, i) => t === "D" && h.on[i + 1] === "D").length;
+    ponauceni = "You defected " + moje + "×. " + (oplaceno
+      ? "Every time you did, it paid you back the very next round."
+      : "It never had a chance to pay you back — your defection came at the very end.");
+  }
+  reveal.innerHTML = "<h3>The stranger was <span class=\"hl\">Tit-for-Tat</span>.</h3>" +
+    "<p>It cooperated in the first round, then simply copied whatever you did the round before. " + ponauceni + "</p>";
+  const znovu = el("button", "linkbtn", "Play again");
+  znovu.addEventListener("click", () => { pribeh.hra = null; vykresliPribeh(1); });
+  reveal.append(znovu);
+  arena.append(reveal);
+}
+
+async function odehrajKolo(tvujTah) {
+  const h = pribeh.hra;
+  if (h.ceka || h.ja.length >= HRA_KOL) return;
+  h.ceka = true; h.chyba = null;
+  vykresliArenu();
+  try {
+    /* Bot se rozhoduje jen podle předchozích kol — tvůj aktuální tah nevidí. */
+    const odp = await api("/play/move", { method: "POST", telo: {
+      bot: { type: "tit_for_tat" }, bot_history: h.on, opponent_history: h.ja, total_rounds: null
+    } });
+    const jeho = odp.move;
+    const zisk = { CC: [3, 3], CD: [0, 5], DC: [5, 0], DD: [1, 1] }[tvujTah + jeho];
+    h.ja.push(tvujTah); h.on.push(jeho);
+    h.body = [h.body[0] + zisk[0], h.body[1] + zisk[1]];
+  } catch (e) {
+    h.chyba = "The server didn’t answer (" + e.message + "). Try again in a moment.";
+  } finally {
+    h.ceka = false;
+    vykresliArenu();
+  }
+}
+
+/* ---------- 2. Postavy ---------- */
+
+const POVAHY = {
+  always_cooperate: "Trusts everyone, every time. Lovely — and easy to exploit.",
+  always_defect:    "Never cooperates. Takes whatever it can get.",
+  tit_for_tat:      "Starts nice, then copies your last move. Fair, but never forgets for long.",
+  grudger:          "Nice until you betray it once. After that, never again.",
+  pavlov:           "Win-stay, lose-shift: repeats what worked, switches what didn’t.",
+  zd_extortioner:   "Uses probabilities to always end up a little ahead of you.",
+  zd_generous:      "Rewards cooperation and lets you come out slightly ahead."
+};
+
+function krok2(kam) {
+  nadpis(kam, "Step 2 · The cast", "Meet the strategies.",
+    ["A strategy is just a rule for what to play next. These seven are classics of game theory — you just met one of them."]);
+  const mriz = el("div", "cast-grid");
+  for (const typ of Object.keys(POVAHY)) {
+    const k = el("div", "cast-card");
+    k.innerHTML = stickman(typ, { trida: "cast-svg" }) + "<h3>" + JMENO[typ] + "</h3><p>" + POVAHY[typ] + "</p>";
+    mriz.append(k);
+  }
+  kam.append(mriz);
+  kam.append(el("p", "slide-text", "Which one would you bet on? Let’s find out."));
+}
+
+/* ---------- 3. Turnaj ---------- */
+
+const TURNAJ_BOTI = ["always_cooperate", "always_defect", "tit_for_tat", "grudger", "pavlov"];
+const TURNAJ_KOL = 10;
+
+function krok3(kam) {
+  nadpis(kam, "Step 3 · Tournament", "Who wins the tournament?",
+    ["Five of them play everyone else once, " + TURNAJ_KOL + " rounds per match. Points add up. <b>Tap the one you think will score the most.</b>"]);
+
+  const vyber = el("div", "guess");
+  for (const typ of TURNAJ_BOTI) {
+    const b = el("button", "guess-btn" + (pribeh.tip === typ ? " picked" : ""));
+    b.type = "button";
+    b.innerHTML = stickman(typ, { trida: "guess-svg" }) + "<span>" + JMENO[typ] + "</span>";
+    b.disabled = Boolean(pribeh.turnaj);
+    b.addEventListener("click", () => { pribeh.tip = typ; spustPribehTurnaj(); });
+    vyber.append(b);
+  }
+  kam.append(vyber);
+
+  const vysl = el("div", "story-result");
+  vysl.id = "story-tour";
+  kam.append(vysl);
+  if (pribeh.turnaj) vykresliPribehTurnaj();
+}
+
+async function spustPribehTurnaj() {
+  const kam = $("#story-tour");
+  for (const b of document.querySelectorAll(".guess-btn")) b.disabled = true;
+  kam.innerHTML = '<p class="loading">Playing ' + (TURNAJ_BOTI.length * (TURNAJ_BOTI.length - 1) / 2) + " matches…</p>";
+  try {
+    pribeh.turnaj = await api("/simulate/tournament", { method: "POST", telo: {
+      bots: TURNAJ_BOTI.map((t) => ({ type: t })),
+      settings: { kola: TURNAJ_KOL, neznama_kola: false, mlha: 0, delay: 1, zkresleni: 0 },
+      repeats: 1
+    } });
+    vykresliPribeh(3);
+  } catch (e) {
+    kam.innerHTML = '<p class="story-error">The server didn’t answer (' + esc(e.message) + ").</p>";
+    for (const b of document.querySelectorAll(".guess-btn")) b.disabled = false;
+  }
+}
+
+function vykresliPribehTurnaj() {
+  const kam = $("#story-tour");
+  const d = pribeh.turnaj;
+  const typPodleJmena = Object.fromEntries(TURNAJ_BOTI.map((t) => [JMENO[t], t]));
+  const max = Math.max(...d.standings.map((s) => s.score));
+
+  const graf = el("div", "hbars");
+  d.standings.forEach((s, i) => {
+    const typ = typPodleJmena[s.name];
+    const r = el("div", "hbar" + (typ === pribeh.tip ? " guessed" : ""));
+    r.innerHTML = '<span class="hb-rank">' + (i + 1) + "</span>" + stickman(typ, { trida: "hb-svg" }) +
+      '<span class="hb-name">' + esc(s.name) + (typ === pribeh.tip ? ' <em>your guess</em>' : "") + "</span>" +
+      '<span class="hb-track"><i style="width:' + (s.score / max * 100).toFixed(1) + '%"></i></span>' +
+      '<span class="hb-val">' + Math.round(s.score) + "</span>";
+    graf.append(r);
+  });
+
+  /* komentář ze skutečných čísel */
+  const vitez = d.standings[0];
+  const vitezTyp = typPodleJmena[vitez.name];
+  const zapasyViteze = d.matches.filter((m) => m.bot1 === vitez.name || m.bot2 === vitez.name)
+    .map((m) => m.bot1 === vitez.name ? { proti: m.bot2, ja: m.score1, on: m.score2 } : { proti: m.bot1, ja: m.score2, on: m.score1 })
+    .sort((a, b) => b.ja - a.ja);
+  const nejvic = zapasyViteze[0], nejmin = zapasyViteze[zapasyViteze.length - 1];
+  const trefa = pribeh.tip === vitezTyp ? "You guessed right. " : "";
+
+  let text;
+  if (vitezTyp === "always_defect") {
+    text = trefa + "<b>Always Defect</b> wins without cooperating even once. It took <b>" + nejvic.ja + "</b> points from " +
+      esc(nejvic.proti) + ", but only <b>" + nejmin.ja + "</b> from " + esc(nejmin.proti) +
+      ", which struck back. It won by exploiting the trusting ones.";
+  } else {
+    text = trefa + "<b>" + esc(vitez.name) + "</b> wins with " + Math.round(vitez.score) + " points. Its best match was against " +
+      esc(nejvic.proti) + " (" + nejvic.ja + " points), its worst against " + esc(nejmin.proti) + " (" + nejmin.ja + ").";
+  }
+  const p = el("p", "story-caption"); p.innerHTML = text;
+  kam.innerHTML = "";
+  kam.append(graf, p);
+  if (vitezTyp === "always_defect") {
+    kam.append(el("p", "story-caption strong", "So betrayal pays? In one tournament, yes. But what if this happened again and again — and winners got more copies of themselves?"));
+  }
+  const znovu = el("button", "linkbtn", "Guess again");
+  znovu.addEventListener("click", () => { pribeh.turnaj = null; pribeh.tip = null; vykresliPribeh(3); });
+  kam.append(znovu);
+}
+
+/* ---------- 4. Evoluce ---------- */
+
+const EVO_BOTI = ["always_cooperate", "always_defect", "tit_for_tat"];
+const EVO_GENERACI = 40;
+
+function krok4(kam) {
+  nadpis(kam, "Step 4 · Evolution", "Now let the winners multiply.",
+    ["Start with a crowd of 1000: a third trusting, a third cheating, a third copying. After each round of matches, strategies that scored more get <span class=\"hl\">more copies</span> in the next generation."]);
+  const vysl = el("div", "story-result");
+  vysl.id = "story-evo";
+  kam.append(vysl);
+  if (pribeh.evoluce) vykresliPribehEvoluci(); else spustPribehEvoluci();
+}
+
+async function spustPribehEvoluci() {
+  const kam = $("#story-evo");
+  kam.innerHTML = '<p class="loading">Simulating ' + EVO_GENERACI + " generations…</p>";
+  try {
+    pribeh.evoluce = await api("/simulate/evolution", { method: "POST", telo: {
+      bots: EVO_BOTI.map((t) => ({ type: t })),
+      settings: { kola: TURNAJ_KOL, neznama_kola: false, mlha: 0, delay: 1, zkresleni: 0 },
+      generations: EVO_GENERACI, distribution: "equal", mutation: 0
+    } });
+    if (pribeh.krok === 4) vykresliPribehEvoluci();
+  } catch (e) {
+    kam.innerHTML = '<p class="story-error">The server didn’t answer (' + esc(e.message) + ").</p>";
+  }
+}
+
+function vykresliPribehEvoluci() {
+  const kam = $("#story-evo");
+  const d = pribeh.evoluce;
+  const H = d.history, G = d.generations;
+  const W = 720, V = 300, ML = 40, MR = 200, MT = 14, MB = 30;
+  const X = (g) => ML + g / G * (W - ML - MR);
+  const Y = (v) => MT + (1 - v / d.total_population) * (V - MT - MB);
+
+  let svg = '<svg class="evo-mini" viewBox="0 0 ' + W + " " + V + '" role="img" aria-label="Population of each strategy over ' + G + ' generations.">';
+  for (const v of [0, 500, 1000]) {
+    svg += '<line x1="' + ML + '" x2="' + (W - MR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="g"/>' +
+      '<text x="' + (ML - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end" class="ax">' + v + "</text>";
+  }
+  for (const g of [0, G / 2, G]) svg += '<text x="' + X(g) + '" y="' + (V - 8) + '" text-anchor="middle" class="ax">' + g + "</text>";
+  svg += '<text x="' + (W - MR) + '" y="' + (V - 8) + '" text-anchor="end" class="ax" dx="34">gen.</text>';
+
+  const konce = [];
+  EVO_BOTI.forEach((typ, i) => {
+    const body = H.map((r, g) => X(g).toFixed(1) + "," + Y(r[i]).toFixed(1)).join(" ");
+    svg += '<polyline class="evo-line" points="' + body + '" stroke="' + POSTAVY[typ].barva + '"/>';
+    konce.push({ typ, y: Y(H[H.length - 1][i]), v: H[H.length - 1][i] });
+  });
+  /* popisky na koncích čar, ať se nepřekrývají */
+  konce.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < konce.length; i++) if (konce[i].y - konce[i - 1].y < 36) konce[i].y = konce[i - 1].y + 36;
+  for (const k of konce) {
+    svg += '<g transform="translate(' + (W - MR + 8) + "," + (k.y - 24) + ')">' +
+      stickman(k.typ).replace("<svg", '<svg width="24" height="38"') + "</g>" +
+      '<text x="' + (W - MR + 36) + '" y="' + (k.y + 4) + '" class="lbl">' + JMENO[k.typ] + " · " + Math.round(k.v) + "</text>";
+  }
+  svg += "</svg>";
+
+  /* komentář ze skutečných čísel */
+  const iD = EVO_BOTI.indexOf("always_defect");
+  let vrchol = 0;
+  H.forEach((r, g) => { if (r[iD] > H[vrchol][iD]) vrchol = g; });
+  const druhD = d.species.find((s) => s.name === JMENO.always_defect);
+  const vitez = d.species[0];
+  let text = "<b>Always Defect</b> grows at first — from " + Math.round(H[0][iD]) + " to " + Math.round(H[vrchol][iD]) +
+    " by generation " + vrchol + " — feeding on the trusting ones. ";
+  text += druhD.extinct_at
+    ? "Then it runs out of victims and <span class=\"hl\">dies out in generation " + druhD.extinct_at + "</span>. "
+    : "Then it starts to shrink. ";
+  text += "<b>" + esc(vitez.name) + "</b> ends with " + Math.round(vitez.share) + " % of the population.";
+
+  kam.innerHTML = '<div class="evo-wrap">' + svg + "</div>";
+  const p = el("p", "story-caption"); p.innerHTML = text;
+  kam.append(p);
+  kam.append(el("p", "story-caption strong", "In the short run, betrayal pays. In the long run, it eats its own food supply."));
+}
+
+/* ---------- 5. Chyby ---------- */
+
+const SUM_KOL = 30, SUM = 0.05;
+
+const SUM_ZAPASU = 20;   /* jeden zápas ukážeme, průměr se počítá z dvaceti */
+
+function krok5(kam) {
+  nadpis(kam, "Step 5 · Noise", "But people make mistakes.",
+    ["Real life is noisy: a message gets lost, a gesture is misread. Here two copies of the same strategy play " + SUM_KOL +
+     " rounds, and <span class=\"hl\">" + Math.round(SUM * 100) + " % of moves arrive flipped</span> — cooperation looks like betrayal."]);
+  const klic = el("p", "noise-key");
+  klic.innerHTML = '<i class="mv C noise">C</i> a move that arrived flipped — the other side saw the opposite';
+  const a = el("div", "story-result"); a.id = "noise-tft";
+  const b = el("div", "story-result"); b.id = "noise-pav";
+  const souhrn = el("div", "story-result"); souhrn.id = "noise-sum";
+  kam.append(klic, a, b, souhrn);
+  zobrazSum("tit_for_tat", a);
+  zobrazSum("pavlov", b);
+}
+
+async function zobrazSum(typ, kam, znovu = false) {
+  if (!pribeh.sum[typ] || znovu) {
+    kam.innerHTML = '<p class="loading">' + JMENO[typ] + " vs " + JMENO[typ] + " — playing " + SUM_ZAPASU + " matches</p>";
+    const telo = (historie) => ({
+      bot1: { type: typ }, bot2: { type: typ },
+      settings: { kola: SUM_KOL, neznama_kola: false, mlha: 0, delay: 1, zkresleni: SUM }, history: historie
+    });
+    try {
+      const [ukazka, ...ostatni] = await Promise.all([
+        api("/simulate/duel", { method: "POST", telo: telo(true) }),
+        ...Array.from({ length: SUM_ZAPASU - 1 }, () => api("/simulate/duel", { method: "POST", telo: telo(false) }))
+      ]);
+      const vse = [ukazka, ...ostatni];
+      const prumer = vse.reduce((x, d) => x + (d.score1 + d.score2) / 2 / d.rounds_played, 0) / vse.length;
+      pribeh.sum[typ] = { ukazka, prumer };
+    } catch (e) {
+      kam.innerHTML = '<p class="story-error">The server didn’t answer (' + esc(e.message) + ").</p>";
+      return;
+    }
+  }
+  if (pribeh.krok !== 5) return;
+  const d = pribeh.sum[typ].ukazka, h = d.history;
+  const chyby = h.reduce((a, r) => a + (r.move1 !== r.arrived1) + (r.move2 !== r.arrived2), 0);
+  const spolu = h.filter((r) => r.move1 === "C" && r.move2 === "C").length;
+  const bodu = ((d.score1 + d.score2) / 2 / h.length).toFixed(2);
+  const radek = (k) => h.map((r) => {
+    const tah = r["move" + k], dosel = r["arrived" + k];
+    return '<i class="mv ' + tah + (tah !== dosel ? " noise" : "") + '" title="Round ' + r.round + ": played " + tah +
+      (tah !== dosel ? ", arrived as " + dosel : "") + '">' + tah + "</i>";
+  }).join("");
+
+  const pocet = chyby + " move" + (chyby === 1 ? "" : "s") + " arrived flipped in this match. ";
+  let text;
+  if (!chyby) text = "No mistake happened in this match — so they cooperated all the way. Run it again.";
+  else if (typ === "tit_for_tat") text = pocet + "Each one starts a chain of revenge — they punish each other in turns. <b>" + spolu + " of " + h.length + "</b> rounds were mutual cooperation, <b>" + bodu + "</b> points per round instead of 3.";
+  else text = pocet + "Pavlov recovers: after a bad round, both switch back to cooperation. <b>" + spolu + " of " + h.length + "</b> rounds were mutual cooperation, <b>" + bodu + "</b> points per round.";
+
+  kam.innerHTML =
+    '<div class="noise-head">' + stickman(typ, { trida: "noise-svg" }) + stickman(typ, { trida: "noise-svg", otocit: true }) +
+      "<h3>" + JMENO[typ] + " vs " + JMENO[typ] + "</h3></div>" +
+    '<div class="trail noise-trail"><div class="trail-row">' + radek(1) + '</div><div class="trail-row">' + radek(2) + "</div></div>" +
+    '<p class="story-caption">' + text + "</p>";
+  const btn = el("button", "linkbtn", "Show another match");
+  btn.addEventListener("click", () => zobrazSum(typ, kam, true));
+  kam.append(btn);
+  souhrnSumu();
+}
+
+/* Jeden zápas je loterie — závěr se dělá až z průměru dvaceti zápasů. */
+function souhrnSumu() {
+  const kam = $("#noise-sum");
+  const t = pribeh.sum.tit_for_tat, p = pribeh.sum.pavlov;
+  if (!kam || !t || !p) return;
+  const lepsi = p.prumer > t.prumer ? "Pavlov" : "Tit-for-Tat";
+  kam.innerHTML = "";
+  const odst = el("p", "story-caption");
+  odst.innerHTML = "One match can be lucky or unlucky. Averaged over " + SUM_ZAPASU + " matches each, Tit-for-Tat pairs scored <b>" +
+    t.prumer.toFixed(2) + "</b> points per round and Pavlov pairs <b>" + p.prumer.toFixed(2) + "</b>.";
+  kam.append(odst);
+  kam.append(el("p", "story-caption strong", lepsi === "Pavlov"
+    ? "In a noisy world, forgiving fast beats getting even."
+    : "This time Tit-for-Tat came out ahead — noise is random. Show more matches and watch the averages."));
+}
+
+/* ---------- 6. Teď ty ---------- */
+
+function krok6(kam) {
+  nadpis(kam, "Step 6 · Your turn", "Now build your own.",
+    ["Trust is not naive and betrayal is not clever — it depends on who you play, how often, and how noisy the world is. That is game theory.",
+     "Design a strategy of your own, test it against the classics, publish it, and see whether it survives evolution."]);
+  const sestava = el("div", "lineup");
+  sestava.innerHTML = Object.keys(POVAHY).map((t) => stickman(t, { trida: "lineup-svg" })).join("") + stickman("custom", { trida: "lineup-svg me" });
+  kam.append(sestava);
+
+  const cesty = el("div", "story-exits");
+  const hlavni = el("button", "btn btn-primary big", "Customize your own bot");
+  hlavni.addEventListener("click", () => { location.hash = "#bot"; });
+  cesty.append(hlavni);
+  for (const [cil, popis] of [["duel", "Duel"], ["tournament", "Tournament"], ["evolution", "Evolution"], ["gallery", "Public gallery of Bots"], ["menu", "Game menu"]]) {
+    const b = el("button", "btn btn-ghost", popis);
+    b.addEventListener("click", () => { location.hash = "#" + cil; });
+    cesty.append(b);
+  }
+  kam.append(cesty);
+}
+
+/* ============================================================
+   KRESBY NA TITULNÍ STRANĚ A V MENU
+   ============================================================ */
+
+function nakresliTitulniStranu() {
+  $("#home-cast").innerHTML =
+    ["always_cooperate", "grudger", "tit_for_tat", "always_defect"].map((t) => stickman(t)).join("") +
+    stickman("you", { trida: "stickman me" }) +
+    ["pavlov", "zd_generous", "zd_extortioner"].map((t) => stickman(t, { otocit: true })).join("");
+
+  const evoGraf =
+    '<svg class="art-evo" viewBox="0 0 160 92">' +
+    '<path d="M6 86 L154 86" stroke="#D3DCEA" stroke-width="2"/>' +
+    '<polyline points="6,52 40,40 70,46 100,70 130,84 154,86" fill="none" stroke="' + POSTAVY.always_defect.barva + '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="6,52 40,56 70,44 100,28 130,16 154,12" fill="none" stroke="' + POSTAVY.tit_for_tat.barva + '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="6,52 40,66 70,70 100,68 130,66 154,66" fill="none" stroke="' + POSTAVY.always_cooperate.barva + '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</svg>";
+  const kresby = {
+    duel: stickman("tit_for_tat") + '<span class="art-vs">vs</span>' + stickman("always_defect", { otocit: true }),
+    tournament: ["grudger", "pavlov", "always_cooperate", "zd_generous"].map((t) => stickman(t, { trida: "sm" })).join(""),
+    evolution: stickman("tit_for_tat") + evoGraf,
+    bot: stickman("custom"),
+    gallery: ["zd_extortioner", "custom", "pavlov", "custom", "grudger"].map((t) => stickman(t, { trida: "sm" })).join("")
+  };
+  for (const k of document.querySelectorAll(".card-art")) k.innerHTML = kresby[k.dataset.art] || "";
+
+  /* malý Tit-for-Tat jako logo v hlavičce */
+  const znacka = $("#brand");
+  if (!znacka.querySelector(":scope > svg")) znacka.insertAdjacentHTML("afterbegin", stickman("tit_for_tat", { trida: "logo" }));
+}
+
+function initPribeh() {
+  $("#story-back").addEventListener("click", () => { location.hash = "#story/" + (pribeh.krok - 1); });
+  $("#story-next").addEventListener("click", () => { location.hash = "#story/" + (pribeh.krok + 1); });
+}
+
+/* ============================================================
    12. START
    ============================================================ */
 
@@ -3066,6 +4188,8 @@ window.addEventListener("blur", () => {
   initEvoluce();
   initBot();
   initSeznamBotu();
+  nakresliTitulniStranu();
+  initPribeh();
   obnovUzivatele();
   navigace();
 

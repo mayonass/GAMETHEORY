@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
-from .routers import auth, bots, health, simulate
+from .routers import auth, bots, health, play, simulate
 
 settings = get_settings()
 
@@ -27,6 +27,7 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(simulate.router)
 app.include_router(bots.router)
+app.include_router(play.router)
 
 # Frontend servírujeme z téhle samé aplikace, takže stačí jeden spuštěný
 # příkaz a jedna adresa (http://127.0.0.1:8000). Mount musí být AŽ ZA
