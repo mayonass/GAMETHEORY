@@ -53,8 +53,8 @@ def test_pravidlovy_bot_projde_do_procesu():
 def test_casovy_limit_ukonci_vypocet(monkeypatch):
     monkeypatch.setattr(get_settings(), "simulation_timeout_seconds", 0.2)
     r = client.post("/simulate/evolution", json={
-        "bots": [{"type": t} for t in registry.BUILTIN_BOTS],
-        "settings": {"kola": 300, "zkresleni": 0.05},
+        "bots": [{"type": t} for t in registry.BUILTIN_BOTS] + [{"type": "custom", "config": {}}] * 5,
+        "settings": {"kola": 1000, "zkresleni": 0.05},   # 78 dvojic × 1000 kol × 10 zápasů
         "generations": 200,
     })
     assert r.status_code == 503

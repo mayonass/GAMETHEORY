@@ -73,15 +73,33 @@ def grudger(my_hist, opp_hist, info):
     return 'C'
 
 
+def posledni_videne_kolo(my_hist, opp_hist):
+    """(můj tah, soupeřův tah) z posledního kola, kde byl soupeřův tah vidět.
+
+    Pavlov a ZD strategie se rozhodují podle výsledku minulého kola. V mlze
+    ale poslední tah soupeře často vidět není - dřív to znamenalo, že ZD
+    strategie rovnou spolupracovaly (při 100% mlze z nich byl Always
+    Cooperate) a Pavlov jen opakoval svůj tah. Teď se, stejně jako
+    Tit-for-Tat, řídí posledním kolem, o kterém něco vědí. None = zatím
+    neviděly nic.
+    """
+    for i in range(len(opp_hist) - 1, -1, -1):
+        if opp_hist[i] != '?':
+            return my_hist[i], opp_hist[i]
+    return None
+
+
 def pavlov(my_hist, opp_hist, info):
     if not my_hist:
         return 'C'
-    if opp_hist[-1] == '?':
+    kolo = posledni_videne_kolo(my_hist, opp_hist)
+    if kolo is None:
         return my_hist[-1]
-    my_last, opp_last = my_hist[-1], opp_hist[-1]
-    if (my_last == 'C' and opp_last == 'C') or (my_last == 'D' and opp_last == 'C'):
-        return my_last
-    return 'C' if my_last == 'D' else 'D'
+    muj, jeho = kolo
+    # Win-stay, lose-shift: soupeř spolupracoval -> nech svůj tah, jinak ho otoč.
+    if jeho == 'C':
+        return muj
+    return 'C' if muj == 'D' else 'D'
 
 
 # Zero-Determinant strategie (Press & Dyson 2012). Pravděpodobnost spolupráce
@@ -104,17 +122,17 @@ ZD_STEDRY = {("C", "C"): 1.0, ("C", "D"): 1 / 8, ("D", "C"): 1.0, ("D", "D"): 1 
 
 
 def zd_extortioner(my_hist, opp_hist, info):
-    if not my_hist or opp_hist[-1] == '?':
+    kolo = posledni_videne_kolo(my_hist, opp_hist)
+    if kolo is None:
         return 'C'
-    p = ZD_VYDERAC[(my_hist[-1], opp_hist[-1])]
-    return 'C' if random.random() < p else 'D'
+    return 'C' if random.random() < ZD_VYDERAC[kolo] else 'D'
 
 
 def zd_generous(my_hist, opp_hist, info):
-    if not my_hist or opp_hist[-1] == '?':
+    kolo = posledni_videne_kolo(my_hist, opp_hist)
+    if kolo is None:
         return 'C'
-    p = ZD_STEDRY[(my_hist[-1], opp_hist[-1])]
-    return 'C' if random.random() < p else 'D'
+    return 'C' if random.random() < ZD_STEDRY[kolo] else 'D'
 
 
 def custom_player(my_hist, opp_hist, info, config: CustomBotConfig = None):

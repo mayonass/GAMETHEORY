@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, status
 from .. import schemas
 from ..config import get_settings
 from ..game import registry
-from ..game.evolution import CELKOVA_POPULACE, odehraj_evoluci
+from ..game.evolution import CELKOVA_POPULACE, ZAPASU_NA_DVOJICI, odehraj_evoluci
 from ..game.simulation import NastaveniZapasu, odehraj_zapas_s_poctem_kol
 from ..game.turnaj import odehraj_turnaj
 from ..vypocty import PrilisDlouho, Zaneprazdneno, spust_oddelene
@@ -134,15 +134,15 @@ def simulate_duel(payload: schemas.DuelRequest) -> schemas.DuelResponse:
 def simulate_evolution(payload: schemas.EvolutionRequest) -> schemas.EvolutionResponse:
     """Odehraje evoluční simulaci - replikátorová dynamika z desktopové hry.
 
-    Pozor na velikost úlohy: každá generace znamená n*(n+1)/2 zápasů, takže
-    12 botů na 1000 generací je 78 000 zápasů. Proto jsou v `EvolutionRequest`
-    stropy na počet botů i generací.
+    Zápasy se odehrají jen jednou na začátku (n*(n+1)/2 dvojic, každá
+    ZAPASU_NA_DVOJICI-krát); generace jsou pak čistá matematika, takže
+    jejich počet na náročnost skoro nemá vliv.
     """
     resolved = [_resolve(spec) for spec in payload.bots]
     n = len(resolved)
     # V evoluci hraje každý s každým VČETNĚ sebe sama, proto n*(n+1)/2.
-    co = "the number of generations, rounds or species"
-    kol = _zkontroluj_rozpocet(n * (n + 1) // 2, payload.settings, payload.generations, co)
+    co = "the number of rounds or species"
+    kol = _zkontroluj_rozpocet(n * (n + 1) // 2, payload.settings, ZAPASU_NA_DVOJICI, co)
 
     jmena = [name for name, _ in resolved]
     funkce = [fn for _, fn in resolved]

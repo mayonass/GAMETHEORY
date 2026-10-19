@@ -222,3 +222,21 @@ def test_mezisoucty_pravidloveho_bota_sedi():
             a = rules.spocitej_metriky(my, opp, info, dict(rules.VYCHOZI_STAV))
             b = rules.spocitej_metriky(my, opp, info, dict(rules.VYCHOZI_STAV), None, mezi)
             assert a == b
+
+
+def test_pavlov_a_zd_v_mlze_ctou_posledni_videne_kolo():
+    from app.game import bots
+    # poslední dvě kola schovaná mlhou - rozhoduje třetí od konce: já C, soupeř D
+    assert bots.posledni_videne_kolo(list("CCDC"), list("CD??")) == ("C", "D")
+    assert bots.pavlov(list("CCDC"), list("CD??"), {}) == "D"          # prohra -> otoč C na D
+    assert bots.posledni_videne_kolo(list("CC"), list("??")) is None
+    assert bots.pavlov(list("CD"), list("??"), {}) == "D"              # nic neviděl -> drží svůj tah
+    random.seed(0)
+    assert all(bots.zd_extortioner(list("DD"), list("D?"), {}) == "D" for _ in range(50))  # DD -> p = 0
+
+
+def test_vyderac_v_plne_mlze_neni_always_cooperate():
+    random.seed(1)
+    cfg = NastaveniZapasu(kola=1000, neznama_kola=False, mlha=1.0, delay=1, zkresleni=0.0)
+    s1, s2 = odehraj_simulovany_zapas(registry.resolve_bot("zd_extortioner"), registry.resolve_bot("always_defect"), cfg)
+    assert s2 < 1100       # dřív 0 : 5000

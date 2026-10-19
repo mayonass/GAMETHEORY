@@ -4234,7 +4234,7 @@ function postavEvoNastaveni() {
   gi.addEventListener("input", () => {
     ev.generace = Math.max(1, Math.min(1000, parseInt(gi.value, 10) || 1));
   });
-  generace.append(gl, gi, el("div", "note", "Each generation means every species plays every other one. Eight species over a thousand generations takes a few seconds."));
+  generace.append(gl, gi, el("div", "note", "First every species plays every other one — and a copy of itself — ten times, and the average scores decide who multiplies. Fog, noise and lucky streaks are averaged out, so even a thousand generations are quick."));
   kam.append(generace);
 
   const rozl = el("div", "field");
