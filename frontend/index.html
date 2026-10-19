@@ -1401,6 +1401,46 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
 }
 #b-explain .note { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
 
+/* ============================================================
+   HRAJ SÁM
+   ============================================================ */
+/* Atribut hidden musí vyhrát i nad třídami s vlastním display (.field je flex). */
+[hidden] { display: none !important; }
+/* Písmena v políčcích stopy: barva textu z obecného .mv.C splývala s pozadím. */
+.trail .mv.C, .trail .mv.D { color: #fff; }
+#h-result { margin-top: 20px; }
+.play-arena { border: 0; border-radius: 0 0 10px 10px; background: transparent; }
+.play-note { margin: 0; max-width: 520px; text-align: center; font-size: 13.5px; color: var(--faint); line-height: 1.45; }
+.play-keys { margin: -6px 0 0; font-size: 13px; color: var(--faint); font-weight: 700; }
+.bubble.Q { background: var(--white); color: var(--faint); border: 1.5px dashed var(--faint); }
+.bubble.lock { background: var(--accent); }
+.trail .mv.Q { background: transparent; color: var(--faint); border: 1.5px dashed var(--faint); }
+.trail-row > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pvp-picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: 100%; }
+@media (max-width: 560px) { .pvp-picks { grid-template-columns: 1fr; } }
+.pvp-pick {
+  border: 1.5px solid var(--line); border-radius: 14px; background: var(--white);
+  padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+}
+.pvp-pick.locked { border-color: var(--accent); background: var(--accent-2); }
+.pick-name { font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 18px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.pick-btn {
+  appearance: none; border: 0; cursor: pointer; border-radius: 999px;
+  font-family: "Fredoka", "Nunito", sans-serif; font-weight: 600; font-size: 16px;
+  padding: 10px 16px; color: #fff; display: inline-flex; align-items: center; gap: 8px;
+}
+.pick-btn.C { background: var(--coop); box-shadow: 0 4px 0 #1F7543; }
+.pick-btn.D { background: var(--defect); box-shadow: 0 4px 0 #A52D25; }
+.pick-btn:disabled { opacity: .4; cursor: default; }
+.pick-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.pick-btn kbd {
+  font: inherit; font-size: 12px; line-height: 1; padding: 3px 6px; border-radius: 6px;
+  background: rgba(255,255,255,.25);
+}
+.pick-status { font-size: 13px; color: var(--muted); font-weight: 700; }
+.reveal-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -1502,7 +1542,15 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
 
     <div class="group">
       <h2>Play</h2>
-      <div class="cards three">
+      <div class="cards two">
+        <button class="card" type="button" data-go="play-yourself">
+          <span class="card-art" data-art="play" aria-hidden="true"></span>
+          <span class="tag">You vs bot &middot; You vs friend</span>
+          <h3>Play yourself</h3>
+          <p>Take a seat at the table. Play any bot &mdash; even your own &mdash; or a friend on the same device. Fog and noise hit you just like they hit the bots.</p>
+          <p class="see">During the match you only see what reaches you. The truth comes out at the end.</p>
+          <span class="go">Start playing &rarr;</span>
+        </button>
         <button class="card" type="button" data-go="duel">
           <span class="card-art" data-art="duel" aria-hidden="true"></span>
           <span class="tag">1 vs 1</span>
@@ -1559,6 +1607,7 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
 <div class="tabs">
   <button class="tab-menu" id="nav-menu" type="button">&larr; Menu</button>
   <div class="tablist" role="tablist">
+  <button class="tab" role="tab" id="tab-hra" aria-selected="false" aria-controls="p-hra">Play yourself</button>
   <button class="tab" role="tab" id="tab-duel" aria-selected="true" aria-controls="p-duel">Duel</button>
   <button class="tab" role="tab" id="tab-turnaj" aria-selected="false" aria-controls="p-turnaj">Tournament</button>
   <button class="tab" role="tab" id="tab-evoluce" aria-selected="false" aria-controls="p-evoluce">Evolution</button>
@@ -1568,6 +1617,59 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
 </div>
 
 <main>
+
+  <!-- ============ HRAJ SÁM ============ -->
+  <section id="p-hra" role="tabpanel" aria-labelledby="tab-hra" hidden>
+    <p class="mode-lead"><b>Play yourself.</b> Take a seat in the game: play against any bot &mdash; including your own &mdash; or against a friend on the same device. Fog and noise apply to you too.</p>
+    <div class="split">
+
+      <aside>
+        <div class="panel">
+          <div class="panel-head"><h2>Who you play</h2></div>
+          <div class="panel-body">
+            <div class="seg" id="h-kdo" role="group" aria-label="Opponent">
+              <button type="button" data-kdo="bot" aria-pressed="true">A bot</button>
+              <button type="button" data-kdo="friend" aria-pressed="false">A friend on this device</button>
+            </div>
+            <div class="field">
+              <label for="h-jmeno1">Your name</label>
+              <input type="text" id="h-jmeno1" maxlength="30" value="You">
+            </div>
+            <div class="field" id="h-bot-pole">
+              <label for="h-bot">Bot</label>
+              <select id="h-bot"></select>
+              <div class="note" id="h-bot-desc"></div>
+            </div>
+            <div class="field" id="h-jmeno2-pole" hidden>
+              <label for="h-jmeno2">Your friend’s name</label>
+              <input type="text" id="h-jmeno2" maxlength="30" value="Friend">
+              <div class="note">You both choose on this screen, at the same time. Use the keyboard so the other one can’t see your choice.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Match settings</h2>
+            <button class="btn btn-ghost" id="h-reset" type="button" style="padding:4px 10px;font-size:12px">Defaults</button>
+          </div>
+          <div class="panel-body" id="h-settings"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-body">
+            <button class="btn btn-primary btn-wide" id="h-start" type="button">Start match</button>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="panel" id="h-arena"></div>
+        <div class="panel" id="h-result" hidden></div>
+      </div>
+
+    </div>
+  </section>
 
   <!-- ============ DUEL ============ -->
   <section id="p-duel" role="tabpanel" aria-labelledby="tab-duel">
@@ -2510,6 +2612,304 @@ function vykresliTurnaj(cil, data) {
   }
   fold.append(mriz);
   cil.append(fold);
+}
+
+/* ============================================================
+   5b. HRAJ SÁM — člověk proti botovi, nebo dva lidé u jednoho zařízení
+   ============================================================
+   Server nic nedrží: každé kolo se pošle dosavadní průběh a tahy na
+   POST /play/round. Šum, mlhu, body i to, co kdo z tahů soupeře vidí,
+   spočítá server stejnými funkcemi jako duel. */
+
+const HRA_MAX_KOL = 200;
+const HRA_KLAVESY = { bot: { c: "C", d: "D" }, p1: { a: "C", s: "D" }, p2: { k: "C", l: "D" } };
+
+function initHra() {
+  stav.hra = {
+    kdo: "bot",
+    bot: "tit_for_tat",
+    nastaveni: { ...VYCHOZI_NASTAVENI },
+    zapas: null
+  };
+  const h = stav.hra;
+
+  obnovovace.push(naplnVyberBotu($("#h-bot"), $("#h-bot-desc"), h.bot, (v) => { h.bot = v; }));
+
+  const postavHraNastaveni = () => {
+    postavNastaveni($("#h-settings"), h.nastaveni, () => {
+      /* Delší zápas nikdo neodklikává a server ho ani nepřijme. */
+      if (h.nastaveni.kola > HRA_MAX_KOL) {
+        h.nastaveni.kola = HRA_MAX_KOL;
+        const v = $("#h-settings-kola");
+        if (v) v.value = HRA_MAX_KOL;
+      }
+    });
+    const vstup = $("#h-settings-kola");
+    if (vstup) vstup.max = HRA_MAX_KOL;
+  };
+  postavHraNastaveni();
+  $("#h-reset").addEventListener("click", () => { h.nastaveni = { ...VYCHOZI_NASTAVENI }; postavHraNastaveni(); });
+
+  $("#h-kdo").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-kdo]");
+    if (!b) return;
+    h.kdo = b.dataset.kdo;
+    for (const x of $("#h-kdo").querySelectorAll("button")) x.setAttribute("aria-pressed", String(x === b));
+    $("#h-bot-pole").hidden = h.kdo !== "bot";
+    $("#h-jmeno2-pole").hidden = h.kdo !== "friend";
+  });
+
+  $("#h-start").addEventListener("click", zacniHru);
+  document.addEventListener("keydown", klavesaVeHre);
+  vykresliHru();
+}
+
+function zacniHru() {
+  const h = stav.hra;
+  const pvp = h.kdo === "friend";
+  const jmeno1 = $("#h-jmeno1").value.trim() || "You";
+  let jmeno2, postava2, spec = null;
+  if (pvp) {
+    jmeno2 = $("#h-jmeno2").value.trim() || "Friend";
+    if (jmeno2 === jmeno1) jmeno2 += " 2";
+    postava2 = "you";
+  } else {
+    const b = seznamBotu().find((x) => x.type === h.bot);
+    jmeno2 = b ? b.nazev : "Bot";
+    if (h.bot === "custom") jmeno2 = stav.bot.jmeno || "Custom Bot";
+    postava2 = postavaPro(h.bot);
+    /* Kopie — úprava bota v editoru během zápasu nesmí změnit soupeře. */
+    spec = JSON.parse(JSON.stringify(botSpec(h.bot)));
+  }
+  h.zapas = {
+    pvp, spec,
+    jmena: [jmeno1, jmeno2],
+    postavy: ["you", postava2],
+    nastaveni: { ...h.nastaveni },
+    celkem: null,
+    historie: [], videl1: [], videl2: [],
+    stavBota: null,
+    cekam: [null, null],
+    posila: false, chyba: null, konec: false,
+    skore: [0, 0]
+  };
+  $("#h-result").hidden = true;
+  vykresliHru();
+  const prvni = $("#h-arena .big-choice, #h-arena .pick-btn");
+  if (prvni) prvni.focus();
+  if (window.matchMedia("(max-width: 940px)").matches) $("#h-arena").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function tahHrace(hrac, tah) {
+  const z = stav.hra.zapas;
+  if (!z || z.konec || z.posila) return;
+  if (!z.pvp) { odesliKolo(tah, null); return; }
+  if (z.cekam[hrac - 1]) return;
+  z.cekam[hrac - 1] = tah;
+  if (z.cekam[0] && z.cekam[1]) odesliKolo(z.cekam[0], z.cekam[1]);
+  else vykresliHru(hrac);
+}
+
+async function odesliKolo(tah1, tah2) {
+  const z = stav.hra.zapas;
+  z.posila = true;
+  z.chyba = null;
+  vykresliHru();
+
+  const telo = { settings: z.nastaveni, history: z.historie, move1: tah1 };
+  if (z.celkem) telo.rounds_total = z.celkem;
+  if (z.pvp) telo.move2 = tah2;
+  else {
+    telo.bot = z.spec;
+    if (z.stavBota) telo.bot_state = z.stavBota;
+  }
+  try {
+    const o = await api("/play/round", { method: "POST", telo });
+    if (stav.hra.zapas !== z) return;   /* mezitím začal nový zápas */
+    z.historie.push(o.round);
+    z.celkem = o.rounds_total;
+    z.videl1 = o.seen_by_1;
+    z.videl2 = o.seen_by_2;
+    z.stavBota = o.bot_state;
+    z.skore = [o.score1, o.score2];
+    z.konec = o.over;
+  } catch (e) {
+    z.chyba = "The server didn’t accept the move (" + e.message + "). Choose again.";
+  } finally {
+    z.cekam = [null, null];
+    z.posila = false;
+    vykresliHru();
+    if (z.konec) vykresliKonecHry();
+    else {
+      const dalsi = $("#h-arena .big-choice:not(:disabled), #h-arena .pick-btn:not(:disabled)");
+      if (dalsi && document.activeElement && $("#h-arena").contains(document.activeElement)) dalsi.focus();
+    }
+  }
+}
+
+function klavesaVeHre(e) {
+  const z = stav.hra && stav.hra.zapas;
+  if (!z || z.konec || z.posila || $("#p-hra").hidden || $("#screen-app").hidden) return;
+  if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.closest && e.target.closest("input, select, textarea")) return;
+  const k = e.key.toLowerCase();
+  if (!z.pvp) {
+    if (HRA_KLAVESY.bot[k]) { e.preventDefault(); tahHrace(1, HRA_KLAVESY.bot[k]); }
+    return;
+  }
+  if (HRA_KLAVESY.p1[k]) { e.preventDefault(); tahHrace(1, HRA_KLAVESY.p1[k]); }
+  else if (HRA_KLAVESY.p2[k]) { e.preventDefault(); tahHrace(2, HRA_KLAVESY.p2[k]); }
+}
+
+function vykresliHru() {
+  const kam = $("#h-arena");
+  const z = stav.hra.zapas;
+  kam.innerHTML = "";
+
+  if (!z) {
+    const box = el("div", "empty");
+    box.append(el("p", "big", "Choose who you play and press Start match."));
+    box.append(el("p", null, "Against a bot, press C or D on the keyboard. With a friend, one of you uses A / S and the other K / L — so nobody sees the other’s choice."));
+    kam.append(box);
+    return;
+  }
+
+  const n = z.nastaveni;
+  const odehrano = z.historie.length;
+  const celkemText = n.neznama_kola ? "?" : String(z.celkem || n.kola);
+  const skryte = (n.mlha > 0 || n.zkresleni > 0) && !z.konec;
+
+  const hlava = el("div", "panel-head");
+  hlava.append(el("h2", null, z.konec ? "Match over" : "Round " + (odehrano + 1) + " of " + celkemText));
+  const prostredi = [];
+  if (n.zkresleni > 0) prostredi.push("noise " + Math.round(n.zkresleni * 100) + " %");
+  if (n.mlha > 0) prostredi.push("fog " + Math.round(n.mlha * 100) + " %");
+  hlava.append(el("span", "hint", prostredi.length ? prostredi.join(" · ") : "no fog, no noise"));
+  kam.append(hlava);
+
+  const arena = el("div", "arena play-arena");
+
+  /* Postavy, bubliny, skóre */
+  const posledni = odehrano ? z.historie[odehrano - 1] : null;
+  const bublina = (obsah, trida) => '<div class="bubble ' + trida + '">' + obsah + "</div>";
+  let b1, b2;
+  if (z.pvp && !z.konec) {
+    const zamek = (i) => (z.cekam[i] ? bublina("✓", "lock") : bublina("…", "wait"));
+    b1 = zamek(0); b2 = zamek(1);
+  } else if (posledni) {
+    b1 = bublina(posledni.move1, posledni.move1);
+    const videno = z.konec ? posledni.move2 : z.videl1[odehrano - 1];
+    b2 = bublina(videno, videno === "?" ? "Q" : videno);
+  } else {
+    b1 = b2 = bublina("…", "wait");
+  }
+  const skore = (i) => (skryte ? "?" : String(z.skore[i]));
+  const duo = el("div", "duo");
+  duo.innerHTML =
+    '<div class="fig">' + b1 + stickman(z.postavy[0], { trida: "fig-svg", popis: z.jmena[0] }) +
+      '<div class="fig-name">' + esc(z.jmena[0]) + '</div><div class="fig-score">' + skore(0) + "</div></div>" +
+    '<div class="vs-round">' + (z.konec ? "done" : "vs") + "</div>" +
+    '<div class="fig">' + b2 + stickman(z.postavy[1], { trida: "fig-svg", otocit: true, popis: z.jmena[1] }) +
+      '<div class="fig-name">' + esc(z.jmena[1]) + '</div><div class="fig-score">' + skore(1) + "</div></div>";
+  /* Po konci ukáže postavy a skóre panel s výsledkem pod tímhle — tady by byly dvakrát. */
+  if (!z.konec) arena.append(duo);
+  if (skryte) arena.append(el("p", "play-note", "Scores stay hidden until the end — with fog and noise you only know what you saw, not what really happened."));
+
+  /* Co kdo zatím viděl */
+  if (odehrano && !z.konec) {
+    const stopa = el("div", "trail");
+    const radek = (popisek, tahy) => {
+      const r = el("div", "trail-row");
+      const s = el("span", null, popisek);
+      s.title = popisek;
+      r.append(s);
+      r.insertAdjacentHTML("beforeend", tahy.map((t) => '<i class="mv ' + (t === "?" ? "Q" : t) + '">' + t + "</i>").join(""));
+      return r;
+    };
+    if (z.pvp) {
+      stopa.append(radek(z.jmena[0] + " saw", z.videl1), radek(z.jmena[1] + " saw", z.videl2));
+    } else {
+      stopa.append(radek("You played", z.historie.map((r) => r.move1)), radek("You saw", z.videl1));
+    }
+    arena.append(stopa);
+    if (n.mlha > 0 || n.zkresleni > 0) {
+      arena.append(el("p", "play-note", z.pvp
+        ? "Each row is what that player saw of the other: “?” is a move still hidden by fog, and any move may have been flipped by noise."
+        : "“?” is a move still hidden by fog — it clears after " + n.delay + (n.delay === 1 ? " round" : " rounds") + ". Any move you saw may have been flipped by noise."));
+    }
+  }
+
+  /* Volba tahu */
+  if (!z.konec) {
+    if (!z.pvp) {
+      const volba = el("div", "choice");
+      for (const [tah, text] of [["C", "Cooperate"], ["D", "Defect"]]) {
+        const b = el("button", "big-choice " + tah, text);
+        b.type = "button";
+        b.disabled = z.posila;
+        b.addEventListener("click", () => tahHrace(1, tah));
+        volba.append(b);
+      }
+      arena.append(volba);
+      arena.append(el("p", "play-keys", "or press C / D"));
+    } else {
+      const dvojice = el("div", "pvp-picks");
+      [0, 1].forEach((i) => {
+        const klavesy = i === 0 ? ["A", "S"] : ["K", "L"];
+        const box = el("div", "pvp-pick" + (z.cekam[i] ? " locked" : ""));
+        box.append(el("div", "pick-name", z.jmena[i]));
+        const tlacitka = el("div", "pick-btns");
+        for (const [tah, text, k] of [["C", "Cooperate", klavesy[0]], ["D", "Defect", klavesy[1]]]) {
+          const b = el("button", "pick-btn " + tah);
+          b.type = "button";
+          b.innerHTML = esc(text) + ' <kbd>' + k + "</kbd>";
+          b.disabled = z.posila || Boolean(z.cekam[i]);
+          b.dataset.hrac = String(i + 1);
+          b.addEventListener("click", () => tahHrace(i + 1, tah));
+          tlacitka.append(b);
+        }
+        box.append(tlacitka);
+        box.append(el("div", "pick-status", z.cekam[i]
+          ? "Locked in ✓ — waiting for " + z.jmena[1 - i]
+          : z.cekam[1 - i] ? "Your turn — " + z.jmena[1 - i] + " has chosen" : "Choose your move"));
+        dvojice.append(box);
+      });
+      arena.append(dvojice);
+    }
+    if (z.posila) arena.append(el("p", "loading", "…"));
+    if (z.chyba) arena.append(el("p", "story-error", z.chyba));
+  } else {
+    const [s1, s2] = z.skore;
+    const konec = el("div", "reveal");
+    const vitez = s1 === s2 ? "It’s a tie" : (s1 > s2 ? z.jmena[0] : z.jmena[1]) + (s1 > s2 && !z.pvp && z.jmena[0] === "You" ? " win" : " wins");
+    konec.innerHTML = "<h3>" + esc(vitez) + " — " + s1 + " : " + s2 + "</h3>" +
+      "<p>" + (n.mlha > 0 || n.zkresleni > 0
+        ? "Below is what really happened. Compare it with what you saw during the match."
+        : "Below is the whole match, round by round.") + "</p>";
+    const tlacitka = el("div", "reveal-btns");
+    const znovu = el("button", "btn btn-primary", "Play again");
+    znovu.type = "button";
+    znovu.addEventListener("click", zacniHru);
+    tlacitka.append(znovu);
+    konec.append(tlacitka);
+    arena.append(konec);
+  }
+
+  kam.append(arena);
+}
+
+function vykresliKonecHry() {
+  const z = stav.hra.zapas;
+  const [s1, s2] = z.skore;
+  const cil = $("#h-result");
+  cil.hidden = false;
+  vykresliDuel(cil, [{
+    bot1_name: z.jmena[0], bot2_name: z.jmena[1],
+    score1: s1, score2: s2,
+    rounds_played: z.historie.length,
+    result: s1 > s2 ? "bot1" : s2 > s1 ? "bot2" : "tie",
+    history: z.historie
+  }], z.postavy);
 }
 
 /* ============================================================
@@ -4073,6 +4473,7 @@ function prepniZalozku(idZalozky) {
    ============================================================ */
 
 const REZIMY = {
+  "play-yourself": "tab-hra",
   duel: "tab-duel",
   tournament: "tab-turnaj",
   evolution: "tab-evoluce",
@@ -4792,7 +5193,7 @@ function krok6(kam) {
   const hlavni = el("button", "btn btn-primary big", "Customize your own bot");
   hlavni.addEventListener("click", () => { location.hash = "#bot"; });
   cesty.append(hlavni);
-  for (const [cil, popis] of [["duel", "Duel"], ["tournament", "Tournament"], ["evolution", "Evolution"], ["gallery", "Public gallery of Bots"], ["menu", "Game menu"]]) {
+  for (const [cil, popis] of [["play-yourself", "Play yourself"], ["duel", "Duel"], ["tournament", "Tournament"], ["evolution", "Evolution"], ["gallery", "Public gallery of Bots"], ["menu", "Game menu"]]) {
     const b = el("button", "btn btn-ghost", popis);
     b.addEventListener("click", () => { location.hash = "#" + cil; });
     cesty.append(b);
@@ -4818,6 +5219,7 @@ function nakresliTitulniStranu() {
     '<polyline points="6,52 40,66 70,70 100,68 130,66 154,66" fill="none" stroke="' + POSTAVY.always_cooperate.barva + '" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>' +
     "</svg>";
   const kresby = {
+    play: stickman("you") + '<span class="art-vs">vs</span>' + stickman("mystery", { otocit: true }),
     duel: stickman("tit_for_tat") + '<span class="art-vs">vs</span>' + stickman("always_defect", { otocit: true }),
     tournament: ["grudger", "pavlov", "always_cooperate", "zd_generous"].map((t) => stickman(t, { trida: "sm" })).join(""),
     evolution: stickman("tit_for_tat") + evoGraf,
@@ -4846,6 +5248,7 @@ function initPribeh() {
   initTurnaj();
   initEvoluce();
   initBot();
+  initHra();
   initSeznamBotu();
   nakresliTitulniStranu();
   initPribeh();
