@@ -11,7 +11,7 @@ import os
 import random
 
 os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost/test")
-os.environ.setdefault("SECRET_KEY", "test-secret")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-only-for-tests-0123456789")
 
 import pytest
 from fastapi.testclient import TestClient

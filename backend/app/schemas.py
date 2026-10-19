@@ -254,6 +254,10 @@ class UserOut(BaseModel):
 class LoginRequest(BaseModel):
     username_or_email: str
     password: str
+    remember: bool = Field(
+        default=False,
+        description="Zůstat přihlášený: token platí remember_token_days (30 dní) místo jednoho dne.",
+    )
 
 
 class Token(BaseModel):

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 
 os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost/test")
-os.environ.setdefault("SECRET_KEY", "test-secret")
+os.environ.setdefault("SECRET_KEY", "test-secret-key-only-for-tests-0123456789")
 
 from fastapi.testclient import TestClient
 

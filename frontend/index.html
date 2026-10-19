@@ -187,7 +187,7 @@ main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
 }
 .field .note { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
 
-select, input[type="text"], input[type="number"] {
+select, input[type="text"], input[type="number"], input[type="password"] {
   appearance: none;
   width: 100%;
   font: inherit;
@@ -936,7 +936,7 @@ body::before {
 .linkbtn { font-weight: 700; }
 
 /* ---------- formuláře ---------- */
-select, input[type="text"], input[type="number"] {
+select, input[type="text"], input[type="number"], input[type="password"] {
   background-color: var(--white); border: 1.5px solid var(--line); border-radius: 12px; font-size: 15px;
 }
 .field > label, .field-label { font-weight: 800; letter-spacing: .08em; }
@@ -1913,8 +1913,8 @@ const BOTI = [
   { type: "tit_for_tat",      nazev: "Tit-for-Tat",      popis: "Starts by cooperating, then exactly repeats the opponent's last visible move. It is a robust, friendly, but tough strategy. Its biggest weakness is a noisy environment where it can trigger a 'death spiral' of retaliation." },
   { type: "grudger",          nazev: "Grudger",          popis: "Starts peacefully and cooperates. But if the opponent defects even once, the Grudger never forgets and will defect forever." },
   { type: "pavlov",           nazev: "Pavlov",           popis: "Follows the 'Win-Stay, Lose-Shift' strategy. If both players made the same move last round (C-C or D-D), it cooperates. If they diverged (C-D or D-C), it defects. Handles random noise well." },
-  { type: "zd_extortioner",   nazev: "ZD Extortioner",   popis: "Zero-Determinant Extortioner. Uses a complex probability matrix to mathematically guarantee that its score will always be higher than the opponent's. It forces an unfair share of the payoff." },
-  { type: "zd_generous",      nazev: "ZD Generous",      popis: "Zero-Determinant Generous. Uses similar math to the Extortioner, but to the opposite effect: it systematically rewards cooperation and allows the opponent to score higher than itself, motivating continuous cooperation." },
+  { type: "zd_extortioner",   nazev: "ZD Extortioner",   popis: "Zero-Determinant Extortioner (Press & Dyson, 2012). Uses a probability matrix that mathematically guarantees that, in the long run, its score is higher than the opponent's. It forces an unfair share of the payoff." },
+  { type: "zd_generous",      nazev: "ZD Generous",      popis: "Zero-Determinant Generous (ZDGTFT-2, Stewart & Plotkin, 2012). Uses the same math as the Extortioner to the opposite effect: it keeps cooperating with cooperators, forgives a betrayal one time in eight and, in the long run, guarantees the opponent at least as many points as itself, which keeps cooperation going." },
   { type: "custom",           nazev: "Custom Bot",       popis: "Your own strategy from the “Customize your own bot” screen." }
 ];
 
@@ -1924,8 +1924,9 @@ const VYCHOZI_NASTAVENI = { kola: 10, neznama_kola: false, mlha: 0, delay: 1, zk
 
 /* Výchozí vlastní bot je předvolba Tit-for-Two-Tats — viz PRESETY v sekci 6. */
 
-/* Stav aplikace. Drží se v paměti — po obnovení stránky se vrátí výchozí
-   a odhlásíš se. Trvalé přihlášení by chtělo token uložit do prohlížeče. */
+/* Stav aplikace. Drží se v paměti — po obnovení stránky se vrátí výchozí.
+   Výjimkou je přihlášení: token se uloží do prohlížeče (viz PŘIHLÁŠENÍ
+   V PROHLÍŽEČI), takže tě obnovení stránky neodhlásí. */
 const stav = {
   duel:   { bot1: "tit_for_tat", bot2: "always_defect", nastaveni: { ...VYCHOZI_NASTAVENI }, reps: 1 },
   turnaj: { vybrani: ["tit_for_tat", "always_defect", "grudger", "pavlov"], nastaveni: { ...VYCHOZI_NASTAVENI }, reps: 1 },
@@ -3685,7 +3686,74 @@ function obnovUzivatele() {
   else if (!$("#p-boti").hidden) nactiSeznamBotu();
 }
 
+/* ---------- přihlášení v prohlížeči ----------
+   „Stay logged in“ → token v localStorage (přežije zavření prohlížeče,
+   server ho vydá na 30 dní). Bez zaškrtnutí → sessionStorage: přežije
+   obnovení stránky, ale ne zavření okna (token platí den). Úložiště může
+   být zakázané (anonymní okno, přísné nastavení) — pak se jen nic neuloží. */
+const AUTH_KLIC = "gt-auth";
+
+function ulozPrihlaseni(zustat) {
+  const data = JSON.stringify({ token: stav.auth.token, username: stav.auth.username });
+  try {
+    localStorage.removeItem(AUTH_KLIC);
+    sessionStorage.removeItem(AUTH_KLIC);
+    (zustat ? localStorage : sessionStorage).setItem(AUTH_KLIC, data);
+  } catch (_) { /* úložiště není k dispozici */ }
+  stav.auth.zustat = zustat;
+}
+
+function smazPrihlaseni() {
+  try {
+    localStorage.removeItem(AUTH_KLIC);
+    sessionStorage.removeItem(AUTH_KLIC);
+  } catch (_) { /* úložiště není k dispozici */ }
+}
+
+/* Vypršel token? JWT nese datum expirace — přečte se bez dotazu na server. */
+function tokenJeste(token) {
+  try {
+    const telo = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return !telo.exp || telo.exp * 1000 > Date.now() + 60 * 1000;
+  } catch (_) {
+    return false;
+  }
+}
+
+function nactiPrihlaseni() {
+  let ulozene = null, zustat = false;
+  try {
+    ulozene = localStorage.getItem(AUTH_KLIC);
+    zustat = Boolean(ulozene);
+    if (!ulozene) ulozene = sessionStorage.getItem(AUTH_KLIC);
+  } catch (_) { return; }
+  if (!ulozene) return;
+  try {
+    const d = JSON.parse(ulozene);
+    if (d.token && tokenJeste(d.token)) {
+      stav.auth = { token: d.token, username: d.username || null, zustat };
+      return;
+    }
+  } catch (_) { /* poškozený záznam */ }
+  smazPrihlaseni();
+}
+
+/* Ověří uložený token u serveru (a obnoví jméno). Neplatný token odhlásí
+   už funkce api() při odpovědi 401; když server jen spí, necháme ho být. */
+async function overPrihlaseni() {
+  if (!stav.auth.token) return;
+  try {
+    const ja = await api("/auth/me", { auth: true });
+    if (ja.username !== stav.auth.username) {
+      stav.auth.username = ja.username;
+      ulozPrihlaseni(stav.auth.zustat);
+      obnovUzivatele();
+    }
+  } catch (_) { /* řeší api() */ }
+}
+
 function odhlas() {
+  smazPrihlaseni();
   stav.auth = { token: null, username: null };
   stav.ulozeni.id = null;
   obnovUzivatele();
@@ -3732,6 +3800,12 @@ function vykresliAuth() {
     vstup("auth-pass", "Password", "password", "At least 8 characters.");
   }
 
+  const zustat = el("label", "check");
+  zustat.innerHTML =
+    '<input type="checkbox" id="auth-remember"' + (stav.zustatPrihlasen === false ? "" : " checked") + ">" +
+    '<span class="txt"><b>Stay logged in</b><span>On this device for 30 days. Leave it unticked on a shared computer.</span></span>';
+  pole.append(zustat);
+
   const prep = $("#auth-switch");
   prep.innerHTML = "";
   prep.append(document.createTextNode(jeLogin ? "No account yet? " : "Already have an account? "));
@@ -3740,7 +3814,7 @@ function vykresliAuth() {
   prep.append(odkaz);
 
   /* Enter ve formuláři odešle, jako by se kliklo na tlačítko. */
-  for (const i of pole.querySelectorAll("input")) {
+  for (const i of pole.querySelectorAll("input:not([type=checkbox])")) {
     i.addEventListener("keydown", (e) => { if (e.key === "Enter") odesliAuth(); });
   }
   setTimeout(() => $("#auth-user").focus(), 30);
@@ -3770,13 +3844,16 @@ async function odesliAuth() {
     if (authRezim === "register") {
       await api("/auth/register", { method: "POST", telo: { username: jmeno, email, password: heslo } });
     }
+    const zustat = $("#auth-remember").checked;
+    stav.zustatPrihlasen = zustat;
     const token = await api("/auth/login", {
       method: "POST",
-      telo: { username_or_email: jmeno, password: heslo }
+      telo: { username_or_email: jmeno, password: heslo, remember: zustat }
     });
     stav.auth.token = token.access_token;
     const ja = await api("/auth/me", { auth: true });
     stav.auth.username = ja.username;
+    ulozPrihlaseni(zustat);
     $("#authModal").close();
     obnovUzivatele();
   } catch (e) {
@@ -5252,6 +5329,7 @@ function initPribeh() {
   initSeznamBotu();
   nakresliTitulniStranu();
   initPribeh();
+  nactiPrihlaseni();
   obnovUzivatele();
   navigace();
 
@@ -5272,6 +5350,7 @@ function initPribeh() {
   /* Nasazená aplikace může být uspaná — dáme jí několik pokusů, než to
      vzdáme. Lokálně nemá cenu čekat, tam buď backend běží, nebo ne. */
   if (await overSpojeni(bezimeLokalne() ? 1 : 12)) {
+    overPrihlaseni();
     spustDuel();
   } else {
     vykresliChybu($("#d-result"), new TypeError("fetch failed"));

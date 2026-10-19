@@ -285,17 +285,21 @@ def zkontroluj_v2(config: Any) -> dict:
 # Výpočet metrik
 # ---------------------------------------------------------------------------
 
-def _serie(viditelne: List[str], tah: str) -> int:
-    """Kolik posledních VIDITELNÝCH tahů soupeře je `tah` (mlha se přeskakuje)."""
+def _serie(historie: List[str], tah: str) -> int:
+    """Kolik posledních VIDITELNÝCH tahů soupeře je `tah` - mlha ('?') se
+    přeskakuje, nepřerušuje. Jde se jen od konce, ne přes celou historii."""
     n = 0
-    for x in reversed(viditelne):
+    for x in reversed(historie):
+        if x == "?":
+            continue
         if x != tah:
             break
         n += 1
     return n
 
 
-def spocitej_metriky(my_hist: List[str], opp_hist: List[str], info: dict, stav: dict, potreba: Optional[set] = None) -> dict:
+def spocitej_metriky(my_hist: List[str], opp_hist: List[str], info: dict, stav: dict, potreba: Optional[set] = None,
+                     mezisoucty: Optional[dict] = None) -> dict:
     """Spočítá metriky pro aktuální kolo.
 
     `potreba` = množina metrik, které pravidla opravdu používají; ostatní se
@@ -336,17 +340,19 @@ def spocitej_metriky(my_hist: List[str], opp_hist: List[str], info: dict, stav: 
         m["opp_coop_rate_overall"] = round(c / (c + d), 6) if (c + d) else None
 
     if chce("consecutive_opp_defections") or chce("consecutive_opp_cooperations"):
-        viditelne = [x for x in opp_hist if x != "?"] if "?" in opp_hist else opp_hist
-        m["consecutive_opp_defections"] = _serie(viditelne, "D")
-        m["consecutive_opp_cooperations"] = _serie(viditelne, "C")
+        m["consecutive_opp_defections"] = _serie(opp_hist, "D")
+        m["consecutive_opp_cooperations"] = _serie(opp_hist, "C")
 
     if chce("my_last_payoff"):
         m["my_last_payoff"] = _MOJE_BODY.get(m["last_outcome"]) if n else None
 
     if any(chce(k) for k in ("score_diff", "my_avg_payoff", "times_exploited", "times_i_exploited")):
         # Jeden průchod v C: spočítá dvojice "CC", "CD", "C?", ... přes celou historii.
-        vysledky = Counter(map(add, my_hist, opp_hist))
-        cc, cd, dc, dd = vysledky["CC"], vysledky["CD"], vysledky["DC"], vysledky["DD"]
+        if mezisoucty is None:
+            vysledky = Counter(map(add, my_hist, opp_hist))
+            cc, cd, dc, dd = vysledky["CC"], vysledky["CD"], vysledky["DC"], vysledky["DD"]
+        else:
+            cc, cd, dc, dd = _pocty_dvojic(my_hist, opp_hist, mezisoucty)
         m["times_exploited"] = cd
         m["times_i_exploited"] = dc
         moje = 3 * cc + 5 * dc + dd
@@ -356,6 +362,38 @@ def spocitej_metriky(my_hist: List[str], opp_hist: List[str], info: dict, stav: 
         m["my_avg_payoff"] = round(moje / videno, 6) if videno else None
 
     return m
+
+
+def _pocty_dvojic(my_hist: List[str], opp_hist: List[str], mezi: dict) -> tuple:
+    """Počty dvojic CC/CD/DC/DD přes celý zápas, bez procházení celé historie.
+
+    Viděný tah soupeře se už nikdy nezmění - mění se jen '?' (mlha se
+    rozplyne). Hotový začátek historie (až po první '?') si proto instance
+    bota pamatuje v `mezi` a v každém kole dopočítá jen nové tahy a krátký
+    konec, kde ještě může být mlha.
+    """
+    n = len(opp_hist)
+    z = mezi.get("z", 0)
+    if z > n:                       # jiný zápas - začni znovu
+        mezi.clear()
+        z = 0
+    pocty = mezi.setdefault("pocty", {"CC": 0, "CD": 0, "DC": 0, "DD": 0})
+    while z < n and opp_hist[z] != "?":
+        pocty[my_hist[z] + opp_hist[z]] += 1
+        z += 1
+    mezi["z"] = z
+    cc, cd, dc, dd = pocty["CC"], pocty["CD"], pocty["DC"], pocty["DD"]
+    for i in range(z, n):
+        par = my_hist[i] + opp_hist[i]
+        if par == "CC":
+            cc += 1
+        elif par == "CD":
+            cd += 1
+        elif par == "DC":
+            dc += 1
+        elif par == "DD":
+            dd += 1
+    return cc, cd, dc, dd
 
 
 _POROVNANI = {
@@ -392,19 +430,20 @@ def _posledni_viditelny(opp_hist: List[str]) -> Optional[str]:
 class RuleBotZapas:
     """Jedna instance pravidlového bota pro jeden zápas (drží paměť)."""
 
-    __slots__ = ("cfg", "potreba", "stav", "posledni_pravidlo")
+    __slots__ = ("cfg", "potreba", "stav", "posledni_pravidlo", "mezisoucty")
 
     def __init__(self, cfg: dict, potreba: set, stav: Optional[dict] = None):
         self.cfg = cfg
         self.potreba = potreba
         self.stav = dict(stav if stav is not None else cfg["initial_state"])
         self.posledni_pravidlo: Optional[int] = None
+        self.mezisoucty: dict = {}
 
     def __call__(self, my_hist, opp_hist, info) -> str:
         stav = self.stav
         stav["timer"] = max(0, stav["timer"] - 1)
 
-        metriky = spocitej_metriky(my_hist, opp_hist, info, stav, self.potreba)
+        metriky = spocitej_metriky(my_hist, opp_hist, info, stav, self.potreba, self.mezisoucty)
 
         akce = self.cfg["fallback_action"]
         self.posledni_pravidlo = None

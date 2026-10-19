@@ -62,7 +62,7 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)) -> schem
             detail="Wrong username or password.",
         )
 
-    token = create_access_token(user.id)
+    token = create_access_token(user.id, remember=payload.remember)
     return schemas.Token(access_token=token)
 
 

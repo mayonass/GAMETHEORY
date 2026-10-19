@@ -11,7 +11,10 @@ from .config import get_settings
 
 settings = get_settings()
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+# pool_pre_ping: před použitím spojení ověří, že ještě žije (Neon po pár
+# minutách nečinnosti uspí databázi a spojení zavře).
+# pool_recycle: spojení starší než 5 minut se rovnou zahodí a otevře nové.
+engine = create_engine(settings.database_url, pool_pre_ping=True, pool_recycle=300)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

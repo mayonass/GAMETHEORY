@@ -29,12 +29,19 @@ class Settings(BaseSettings):
     secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 1 den
+    # "Stay logged in" - prohlížeč si token uloží a server ho vydá na delší dobu.
+    remember_token_days: int = 30
 
     # Strop na velikost jedné simulace, měřeno v odehraných kolech
     # (dvojice x kola x opakování, u evoluce x generace). Chrání server před
     # tím, aby jediný požadavek vytížil procesor na několik minut - na malé
     # instanci by to položilo celou stránku všem ostatním.
     max_simulation_rounds: int = 3_000_000
+
+    # Jak dlouho smí běžet jedna velká simulace v odděleném procesu, než se
+    # ukončí (viz app/vypocty.py). Hlídá to i případ, kdy by odhad v kolech
+    # podcenil skutečnou náročnost.
+    simulation_timeout_seconds: int = 60
 
 
 @lru_cache

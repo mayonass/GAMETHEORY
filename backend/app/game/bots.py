@@ -84,33 +84,36 @@ def pavlov(my_hist, opp_hist, info):
     return 'C' if my_last == 'D' else 'D'
 
 
+# Zero-Determinant strategie (Press & Dyson 2012). Pravděpodobnost spolupráce
+# podle výsledku minulého kola (můj tah, soupeřův tah): CC, CD, DC, DD.
+# Pro výplaty R=3, S=0, T=5, P=1 je ZD strategie tvaru
+#   p - (1, 1, 0, 0) = phi * [(S_X - base) - chi * (S_Y - base)]
+# (ověřuje backend/tests/test_zd.py).
+
+# Vyděrač: chi = 3, phi = 1/26, základ P = 1. Dlouhodobě vynutí
+# (moje skóre - 1) = 3 * (soupeřovo skóre - 1), takže nikdy neskončí pod
+# soupeřem. Přesně vektor z článku Press & Dyson; dřív zaokrouhlený na
+# (0.85, 0.50, 0.27, 0), čímž poměr vycházel 2,96 místo 3.
+ZD_VYDERAC = {("C", "C"): 11 / 13, ("C", "D"): 1 / 2, ("D", "C"): 7 / 26, ("D", "D"): 0.0}
+
+# Štědrý: ZDGTFT-2 (Stewart & Plotkin 2012), chi = 2, phi = 1/8, základ R = 3.
+# Vynutí (3 - moje skóre) = 2 * (3 - soupeřovo skóre), takže nikdy neskončí
+# NAD soupeřem. Původní vektor (1, 0.18, 0.54, 0.13) ZD strategií nebyl
+# a proti některým soupeřům Štědrý vyhrával.
+ZD_STEDRY = {("C", "C"): 1.0, ("C", "D"): 1 / 8, ("D", "C"): 1.0, ("D", "D"): 1 / 4}
+
+
 def zd_extortioner(my_hist, opp_hist, info):
     if not my_hist or opp_hist[-1] == '?':
         return 'C'
-    my_last, opp_last = my_hist[-1], opp_hist[-1]
-    if my_last == 'C' and opp_last == 'C':
-        p = 0.85
-    elif my_last == 'C' and opp_last == 'D':
-        p = 0.50
-    elif my_last == 'D' and opp_last == 'C':
-        p = 0.27
-    else:
-        p = 0.0
+    p = ZD_VYDERAC[(my_hist[-1], opp_hist[-1])]
     return 'C' if random.random() < p else 'D'
 
 
 def zd_generous(my_hist, opp_hist, info):
     if not my_hist or opp_hist[-1] == '?':
         return 'C'
-    my_last, opp_last = my_hist[-1], opp_hist[-1]
-    if my_last == 'C' and opp_last == 'C':
-        p = 1.00
-    elif my_last == 'C' and opp_last == 'D':
-        p = 0.18
-    elif my_last == 'D' and opp_last == 'C':
-        p = 0.54
-    else:
-        p = 0.13
+    p = ZD_STEDRY[(my_hist[-1], opp_hist[-1])]
     return 'C' if random.random() < p else 'D'
 
 
@@ -135,7 +138,8 @@ def custom_player(my_hist, opp_hist, info, config: CustomBotConfig = None):
         elif n["posledni_tah"] == "vzdy_d":
             return aplikuj_chybu('D')
 
-    if n["nikdy_neodpoustet"] and 'D' in [x for x in opp_hist if x != '?']:
+    # 'D' v historii = 'D' ve viditelné historii ('?' se jen vynechává).
+    if n["nikdy_neodpoustet"] and 'D' in opp_hist:
         return aplikuj_chybu('D')
 
     if not opp_hist:
@@ -144,19 +148,29 @@ def custom_player(my_hist, opp_hist, info, config: CustomBotConfig = None):
             return aplikuj_chybu('C' if random.random() < 0.5 else 'D')
         return aplikuj_chybu(prvni)
 
-    viditelna_historie = [x for x in opp_hist if x != '?']
+    # Viditelná historie = opp_hist bez '?'. Dřív se v každém kole skládala
+    # znovu (zápas o K kolech pak stál K^2 kroků); počty se ale dají vzít
+    # rovnou z opp_hist a sérii stačí dojít od konce. Rozhoduje to stejně.
+    pocet_viditelnych = len(opp_hist) - opp_hist.count('?')
 
-    if len(viditelna_historie) >= 5:
-        opp_d_count = sum(1 for x in viditelna_historie if x == 'D')
-        d_ratio = (opp_d_count / len(viditelna_historie)) * 100
+    if pocet_viditelnych >= 5:
+        opp_d_count = opp_hist.count('D')
+        d_ratio = (opp_d_count / pocet_viditelnych) * 100
         if d_ratio >= n["zrada_pri_pomeru"]:
             return aplikuj_chybu('D')
 
     # Tolerance k po sobě jdoucím zradám: tolerance_d = kolik zrad v řadě
     # bot odpustí, než začne oplácet (retaliace nastává až při tolerance_d + 1).
+    # Počítá se přes viditelné tahy, mlha se přeskakuje.
     limit = n["tolerance_d"] + 1
-    if len(viditelna_historie) >= limit:
-        if all(x == 'D' for x in viditelna_historie[-limit:]):
+    serie = 0
+    for x in reversed(opp_hist):
+        if x == '?':
+            continue
+        if x != 'D':
+            break
+        serie += 1
+        if serie >= limit:
             return aplikuj_chybu('D')
 
     if opp_hist[-1] == '?':

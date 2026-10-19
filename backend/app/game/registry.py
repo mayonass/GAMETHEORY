@@ -29,8 +29,8 @@ BUILTIN_BOTS: Dict[str, tuple] = {
     "tit_for_tat": (bots.tit_for_tat, "Tit-for-Tat", "Starts by cooperating, then exactly repeats the opponent's last visible move."),
     "grudger": (bots.grudger, "Grudger", "Cooperates until the opponent defects once - then defects forever."),
     "pavlov": (bots.pavlov, "Pavlov", "Win-Stay, Lose-Shift: if both made the same move last round it cooperates, otherwise it defects."),
-    "zd_extortioner": (bots.zd_extortioner, "ZD Extortioner", "Zero-Determinant strategy that guarantees itself a higher score than the opponent."),
-    "zd_generous": (bots.zd_generous, "ZD Generous", "Zero-Determinant strategy that rewards the opponent's cooperation."),
+    "zd_extortioner": (bots.zd_extortioner, "ZD Extortioner", "Zero-Determinant strategy (Press & Dyson): in the long run it always scores more than its opponent."),
+    "zd_generous": (bots.zd_generous, "ZD Generous", "Zero-Determinant strategy (ZDGTFT-2): rewards cooperation and in the long run never scores more than its opponent."),
 }
 
 CUSTOM_BOT_TYPE = "custom"

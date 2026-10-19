@@ -42,8 +42,14 @@ def verify_password(password: str, password_hash: str) -> bool:
         return False
 
 
-def create_access_token(user_id: uuid.UUID) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
+def create_access_token(user_id: uuid.UUID, remember: bool = False) -> str:
+    """`remember` = uživatel zaškrtl "Stay logged in" - token platí déle."""
+    platnost = (
+        timedelta(days=settings.remember_token_days)
+        if remember
+        else timedelta(minutes=settings.access_token_expire_minutes)
+    )
+    expire = datetime.now(timezone.utc) + platnost
     payload = {"sub": str(user_id), "exp": expire}
     return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
 

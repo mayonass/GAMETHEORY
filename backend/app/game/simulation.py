@@ -62,7 +62,7 @@ def vyhodnot_kolo(tah1, tah2, zkresleni, mlha):
     return p1, p2, b1, b2, nova_mlha1, nova_mlha2
 
 
-def _odehraj_kola(f1: BotFn, f2: BotFn, cfg: NastaveniZapasu, kola: int):
+def _odehraj_kola(f1: BotFn, f2: BotFn, cfg: NastaveniZapasu, kola: int, zaznamenat: bool = True):
     """Interní pomocná funkce: odehraje přesně `kola` kol.
 
     Vrací `(skore1, skore2, zaznam)`, kde `zaznam` je seznam slovníků - jeden
@@ -89,40 +89,53 @@ def _odehraj_kola(f1: BotFn, f2: BotFn, cfg: NastaveniZapasu, kola: int):
     # `sum` a `mlha` jsou pro pravidlové boty (env_noise, env_fog); vestavěné
     # strategie je ignorují.
     info = {"celkem_kol": None if cfg.neznama_kola else kola, "sum": cfg.zkresleni, "mlha": cfg.mlha}
-    true1, true2, perc1, perc2, fog1, fog2 = [], [], [], [], [], []
+    # Co z tahů soupeře kdo vidí. Dřív se to v každém kole počítalo znovu
+    # z celé historie (spocitej_viditelnou_historii), takže zápas o K kolech
+    # stál K^2 kroků. Mlha ale může skrývat jen posledních `delay` tahů -
+    # stačí tedy přidat nový tah (případně jako '?') a odhalit ten, kterému
+    # mlha právě vypršela. Výsledek je v každém kole identický.
+    #   vid1 = tahy bota 1, jak je vidí bot 2;  vid2 = tahy bota 2, jak je vidí bot 1
+    true1, true2, perc1, perc2, vid1, vid2 = [], [], [], [], [], []
     s1, s2 = 0, 0
     zaznam = []
+    delay = cfg.delay
 
     for kolo in range(kola):
         info["kolo"] = kolo
-        v1 = spocitej_viditelnou_historii(perc1, fog1, kolo, cfg.delay)
-        v2 = spocitej_viditelnou_historii(perc2, fog2, kolo, cfg.delay)
+        # Tah z kola i je skrytý, dokud kolo - i <= delay; teď vyprší mlha
+        # tahu z kola kolo - delay - 1.
+        odhal = kolo - delay - 1
+        if odhal >= 0:
+            vid1[odhal] = perc1[odhal]
+            vid2[odhal] = perc2[odhal]
 
-        tah1 = f1(true1, v2, info)
-        tah2 = f2(true2, v1, info)
+        tah1 = f1(true1, vid2, info)
+        tah2 = f2(true2, vid1, info)
 
         p1, p2, b1, b2, f1_bool, f2_bool = vyhodnot_kolo(tah1, tah2, cfg.zkresleni, cfg.mlha)
         s1 += b1
         s2 += b2
 
-        zaznam.append({
-            "round": kolo + 1,
-            "move1": tah1,
-            "move2": tah2,
-            "arrived1": p1,
-            "arrived2": p2,
-            "fog1": f1_bool,
-            "fog2": f2_bool,
-            "points1": b1,
-            "points2": b2,
-        })
+        if zaznamenat:
+            zaznam.append({
+                "round": kolo + 1,
+                "move1": tah1,
+                "move2": tah2,
+                "arrived1": p1,
+                "arrived2": p2,
+                "fog1": f1_bool,
+                "fog2": f2_bool,
+                "points1": b1,
+                "points2": b2,
+            })
 
         true1.append(tah1)
         true2.append(tah2)
         perc1.append(p1)
         perc2.append(p2)
-        fog1.append(f1_bool)
-        fog2.append(f2_bool)
+        # Při delay 0 mlha nic neskryje (soupeř se ptá až v dalším kole).
+        vid1.append("?" if f1_bool and delay >= 1 else p1)
+        vid2.append("?" if f2_bool and delay >= 1 else p2)
 
     return s1, s2, zaznam
 
@@ -133,7 +146,7 @@ def odehraj_simulovany_zapas(f1: BotFn, f2: BotFn, cfg: NastaveniZapasu) -> Tupl
     Identické chování jako originální funkce z desktopové aplikace.
     """
     kola = skutecny_pocet_kol(cfg)
-    s1, s2, _ = _odehraj_kola(f1, f2, cfg, kola)
+    s1, s2, _ = _odehraj_kola(f1, f2, cfg, kola, zaznamenat=False)
     return s1, s2
 
 

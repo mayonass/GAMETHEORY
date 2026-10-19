@@ -9,7 +9,9 @@ from .. import schemas
 from ..config import get_settings
 from ..game import registry
 from ..game.evolution import CELKOVA_POPULACE, odehraj_evoluci
-from ..game.simulation import NastaveniZapasu, odehraj_simulovany_zapas, odehraj_zapas_s_poctem_kol
+from ..game.simulation import NastaveniZapasu, odehraj_zapas_s_poctem_kol
+from ..game.turnaj import odehraj_turnaj
+from ..vypocty import PrilisDlouho, Zaneprazdneno, spust_oddelene
 
 router = APIRouter(prefix="/simulate", tags=["simulate"])
 
@@ -17,8 +19,12 @@ router = APIRouter(prefix="/simulate", tags=["simulate"])
 # hodnoty (viz skutecny_pocet_kol), takže s tím rozpočet počítá.
 _REZERVA_NEZNAMA_KOLA = 1.3
 
+# Od kolika odhadovaných kol se simulace pouští v odděleném procesu
+# (app/vypocty.py). Menší se spočítají dřív, než by se proces stihl spustit.
+_ODDELENE_OD_KOL = 20_000
 
-def _zkontroluj_rozpocet(dvojic: int, settings: schemas.MatchSettings, nasobek: int, co: str) -> None:
+
+def _zkontroluj_rozpocet(dvojic: int, settings: schemas.MatchSettings, nasobek: int, co: str) -> int:
     """Odmítne simulaci, která by procesor zaměstnala na dlouhé minuty.
 
     Stránku servíruje ta samá (a malá) instance, takže jeden nenasytný
@@ -45,6 +51,27 @@ def _zkontroluj_rozpocet(dvojic: int, settings: schemas.MatchSettings, nasobek: 
                 f"and the limit is {slovy(strop)}. Lower {co}."
             ),
         )
+    return celkem
+
+
+def _spocitej(fn, *args, kol: int, co: str, **kwargs):
+    """Malou simulaci spočítá rovnou, velkou v odděleném procesu s limitem."""
+    if kol < _ODDELENE_OD_KOL:
+        return fn(*args, **kwargs)
+    limit = get_settings().simulation_timeout_seconds
+    try:
+        return spust_oddelene(fn, *args, casovy_limit=limit, **kwargs)
+    except Zaneprazdneno:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The server is busy with another big simulation. Try again in a moment.",
+            headers={"Retry-After": "10"},
+        ) from None
+    except PrilisDlouho:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"The simulation took longer than {limit} seconds and was stopped. Lower {co}.",
+        ) from None
 
 
 def _settings_to_cfg(settings: schemas.MatchSettings) -> NastaveniZapasu:
@@ -114,16 +141,19 @@ def simulate_evolution(payload: schemas.EvolutionRequest) -> schemas.EvolutionRe
     resolved = [_resolve(spec) for spec in payload.bots]
     n = len(resolved)
     # V evoluci hraje každý s každým VČETNĚ sebe sama, proto n*(n+1)/2.
-    _zkontroluj_rozpocet(n * (n + 1) // 2, payload.settings, payload.generations,
-                         "the number of generations, rounds or species")
+    co = "the number of generations, rounds or species"
+    kol = _zkontroluj_rozpocet(n * (n + 1) // 2, payload.settings, payload.generations, co)
 
     jmena = [name for name, _ in resolved]
     funkce = [fn for _, fn in resolved]
     cfg = _settings_to_cfg(payload.settings)
 
-    historie, vymreli = odehraj_evoluci(
+    historie, vymreli = _spocitej(
+        odehraj_evoluci,
         funkce,
         cfg,
+        kol=kol,
+        co=co,
         generaci=payload.generations,
         rozlozeni=payload.distribution,
         vahy=payload.weights,
@@ -165,58 +195,14 @@ def simulate_tournament(payload: schemas.TournamentRequest) -> schemas.Tournamen
     """
     resolved = [_resolve(spec) for spec in payload.bots]
     n = len(resolved)
-    _zkontroluj_rozpocet(n * (n - 1) // 2, payload.settings, payload.repeats,
-                         "the number of repeats, rounds or bots")
+    co = "the number of repeats, rounds or bots"
+    kol = _zkontroluj_rozpocet(n * (n - 1) // 2, payload.settings, payload.repeats, co)
 
     cfg = _settings_to_cfg(payload.settings)
     opakovani = payload.repeats
-
-    # Vše se vede podle INDEXU bota v seznamu, ne podle jeho zobrazovaného
-    # jména - dva vlastní boti mohou mít stejné (nebo žádné) jméno a jejich
-    # skóre by se jinak omylem sečetlo do jednoho řádku.
-    body_celkem = [0.0] * n
-    vyhry = [0.0] * n
-    remizy = [0.0] * n
-    prohry = [0.0] * n
-    prvni_mista = [0.0] * n
-    body_po_turnajich: list[list[int]] = [[] for _ in range(n)]
-    # (i, j) -> [součet skóre bota i, součet skóre bota j]
-    zapasy: dict[tuple[int, int], list[float]] = {}
-
-    for _ in range(opakovani):
-        body_turnaje = [0] * n
-
-        # Round-robin - každý s každým právě jednou, stejně jako v originále.
-        for i in range(n):
-            for j in range(i + 1, n):
-                s1, s2 = odehraj_simulovany_zapas(resolved[i][1], resolved[j][1], cfg)
-                body_turnaje[i] += s1
-                body_turnaje[j] += s2
-
-                if s1 > s2:
-                    vyhry[i] += 1
-                    prohry[j] += 1
-                elif s2 > s1:
-                    vyhry[j] += 1
-                    prohry[i] += 1
-                else:
-                    remizy[i] += 1
-                    remizy[j] += 1
-
-                soucet = zapasy.setdefault((i, j), [0.0, 0.0])
-                soucet[0] += s1
-                soucet[1] += s2
-
-        for i in range(n):
-            body_celkem[i] += body_turnaje[i]
-            body_po_turnajich[i].append(body_turnaje[i])
-
-        # Podíl prvních míst. Při dělené první příčce se kredit rozdělí, aby
-        # součet přes všechny boty dal přesně 100 %.
-        nejvic = max(body_turnaje)
-        prvni = [i for i in range(n) if body_turnaje[i] == nejvic]
-        for i in prvni:
-            prvni_mista[i] += 1.0 / len(prvni)
+    t = _spocitej(odehraj_turnaj, [fn for _, fn in resolved], cfg, opakovani, kol=kol, co=co)
+    body_celkem, vyhry, remizy, prohry = t["body_celkem"], t["vyhry"], t["remizy"], t["prohry"]
+    prvni_mista, body_po_turnajich, zapasy = t["prvni_mista"], t["body_po_turnajich"], t["zapasy"]
 
     standings = [
         schemas.TournamentStanding(
