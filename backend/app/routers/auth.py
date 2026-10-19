@@ -27,7 +27,7 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)) -> User
     if existing is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Uživatelské jméno nebo e-mail už je zabraný.",
+            detail="That username or email is already taken.",
         )
 
     user = User(
@@ -42,7 +42,7 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)) -> User
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Uživatelské jméno nebo e-mail už je zabraný.",
+            detail="That username or email is already taken.",
         )
     db.refresh(user)
     return user
@@ -59,7 +59,7 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)) -> schem
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Nesprávné přihlašovací jméno nebo heslo.",
+            detail="Wrong username or password.",
         )
 
     token = create_access_token(user.id)

@@ -145,9 +145,9 @@ class EvolutionRequest(BaseModel):
     def _zkontroluj_vahy(self) -> "EvolutionRequest":
         if self.distribution == "manual":
             if not self.weights or len(self.weights) != len(self.bots):
-                raise ValueError("Pro distribution='manual' musí být weights stejně dlouhé jako bots.")
+                raise ValueError("With distribution='manual', weights must have the same length as bots.")
             if any(w < 0 for w in self.weights):
-                raise ValueError("Váhy nesmí být záporné.")
+                raise ValueError("Weights must not be negative.")
         return self
 
 

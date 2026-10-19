@@ -30,22 +30,19 @@ def _zkontroluj_rozpocet(dvojic: int, settings: schemas.MatchSettings, nasobek: 
     celkem = int(dvojic * kola * nasobek)
     if celkem > strop:
         def slovy(n: int) -> str:
-            """Počet kol česky: 1 milion / 3 miliony / 8 milionů / 1,1 milionu."""
+            """Počet kol anglicky: 1 million / 1.1 million / 850 thousand."""
             if n < 1_000_000:
-                return f"{n // 1000} tisíc"
+                return f"{n // 1000} thousand"
             milionu = n / 1_000_000
-            cele = round(milionu)
-            if abs(milionu - cele) < 0.05:
-                if cele == 1:
-                    return "1 milion"
-                return f"{cele} miliony" if cele <= 4 else f"{cele} milionů"
-            return f"{milionu:.1f} milionu".replace(".", ",")
+            if abs(milionu - round(milionu)) < 0.05:
+                return f"{round(milionu)} million"
+            return f"{milionu:.1f} million"
 
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=(
-                f"Simulace je moc velká: odehrálo by se kolem {slovy(celkem)} kol, "
-                f"strop je {slovy(strop)}. Sniž {co}."
+                f"This simulation is too large: it would play about {slovy(celkem)} rounds, "
+                f"and the limit is {slovy(strop)}. Lower {co}."
             ),
         )
 
@@ -118,7 +115,7 @@ def simulate_evolution(payload: schemas.EvolutionRequest) -> schemas.EvolutionRe
     n = len(resolved)
     # V evoluci hraje každý s každým VČETNĚ sebe sama, proto n*(n+1)/2.
     _zkontroluj_rozpocet(n * (n + 1) // 2, payload.settings, payload.generations,
-                         "počet generací, kol nebo druhů")
+                         "the number of generations, rounds or species")
 
     jmena = [name for name, _ in resolved]
     funkce = [fn for _, fn in resolved]
@@ -169,7 +166,7 @@ def simulate_tournament(payload: schemas.TournamentRequest) -> schemas.Tournamen
     resolved = [_resolve(spec) for spec in payload.bots]
     n = len(resolved)
     _zkontroluj_rozpocet(n * (n - 1) // 2, payload.settings, payload.repeats,
-                         "počet opakování, kol nebo botů")
+                         "the number of repeats, rounds or bots")
 
     cfg = _settings_to_cfg(payload.settings)
     opakovani = payload.repeats

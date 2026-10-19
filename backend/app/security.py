@@ -62,7 +62,7 @@ def decode_access_token(token: str) -> uuid.UUID:
 
 _CREDENTIALS_ERROR = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Neplatné nebo chybějící přihlašovací údaje.",
+    detail="Invalid or missing login credentials.",
     headers={"WWW-Authenticate": "Bearer"},
 )
 

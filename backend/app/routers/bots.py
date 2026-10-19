@@ -111,9 +111,9 @@ def update_bot(
 ):
     bot = db.get(Bot, bot_id)
     if bot is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot nenalezen.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found.")
     if bot.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tento bot ti nepatří.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This bot does not belong to you.")
 
     changes = payload.model_dump(exclude_unset=True)
 
@@ -148,9 +148,9 @@ def delete_bot(
     """
     bot = db.get(Bot, bot_id)
     if bot is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot nenalezen.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot not found.")
     if bot.owner_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tento bot ti nepatří.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This bot does not belong to you.")
 
     db.delete(bot)
     db.commit()

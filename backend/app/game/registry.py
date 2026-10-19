@@ -24,13 +24,13 @@ from . import bots
 
 # Název typu bota -> (čistá funkce, český název, popis)
 BUILTIN_BOTS: Dict[str, tuple] = {
-    "always_cooperate": (bots.always_cooperate, "Vždy spolupracuj", "Vždy spolupracuje, bez ohledu na to, co dělá soupeř."),
-    "always_defect": (bots.always_defect, "Vždy zraď", "Vždy zradí, snaží se maximalizovat svůj zisk na úkor ostatních."),
-    "tit_for_tat": (bots.tit_for_tat, "Půjčka za oplátku", "Začne spoluprací, poté opakuje poslední viditelný tah soupeře."),
-    "grudger": (bots.grudger, "Záštník", "Spolupracuje, dokud ho soupeř alespoň jednou nezradí - pak už jen zrazuje."),
-    "pavlov": (bots.pavlov, "Pavlov", "Win-stay, lose-shift: při shodném výsledku opakuje tah, jinak ho změní."),
-    "zd_extortioner": (bots.zd_extortioner, "ZD Vyděrač", "Zero-Determinant strategie, která si vynucuje vyšší skóre než soupeř."),
-    "zd_generous": (bots.zd_generous, "ZD Štědrý", "Zero-Determinant strategie, která odměňuje spolupráci soupeře."),
+    "always_cooperate": (bots.always_cooperate, "Always Cooperate", "Always cooperates, regardless of what the opponent does."),
+    "always_defect": (bots.always_defect, "Always Defect", "Always defects. Tries to maximize its gain at the expense of others."),
+    "tit_for_tat": (bots.tit_for_tat, "Tit-for-Tat", "Starts by cooperating, then exactly repeats the opponent's last visible move."),
+    "grudger": (bots.grudger, "Grudger", "Cooperates until the opponent defects once - then defects forever."),
+    "pavlov": (bots.pavlov, "Pavlov", "Win-Stay, Lose-Shift: if both made the same move last round it cooperates, otherwise it defects."),
+    "zd_extortioner": (bots.zd_extortioner, "ZD Extortioner", "Zero-Determinant strategy that guarantees itself a higher score than the opponent."),
+    "zd_generous": (bots.zd_generous, "ZD Generous", "Zero-Determinant strategy that rewards the opponent's cooperation."),
 }
 
 CUSTOM_BOT_TYPE = "custom"
@@ -87,13 +87,13 @@ def zkontroluj_custom_config(config: Optional[dict]) -> dict:
     if config is None:
         config = {}
     if not isinstance(config, dict):
-        raise NevalidniKonfiguraceError("Konfigurace bota musí být objekt (JSON slovník).")
+        raise NevalidniKonfiguraceError("The bot configuration must be an object (a JSON dictionary).")
 
     neznamé = sorted(set(config) - POVOLENE_KLICE)
     if neznamé:
         raise NevalidniKonfiguraceError(
-            "Konfigurace obsahuje neznámé položky: " + ", ".join(neznamé)
-            + ". Povolené jsou: " + ", ".join(sorted(POVOLENE_KLICE - POMOCNE_KLICE)) + "."
+            "The configuration contains unknown fields: " + ", ".join(neznamé)
+            + ". Allowed fields are: " + ", ".join(sorted(POVOLENE_KLICE - POMOCNE_KLICE)) + "."
         )
 
     vysledek = dict(bots.DEFAULT_CUSTOM_CONFIG)
@@ -104,8 +104,8 @@ def zkontroluj_custom_config(config: Optional[dict]) -> dict:
         hodnota = config[klic]
         if not isinstance(hodnota, str) or hodnota not in povolene:
             raise NevalidniKonfiguraceError(
-                f"Položka {klic} musí být jedna z hodnot: " + ", ".join(sorted(povolene))
-                + f". Dostal jsem {hodnota!r}."
+                f"Field {klic} must be one of: " + ", ".join(sorted(povolene))
+                + f". Got {hodnota!r}."
             )
         vysledek[klic] = hodnota
 
@@ -116,13 +116,13 @@ def zkontroluj_custom_config(config: Optional[dict]) -> dict:
         # `bool` je v Pythonu podtypem `int`, ale True jako tolerance nedává smysl.
         if isinstance(hodnota, bool) or not isinstance(hodnota, (int, float)):
             raise NevalidniKonfiguraceError(
-                f"Položka {klic} musí být číslo mezi {mini} a {maxi}. Dostal jsem {hodnota!r}."
+                f"Field {klic} must be a number between {mini} and {maxi}. Got {hodnota!r}."
             )
         if celociselny and not float(hodnota).is_integer():
-            raise NevalidniKonfiguraceError(f"Položka {klic} musí být celé číslo.")
+            raise NevalidniKonfiguraceError(f"Field {klic} must be a whole number.")
         if not (mini <= hodnota <= maxi):
             raise NevalidniKonfiguraceError(
-                f"Položka {klic} musí být mezi {mini} a {maxi}. Dostal jsem {hodnota!r}."
+                f"Field {klic} must be between {mini} and {maxi}. Got {hodnota!r}."
             )
         vysledek[klic] = int(hodnota) if celociselny else float(hodnota)
 
@@ -132,7 +132,7 @@ def zkontroluj_custom_config(config: Optional[dict]) -> dict:
         hodnota = config[klic]
         if not isinstance(hodnota, bool):
             raise NevalidniKonfiguraceError(
-                f"Položka {klic} musí být true nebo false. Dostal jsem {hodnota!r}."
+                f"Field {klic} must be true or false. Got {hodnota!r}."
             )
         vysledek[klic] = hodnota
 
@@ -146,12 +146,12 @@ def zkontroluj_konfiguraci_bota(config: Any) -> dict:
     se kterým pak nejde hrát.
     """
     if not isinstance(config, dict):
-        raise NevalidniKonfiguraceError("Konfigurace bota musí být objekt (JSON slovník).")
+        raise NevalidniKonfiguraceError("The bot configuration must be an object (a JSON dictionary).")
 
     bot_type = config.get("type")
     if bot_type not in ALLOWED_BOT_TYPES:
         raise UnknownBotTypeError(
-            f"config.type musí být jeden z {ALLOWED_BOT_TYPES}, dostal jsem {bot_type!r}."
+            f"config.type must be one of {ALLOWED_BOT_TYPES}, got {bot_type!r}."
         )
     if bot_type == CUSTOM_BOT_TYPE:
         zkontroluj_custom_config(config)
@@ -171,7 +171,7 @@ def resolve_bot(bot_type: str, config: Optional[dict] = None, name: Optional[str
     entry = BUILTIN_BOTS.get(bot_type)
     if entry is None:
         raise UnknownBotTypeError(
-            f"Neznámý typ bota: {bot_type!r}. Povolené typy: {ALLOWED_BOT_TYPES}"
+            f"Unknown bot type: {bot_type!r}. Allowed types: {ALLOWED_BOT_TYPES}"
         )
     fn, _, _ = entry
     return fn
@@ -181,7 +181,7 @@ def bot_display_name(bot_type: str, config: Optional[dict], fallback_name: Optio
     if fallback_name:
         return fallback_name
     if bot_type == CUSTOM_BOT_TYPE:
-        return (config or {}).get("jmeno") or "Vlastní bot"
+        return (config or {}).get("jmeno") or "Custom Bot"
     entry = BUILTIN_BOTS.get(bot_type)
     return entry[1] if entry else bot_type
 

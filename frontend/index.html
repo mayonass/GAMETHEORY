@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,51 +10,28 @@
 <style>
 /* ============================================================
    BAREVNÉ A TYPOGRAFICKÉ TOKENY
-   Všechny barvy jsou definované tady. Tmavý režim jen přepisuje
-   hodnoty, nikde jinde v souboru není natvrdo napsaná barva.
+   Jediný, světlý vzhled. Všechny barvy jsou definované tady,
+   nikde jinde v souboru není natvrdo napsaná barva.
    ============================================================ */
 :root {
-  --bg:        #E8EDEF;
+  color-scheme: light;
+  --bg:        #F6F7F9;
+  --white:     #FFFFFF;
   --panel:     #FFFFFF;
-  --panel-2:   #F3F7F8;
-  --ink:       #121B21;
-  --muted:     #5A6A75;
-  --faint:     #8695A0;
-  --line:      #CFD9DE;
-  --line-soft: #E3EAED;
-  --accent:    #23697F;
-  --accent-2:  #EAF2F5;
-  --coop:      #2C7A5A;
-  --defect:    #A8422C;
-  --shadow:    0 1px 2px rgba(18,27,33,.05), 0 12px 30px -22px rgba(18,27,33,.4);
-  --shadow-sm: 0 1px 2px rgba(18,27,33,.06);
+  --panel-2:   #F4F6F8;
+  --ink:       #0F1419;
+  --muted:     #57616C;
+  --faint:     #8B949E;
+  --line:      #DFE3E8;
+  --line-soft: #ECEFF2;
+  --accent:    #1C6E8C;
+  --accent-ink:#FFFFFF;
+  --accent-2:  #EAF3F7;
+  --coop:      #1F8A58;
+  --defect:    #C2412D;
+  --shadow:    0 1px 2px rgba(15,20,25,.04), 0 10px 28px -18px rgba(15,20,25,.22);
+  --shadow-sm: 0 1px 2px rgba(15,20,25,.05);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:        #0E1418;
-    --panel:     #171F25;
-    --panel-2:   #1C262C;
-    --ink:       #DFE7EC;
-    --muted:     #93A4AF;
-    --faint:     #6E808C;
-    --line:      #2A353D;
-    --line-soft: #222C33;
-    --accent:    #6FB7D6;
-    --accent-2:  #1A2A33;
-    --coop:      #55BE8E;
-    --defect:    #E4886B;
-    --shadow:    0 1px 2px rgba(0,0,0,.35), 0 12px 30px -22px rgba(0,0,0,.9);
-    --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
-  }
-}
-:root[data-theme="dark"] {
-  --bg:#0E1418; --panel:#171F25; --panel-2:#1C262C; --ink:#DFE7EC;
-  --muted:#93A4AF; --faint:#6E808C; --line:#2A353D; --line-soft:#222C33;
-  --accent:#6FB7D6; --accent-2:#1A2A33; --coop:#55BE8E; --defect:#E4886B;
-  --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 30px -22px rgba(0,0,0,.9);
-  --shadow-sm:0 1px 2px rgba(0,0,0,.35);
-}
-
 * { box-sizing: border-box; }
 
 html, body { height: 100%; }
@@ -281,7 +258,7 @@ input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-of
   border: 1px solid transparent;
   transition: opacity .14s ease, background .14s ease;
 }
-.btn-primary { background: var(--accent); color: var(--panel); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
 .btn-primary:hover:not(:disabled) { opacity: .88; }
 .btn-ghost { background: var(--panel-2); color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover:not(:disabled) { border-color: var(--accent); }
@@ -562,17 +539,6 @@ details.fold > summary:hover { color: var(--ink); }
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
   --s5: #e87ba4; --s6: #008300; --s7: #4a3aa7; --s8: #e34948;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
-  }
-}
-:root[data-theme="dark"] {
-  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-  --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
-}
-
 .chartwrap { position: relative; }
 svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
 svg.chart .grid line { stroke: var(--line-soft); stroke-width: 1; }
@@ -733,6 +699,156 @@ footer input {
   border-radius: 5px;
 }
 
+/* ============================================================
+   OBRAZOVKY — titulní strana a herní menu
+   ============================================================ */
+.screen[hidden] { display: none !important; }
+
+.brand { cursor: pointer; }
+.brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+
+/* ---------- titulní strana ---------- */
+#screen-home { background: var(--white); border-bottom: 1px solid var(--line-soft); }
+.home {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 64px 24px 72px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 56px;
+  align-items: start;
+}
+@media (max-width: 980px) { .home { grid-template-columns: 1fr; gap: 36px; padding-top: 40px; } }
+
+.home-text { display: flex; flex-direction: column; gap: 18px; }
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--accent);
+}
+.home h1 {
+  font-family: Spectral, Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.06;
+  letter-spacing: -.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+.home-text p { margin: 0; font-size: 17px; line-height: 1.7; color: var(--muted); max-width: 60ch; }
+.home-text p.lead { color: var(--ink); font-size: 18.5px; }
+
+.play {
+  appearance: none;
+  display: inline-flex; align-items: center; gap: 14px;
+  align-self: flex-start;
+  margin-top: 14px;
+  padding: 18px 40px 18px 30px;
+  border: 0; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font: inherit; font-size: 21px; font-weight: 600; letter-spacing: .01em;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -12px rgba(28,110,140,.65);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.play:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -12px rgba(28,110,140,.75); }
+.play:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.play svg { width: 18px; height: 18px; }
+.play-note { font-size: 13.5px; color: var(--faint); }
+
+.video-wrap { display: flex; flex-direction: column; gap: 10px; }
+.video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0F1419;
+  box-shadow: 0 24px 50px -28px rgba(15,20,25,.45);
+}
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-cap { font-size: 13px; color: var(--faint); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.video-cap b { color: var(--muted); font-weight: 500; }
+.video-cap .linkbtn { font-size: 13px; }
+
+/* ---------- herní menu ---------- */
+.menu { max-width: 1180px; margin: 0 auto; padding: 44px 24px 64px; display: flex; flex-direction: column; gap: 36px; }
+.menu-head { display: flex; flex-direction: column; gap: 10px; }
+.menu-head h1 {
+  font-family: Spectral, Georgia, serif; font-weight: 600;
+  font-size: clamp(30px, 4vw, 42px); line-height: 1.1; margin: 0; letter-spacing: -.01em;
+}
+.menu-head p { margin: 0; color: var(--muted); font-size: 16.5px; max-width: 66ch; }
+
+.rules {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 28px 40px;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px 28px;
+  box-shadow: var(--shadow);
+}
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rules h2 { grid-column: 1 / -1; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.matrix { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.matrix th, .matrix td { border: 1px solid var(--line); padding: 10px 16px; text-align: center; font-size: 14px; }
+.matrix thead th, .matrix tbody th { background: var(--panel-2); font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.matrix .corner { background: transparent; border: 0; }
+.matrix .C { color: var(--coop); } .matrix .D { color: var(--defect); }
+.matrix thead th { text-transform: none; letter-spacing: 0; padding: 10px 16px; }
+.matrix tbody tr:last-child td { border-bottom: 1px solid var(--line); }
+.rules-text p b.C { color: var(--coop); } .rules-text p b.D { color: var(--defect); }
+.rules-text { display: flex; flex-direction: column; gap: 12px; }
+.rules-text p { margin: 0; font-size: 15px; color: var(--muted); max-width: 64ch; }
+.rules-text p b { color: var(--ink); font-weight: 600; }
+
+.group { display: flex; flex-direction: column; gap: 14px; }
+.group > h2 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.cards { display: grid; gap: 18px; }
+.cards.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cards.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 980px) { .cards.three, .cards.two { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 24px 22px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  cursor: pointer;
+  text-align: left;
+  font: inherit; color: inherit;
+}
+.card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.card .tag { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.card h3 { margin: 0; font-family: Spectral, Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1.15; }
+.card p { margin: 0; font-size: 14.5px; line-height: 1.65; color: var(--muted); }
+.card p.see { color: var(--ink); font-size: 14px; }
+.card .go { margin-top: auto; padding-top: 6px; font-size: 14px; font-weight: 600; color: var(--accent); }
+
+/* ---------- navigace v režimech ---------- */
+.tabs { align-items: center; }
+.tab-menu {
+  appearance: none; background: none; border: 0;
+  font: inherit; font-size: 14px; font-weight: 500; color: var(--accent);
+  padding: 14px 18px 12px 0; margin-right: 8px; cursor: pointer;
+  border-right: 1px solid var(--line); 
+}
+.tab-menu:hover { opacity: .75; }
+.tab-menu:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; border-radius: 3px; }
+.tabs { overflow-x: auto; }
+.tab { white-space: nowrap; }
+.tablist { display: flex; gap: 2px; }
+
+.slider .note { font-size: 12.5px; color: var(--faint); line-height: 1.45; }
+.mode-lead { margin: 0 0 22px; font-size: 15px; color: var(--muted); max-width: 80ch; }
+.mode-lead b { color: var(--ink); font-weight: 600; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -742,36 +858,142 @@ footer input {
 
 <div class="topbar">
   <div class="topbar-in">
-    <div class="brand">
+    <div class="brand" id="brand" role="link" tabindex="0" title="Home">
       <div class="name">The Game Theory</div>
-      <div class="tag">Iterované vězňovo dilema&nbsp;&middot;&nbsp;mlha války</div>
+      <div class="tag">Iterated prisoner&rsquo;s dilemma&nbsp;&middot;&nbsp;fog of war</div>
     </div>
     <div class="userbox">
       <span id="userinfo"></span>
       <div class="status" id="status" data-state="wait">
-        <span class="dot"></span><span id="statusText">připojuji se k backendu…</span>
+        <span class="dot"></span><span id="statusText">connecting to server…</span>
       </div>
     </div>
   </div>
 </div>
 
-<div class="tabs" role="tablist">
+<!-- ============ TITULNÍ STRANA ============ -->
+<section id="screen-home" class="screen">
+  <div class="home">
+    <div class="home-text">
+      <div class="eyebrow">Start here</div>
+      <h1>Game Theory &mdash; An Introduction</h1>
+      <p class="lead">Game theory is a branch of mathematics and economics that studies strategic interactions between rational decision-makers.</p>
+      <p>It analyzes situations where the outcome of one person&rsquo;s decisions depends on the decisions of others.</p>
+      <p>In essence, it&rsquo;s about predicting how individuals or groups will behave when their choices affect each other, and finding optimal strategies to achieve the best possible outcome considering all players&rsquo; actions and preferences.</p>
+      <p>It&rsquo;s widely used in various fields like economics, political science, and biology, and even in everyday situations like business negotiations or social interactions.</p>
+      <button class="play" id="play" type="button">
+        <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 2.5v13a.8.8 0 0 0 1.2.7l11-6.5a.8.8 0 0 0 0-1.4l-11-6.5A.8.8 0 0 0 4 2.5Z" fill="currentColor"/></svg>
+        Play
+      </button>
+      <div class="play-note">Game theory, Iterated Prisoner&rsquo;s Dilemma, and Evolutionary Dynamics in noisy environments.</div>
+    </div>
+    <div class="video-wrap">
+      <div class="video">
+        <iframe id="intro-video" title="Veritasium video about game theory"
+          allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div class="video-cap"><span id="video-cap-text"><b>Veritasium</b></span><span id="video-cap-act"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HERNÍ MENU ============ -->
+<section id="screen-menu" class="screen" hidden>
+  <div class="menu">
+    <div class="menu-head">
+      <div class="eyebrow">Game menu</div>
+      <h1>Choose how to play</h1>
+      <p>Every mode uses the same game &mdash; the iterated prisoner&rsquo;s dilemma. Here is how a single round works, then pick a mode below.</p>
+    </div>
+
+    <div class="rules">
+      <h2>How one round works</h2>
+      <table class="matrix" aria-label="Payoffs: both cooperate 3 and 3, both defect 1 and 1, a defector against a cooperator gets 5 and the cooperator 0.">
+        <thead><tr><th class="corner"></th><th>they <span class="C">C</span></th><th>they <span class="D">D</span></th></tr></thead>
+        <tbody>
+          <tr><th>you <span class="C">C</span></th><td>3 : 3</td><td>0 : 5</td></tr>
+          <tr><th>you <span class="D">D</span></th><td>5 : 0</td><td>1 : 1</td></tr>
+        </tbody>
+      </table>
+      <div class="rules-text">
+        <p>Both players choose at the same time: <b class="C">Cooperate</b> or <b class="D">Defect</b>. Defecting always pays more in a single round &mdash; but if both defect, both end up worse off than if they had cooperated. That tension is the whole game.</p>
+        <p>The game is played over many rounds, so what you did last round matters. This version adds two twists from the real world: <b>fog</b> &mdash; sometimes you can&rsquo;t see what the other side did &mdash; and <b>noise</b> &mdash; sometimes a move arrives flipped, so cooperation looks like betrayal.</p>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Play</h2>
+      <div class="cards three">
+        <button class="card" type="button" data-go="duel">
+          <span class="tag">1 vs 1</span>
+          <h3>Duel</h3>
+          <p>Pick two bots and watch them play a match. You see every round: what each bot did, what the noise flipped and what the fog hid.</p>
+          <p class="see">Run it 100&times; to find out who is really better, not just lucky.</p>
+          <span class="go">Open Duel &rarr;</span>
+        </button>
+        <button class="card" type="button" data-go="tournament">
+          <span class="tag">Everyone vs everyone</span>
+          <h3>Tournament</h3>
+          <p>Every bot plays every other bot once &mdash; the format Robert Axelrod used in his famous 1980 tournament. The ranking is by total points, not by wins.</p>
+          <p class="see">Repeat it to separate skill from luck.</p>
+          <span class="go">Open Tournament &rarr;</span>
+        </button>
+        <button class="card" type="button" data-go="evolution">
+          <span class="tag">1000 players</span>
+          <h3>Evolution</h3>
+          <p>A population where strategies that score well multiply and the rest shrink. Watch who takes over, who goes extinct and what mutation does to the balance.</p>
+          <p class="see">The chart shows every generation.</p>
+          <span class="go">Open Evolution &rarr;</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Your bots</h2>
+      <div class="cards two">
+        <button class="card" type="button" data-go="bot">
+          <span class="tag">Your rules</span>
+          <h3>Customize your own bot</h3>
+          <p>Build custom behavior using priority rules: the first move, how many betrayals it forgives, how it reacts in the fog, whether its hand ever trembles.</p>
+          <p class="see">Save it, publish it and send it into duels, tournaments and evolution.</p>
+          <span class="go">Open the editor &rarr;</span>
+        </button>
+        <button class="card" type="button" data-go="gallery">
+          <span class="tag">Community</span>
+          <h3>Public gallery of Bots</h3>
+          <p>Strategies published by other players. Add any of them to your own matches, or copy one into the editor and improve it.</p>
+          <p class="see">Publish yours and see how it does against theirs.</p>
+          <span class="go">Open the gallery &rarr;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REŽIMY ============ -->
+<div id="screen-app" class="screen" hidden>
+<div class="tabs">
+  <button class="tab-menu" id="nav-menu" type="button">&larr; Menu</button>
+  <div class="tablist" role="tablist">
   <button class="tab" role="tab" id="tab-duel" aria-selected="true" aria-controls="p-duel">Duel</button>
-  <button class="tab" role="tab" id="tab-turnaj" aria-selected="false" aria-controls="p-turnaj">Turnaj</button>
-  <button class="tab" role="tab" id="tab-evoluce" aria-selected="false" aria-controls="p-evoluce">Evoluce</button>
-  <button class="tab" role="tab" id="tab-bot" aria-selected="false" aria-controls="p-bot">Můj bot</button>
-  <button class="tab" role="tab" id="tab-boti" aria-selected="false" aria-controls="p-boti">Boti ostatních</button>
+  <button class="tab" role="tab" id="tab-turnaj" aria-selected="false" aria-controls="p-turnaj">Tournament</button>
+  <button class="tab" role="tab" id="tab-evoluce" aria-selected="false" aria-controls="p-evoluce">Evolution</button>
+  <button class="tab" role="tab" id="tab-bot" aria-selected="false" aria-controls="p-bot">Customize your own bot</button>
+  <button class="tab" role="tab" id="tab-boti" aria-selected="false" aria-controls="p-boti">Public gallery of Bots</button>
+  </div>
 </div>
 
 <main>
 
   <!-- ============ DUEL ============ -->
   <section id="p-duel" role="tabpanel" aria-labelledby="tab-duel">
+    <p class="mode-lead"><b>Duel.</b> Two bots, one match. Pick the strategies, set fog and noise, and watch every round.</p>
     <div class="split">
 
       <aside>
         <div class="panel">
-          <div class="panel-head"><h2>Kdo proti komu</h2></div>
+          <div class="panel-head"><h2>Who plays whom</h2></div>
           <div class="panel-body">
             <div class="field">
               <label for="d-bot1">Bot&nbsp;1</label>
@@ -788,8 +1010,8 @@ footer input {
 
         <div class="panel">
           <div class="panel-head">
-            <h2>Nastavení zápasu</h2>
-            <button class="btn btn-ghost" id="d-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+            <h2>Match settings</h2>
+            <button class="btn btn-ghost" id="d-reset" style="padding:4px 10px;font-size:12px">Defaults</button>
           </div>
           <div class="panel-body" id="d-settings"></div>
         </div>
@@ -797,21 +1019,21 @@ footer input {
         <div class="panel">
           <div class="panel-body">
             <div class="field">
-              <span class="field-label">Kolikrát odehrát</span>
+              <span class="field-label">How many matches</span>
               <div class="seg" id="d-reps">
                 <button type="button" data-reps="1" aria-pressed="true">1×</button>
                 <button type="button" data-reps="10" aria-pressed="false">10×</button>
                 <button type="button" data-reps="100" aria-pressed="false">100×</button>
               </div>
-              <div class="note">Mlha, šum i neznámý počet kol jsou náhodné. Jeden zápas nic nedokazuje — sto zápasů ukáže, kdo je opravdu lepší.</div>
+              <div class="note">Fog, noise and an unknown number of rounds are all random. One match proves nothing — a hundred show who is really better.</div>
             </div>
-            <button class="btn btn-primary btn-wide" id="d-run">Spustit zápas</button>
+            <button class="btn btn-primary btn-wide" id="d-run">Run match</button>
           </div>
         </div>
       </aside>
 
       <div class="panel" id="d-result">
-        <div class="empty"><p class="big">Vyber dva boty a spusť zápas.</p></div>
+        <div class="empty"><p class="big">Pick two bots and run a match.</p></div>
       </div>
 
     </div>
@@ -819,51 +1041,52 @@ footer input {
 
   <!-- ============ TURNAJ ============ -->
   <section id="p-turnaj" role="tabpanel" aria-labelledby="tab-turnaj" hidden>
+    <p class="mode-lead"><b>Tournament.</b> Everyone plays everyone once &mdash; the format Robert Axelrod used in 1980. The highest total score wins.</p>
     <div class="split">
 
       <aside>
         <div class="panel">
           <div class="panel-head">
-            <h2>Účastníci</h2>
+            <h2>Participants</h2>
             <span class="hint" id="t-count"></span>
           </div>
           <div class="panel-body">
             <div class="chips" id="t-chips"></div>
-            <div class="note">Každý hraje s každým právě jednou. Pořadí se určuje podle celkového počtu bodů, ne podle výher.</div>
+            <div class="note">Every bot plays every other bot exactly once. The ranking is by total points, not by wins.</div>
           </div>
         </div>
 
         <div class="panel">
           <div class="panel-body">
             <div class="field">
-              <span class="field-label">Kolikrát turnaj odehrát</span>
+              <span class="field-label">How many tournaments</span>
               <div class="seg" id="t-reps">
                 <button type="button" data-reps="1" aria-pressed="true">1×</button>
                 <button type="button" data-reps="5" aria-pressed="false">5×</button>
                 <button type="button" data-reps="20" aria-pressed="false">20×</button>
               </div>
-              <div class="note">ZD strategie se rozhodují náhodně, takže i bez mlhy a šumu vychází pokaždé jiné pořadí. Při opakování uvidíš průměr, rozpětí a hlavně to, jak často kdo skutečně skončil první.</div>
+              <div class="note">ZD strategies decide at random, so even without fog and noise the ranking changes from run to run. Repeating shows the average, the range and — most importantly — how often each bot actually finished first.</div>
             </div>
           </div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <h2>Nastavení zápasu</h2>
-            <button class="btn btn-ghost" id="t-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+            <h2>Match settings</h2>
+            <button class="btn btn-ghost" id="t-reset" style="padding:4px 10px;font-size:12px">Defaults</button>
           </div>
           <div class="panel-body" id="t-settings"></div>
         </div>
 
         <div class="panel">
           <div class="panel-body">
-            <button class="btn btn-primary btn-wide" id="t-run">Odehrát turnaj</button>
+            <button class="btn btn-primary btn-wide" id="t-run">Run tournament</button>
           </div>
         </div>
       </aside>
 
       <div class="panel" id="t-result">
-        <div class="empty"><p class="big">Vyber aspoň dva boty a odehraj turnaj.</p></div>
+        <div class="empty"><p class="big">Pick at least two bots and run a tournament.</p></div>
       </div>
 
     </div>
@@ -871,43 +1094,44 @@ footer input {
 
   <!-- ============ EVOLUCE ============ -->
   <section id="p-evoluce" role="tabpanel" aria-labelledby="tab-evoluce" hidden>
+    <p class="mode-lead"><b>Evolution.</b> A population of 1000. Strategies that score well multiply; the rest shrink and can die out.</p>
     <div class="split">
 
       <aside>
         <div class="panel">
           <div class="panel-head">
-            <h2>Druhy v populaci</h2>
+            <h2>Species in the population</h2>
             <span class="hint" id="e-count"></span>
           </div>
           <div class="panel-body">
             <div class="chips" id="e-chips"></div>
-            <div class="note">Populace má vždy 1000 jedinců. Nejvýš osm druhů — víc čar už v grafu nerozeznáš.</div>
+            <div class="note">The population always has 1000 individuals. At most eight species — more lines would be impossible to tell apart.</div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-head"><h2>Průběh evoluce</h2></div>
+          <div class="panel-head"><h2>Evolution settings</h2></div>
           <div class="panel-body" id="e-evo"></div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <h2>Nastavení zápasu</h2>
-            <button class="btn btn-ghost" id="e-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+            <h2>Match settings</h2>
+            <button class="btn btn-ghost" id="e-reset" style="padding:4px 10px;font-size:12px">Defaults</button>
           </div>
           <div class="panel-body" id="e-settings"></div>
         </div>
 
         <div class="panel">
           <div class="panel-body">
-            <button class="btn btn-primary btn-wide" id="e-run">Spustit evoluci</button>
+            <button class="btn btn-primary btn-wide" id="e-run">Start evolution</button>
           </div>
         </div>
       </aside>
 
       <div class="panel" id="e-result">
-        <div class="empty"><p class="big">Vyber druhy a spusť evoluci.</p>
-        <p>Uvidíš, jak se zastoupení strategií v populaci mění generaci po generaci — kdo se rozšíří a kdo vymře.</p></div>
+        <div class="empty"><p class="big">Pick species and start the evolution.</p>
+        <p>You will see how the share of each strategy changes generation by generation — who spreads and who dies out.</p></div>
       </div>
 
     </div>
@@ -915,13 +1139,14 @@ footer input {
 
   <!-- ============ MŮJ BOT ============ -->
   <section id="p-bot" role="tabpanel" aria-labelledby="tab-bot" hidden>
+    <p class="mode-lead"><b>Customize your own bot.</b> Build custom behavior using priority rules. Save it to use in duels, tournaments and evolution &mdash; or publish it for others.</p>
     <div class="split">
 
       <aside>
         <div class="panel">
           <div class="panel-head">
-            <h2>Vlastní strategie</h2>
-            <button class="btn btn-ghost" id="b-reset" style="padding:4px 10px;font-size:12px">Výchozí</button>
+            <h2>Your strategy</h2>
+            <button class="btn btn-ghost" id="b-reset" style="padding:4px 10px;font-size:12px">Defaults</button>
           </div>
           <div class="panel-body" id="b-form"></div>
         </div>
@@ -930,15 +1155,15 @@ footer input {
       <div>
         <div class="panel">
           <div class="panel-head">
-            <h2>Jak se rozhoduje</h2>
-            <span class="hint">v tomhle pořadí</span>
+            <h2>How it decides</h2>
+            <span class="hint">in this order</span>
           </div>
           <div class="panel-body" id="b-explain" style="gap:14px"></div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <h2>Uložit bota</h2>
+            <h2>Save bot</h2>
             <span class="hint" id="b-save-hint"></span>
           </div>
           <div class="panel-body" id="b-save"></div>
@@ -946,12 +1171,12 @@ footer input {
 
         <div class="panel">
           <div class="panel-head">
-            <h2>Co se posílá na server</h2>
-            <span class="hint">žádný kód — jen hodnoty</span>
+            <h2>What is sent to the server</h2>
+            <span class="hint">no code — just values</span>
           </div>
           <div class="panel-body">
             <pre class="jsonview" id="b-json"></pre>
-            <div class="note">Server tyhle hodnoty dosadí do jedné pevně napsané funkce. Nic jiného spustit nejde.</div>
+            <div class="note">The server plugs these values into one fixed, pre-written function. Nothing else can be run.</div>
           </div>
         </div>
       </div>
@@ -961,13 +1186,14 @@ footer input {
 
   <!-- ============ BOTI OSTATNÍCH ============ -->
   <section id="p-boti" role="tabpanel" aria-labelledby="tab-boti" hidden>
+    <p class="mode-lead"><b>Public gallery of Bots.</b> Strategies published by other players. Add them to your picks, or copy one into the editor and improve it.</p>
     <div class="panel">
       <div class="panel-head">
-        <h2 id="bl-title">Veřejná galerie</h2>
+        <h2 id="bl-title">Public gallery</h2>
         <div class="filterbar">
           <div class="seg" id="bl-filter">
-            <button type="button" data-f="public" aria-pressed="true">Veřejní</button>
-            <button type="button" data-f="mine" aria-pressed="false">Moji</button>
+            <button type="button" data-f="public" aria-pressed="true">Public</button>
+            <button type="button" data-f="mine" aria-pressed="false">Mine</button>
           </div>
         </div>
       </div>
@@ -976,22 +1202,23 @@ footer input {
   </section>
 
 </main>
+</div>
 
 <dialog class="modal" id="authModal">
   <div class="modal-head">
-    <h2 id="auth-title">Přihlášení</h2>
+    <h2 id="auth-title">Log in</h2>
     <p id="auth-sub"></p>
   </div>
   <div class="modal-body">
     <div id="auth-fields" style="display:flex;flex-direction:column;gap:14px"></div>
     <div class="formerr" id="auth-err" hidden></div>
-    <button class="btn btn-primary btn-wide" id="auth-submit">Přihlásit se</button>
+    <button class="btn btn-primary btn-wide" id="auth-submit">Log in</button>
     <div class="modal-switch" id="auth-switch"></div>
   </div>
 </dialog>
 
 <footer>
-  <label>Adresa backendu <input type="text" id="api-base" class="mono" spellcheck="false"></label>
+  <label>Server address <input type="text" id="api-base" class="mono" spellcheck="false"></label>
   <span id="footer-note"></span>
 </footer>
 
@@ -1003,14 +1230,14 @@ footer input {
    ============================================================ */
 
 const BOTI = [
-  { type: "always_cooperate", nazev: "Vždy spolupracuj",  popis: "Vždy spolupracuje, ať se děje co se děje." },
-  { type: "always_defect",    nazev: "Vždy zraď",         popis: "Vždy zradí. Proti naivním strategiím vydělá, proti mstivým prodělá." },
-  { type: "tit_for_tat",      nazev: "Půjčka za oplátku", popis: "Začne spoluprací, pak opakuje poslední viditelný tah soupeře." },
-  { type: "grudger",          nazev: "Záštník",           popis: "Spolupracuje, dokud ho soupeř jednou nezradí. Pak už jen zrazuje." },
-  { type: "pavlov",           nazev: "Pavlov",            popis: "Když to vyšlo, opakuje. Když ne, změní tah." },
-  { type: "zd_extortioner",   nazev: "ZD Vyděrač",        popis: "Vynucuje si, aby měl vyšší skóre než soupeř — i za cenu nižšího zisku pro oba." },
-  { type: "zd_generous",      nazev: "ZD Štědrý",         popis: "Odměňuje spolupráci a odpouští chyby. Táhne obě strany nahoru." },
-  { type: "custom",           nazev: "Můj bot",           popis: "Tvoje vlastní strategie ze záložky „Můj bot“." }
+  { type: "always_cooperate", nazev: "Always Cooperate", popis: "Always cooperates, regardless of what the opponent does. Serves as the embodiment of naivety, often exploited by predators, but thrives in a world full of other altruists." },
+  { type: "always_defect",    nazev: "Always Defect",    popis: "Always defects. Tries to maximize its gain at the expense of others. In evolution, it quickly wipes out altruists, but once only defectors remain, the entire population suffers." },
+  { type: "tit_for_tat",      nazev: "Tit-for-Tat",      popis: "Starts by cooperating, then exactly repeats the opponent's last visible move. It is a robust, friendly, but tough strategy. Its biggest weakness is a noisy environment where it can trigger a 'death spiral' of retaliation." },
+  { type: "grudger",          nazev: "Grudger",          popis: "Starts peacefully and cooperates. But if the opponent defects even once, the Grudger never forgets and will defect forever." },
+  { type: "pavlov",           nazev: "Pavlov",           popis: "Follows the 'Win-Stay, Lose-Shift' strategy. If both players made the same move last round (C-C or D-D), it cooperates. If they diverged (C-D or D-C), it defects. Handles random noise well." },
+  { type: "zd_extortioner",   nazev: "ZD Extortioner",   popis: "Zero-Determinant Extortioner. Uses a complex probability matrix to mathematically guarantee that its score will always be higher than the opponent's. It forces an unfair share of the payoff." },
+  { type: "zd_generous",      nazev: "ZD Generous",      popis: "Zero-Determinant Generous. Uses similar math to the Extortioner, but to the opposite effect: it systematically rewards cooperation and allows the opponent to score higher than itself, motivating continuous cooperation." },
+  { type: "custom",           nazev: "Custom Bot",       popis: "Your own strategy from the “Customize your own bot” screen." }
 ];
 
 /* delay = 1, ne 0: při nule se zamlžený tah odhalí dřív, než se ho stihne
@@ -1018,7 +1245,7 @@ const BOTI = [
 const VYCHOZI_NASTAVENI = { kola: 10, neznama_kola: false, mlha: 0, delay: 1, zkresleni: 0 };
 
 const VYCHOZI_BOT = {
-  jmeno: "Můj bot",
+  jmeno: "Custom Bot",
   prvni_tah: "C",
   zakladni_strategie: "tit_for_tat",
   pravdepodobnost_c: 100,
@@ -1059,7 +1286,7 @@ function seznamBotu() {
   const prevzati = Object.values(stav.prevzati).map((b) => ({
     type: "saved:" + b.id,
     nazev: b.name,
-    popis: b.description || ("Uložený bot" + (b.owner_username ? " od uživatele " + b.owner_username : "") + ".")
+    popis: b.description || ("Saved bot" + (b.owner_username ? " by " + b.owner_username : "") + ".")
   }));
   return [...BOTI, ...prevzati];
 }
@@ -1105,7 +1332,7 @@ async function api(cesta, { method = "GET", telo = null, auth = false } = {}) {
   /* Token vypršel nebo je neplatný — nemá smysl předstírat přihlášení dál. */
   if (odpoved.status === 401 && auth) {
     odhlas();
-    throw new Error("Přihlášení vypršelo. Přihlas se prosím znovu.");
+    throw new Error("Your session has expired. Please log in again.");
   }
 
   if (!odpoved.ok) {
@@ -1132,7 +1359,7 @@ function botSpec(hodnota) {
   }
   if (hodnota === "custom") {
     const { jmeno, ...config } = stav.bot;
-    return { type: "custom", name: jmeno || "Můj bot", config };
+    return { type: "custom", name: jmeno || "Custom Bot", config };
   }
   return { type: hodnota };
 }
@@ -1143,7 +1370,7 @@ async function overSpojeni(pokusu = 1) {
     try {
       await api("/health");
       s.dataset.state = "up";
-      t.textContent = "server běží";
+      t.textContent = "server online";
       return true;
     } catch (_) {
       /* Levné hostingy uspávají aplikaci po čtvrthodině nečinnosti a probouzení
@@ -1151,13 +1378,13 @@ async function overSpojeni(pokusu = 1) {
          i když je všechno v pořádku — proto to zkusíme víckrát. */
       if (pokus < pokusu) {
         s.dataset.state = "wait";
-        t.textContent = "probouzím server… (" + pokus + "/" + (pokusu - 1) + ")";
+        t.textContent = "waking up the server… (" + pokus + "/" + (pokusu - 1) + ")";
         await new Promise((r) => setTimeout(r, 6000));
       }
     }
   }
   s.dataset.state = "down";
-  t.textContent = bezimeLokalne() ? "backend neběží" : "server neodpovídá";
+  t.textContent = bezimeLokalne() ? "backend not running" : "server not responding";
   return false;
 }
 
@@ -1196,7 +1423,7 @@ function postavNastaveni(kam, nastaveni, priZmene) {
   kam.innerHTML = "";
 
   const poleKola = el("div", "field");
-  poleKola.innerHTML = '<label for="' + kam.id + '-kola">Počet kol</label>';
+  poleKola.innerHTML = '<label for="' + kam.id + '-kola">Rounds</label>';
   const vstupKola = el("input");
   vstupKola.type = "number"; vstupKola.min = 1; vstupKola.max = 1000;
   vstupKola.id = kam.id + "-kola";
@@ -1210,8 +1437,8 @@ function postavNastaveni(kam, nastaveni, priZmene) {
   const neznama = el("label", "check");
   neznama.innerHTML =
     '<input type="checkbox"' + (nastaveni.neznama_kola ? " checked" : "") + '>' +
-    '<span class="txt"><b>Neznámý počet kol</b>' +
-    '<span>Boti nevědí, kdy zápas skončí, takže nemůžou v posledním kole zradit „na jistotu“. Skutečný počet kol se pohybuje kolem zadané hodnoty.</span></span>';
+    '<span class="txt"><b>Unknown number of rounds</b>' +
+    '<span>Bots don’t know when the match ends, so they can’t safely defect in the last round. The real number of rounds varies around the value above.</span></span>';
   neznama.querySelector("input").addEventListener("change", (e) => {
     nastaveni.neznama_kola = e.target.checked; priZmene();
   });
@@ -1241,12 +1468,12 @@ function postavNastaveni(kam, nastaveni, priZmene) {
     return box;
   };
 
-  const mlhaBox = posuvnik("mlha", "Mlha",
-    "Šance, že soupeřův tah zůstane skrytý — bot místo něj uvidí otazník.",
+  const mlhaBox = posuvnik("mlha", "Fog",
+    "Chance that the opponent’s move stays hidden — the bot sees a question mark instead.",
     (v) => Math.round(v * 100) + " %");
-  const delayBox = posuvnik("delay", "Jak dlouho mlha drží",
-    "Kolik kol zůstane tah skrytý, než se odhalí. Míň než jedno kolo nejde — bot se soupeřova tahu ptá až v následujícím kole, takže kratší mlha by neměla co zakrýt.",
-    (v) => v + (v === 1 ? " kolo" : (v >= 2 && v <= 4 ? " kola" : " kol")));
+  const delayBox = posuvnik("delay", "Fog clears after",
+    "How many rounds a hidden move stays hidden before it is revealed. The minimum is one round — a bot only looks at the opponent’s move in the next round, so anything shorter would hide nothing.",
+    (v) => v + (v === 1 ? " round" : " rounds"));
 
   /* Když je mlha na nule, zpoždění nemá co ovlivňovat — ztlumíme ho,
      ať je vidět, že spolu ty dva posuvníky souvisí. */
@@ -1261,7 +1488,7 @@ function postavNastaveni(kam, nastaveni, priZmene) {
     neznama,
     mlhaBox,
     delayBox,
-    posuvnik("zkresleni", "Šum", "Šance, že tah dorazí převrácený. Body se počítají podle skutečnosti, ne podle toho, co bot viděl.", (v) => Math.round(v * 100) + " %")
+    posuvnik("zkresleni", "Noise", "Chance that a move arrives flipped. Points are always counted from what really happened, not from what the bot saw.", (v) => Math.round(v * 100) + " %")
   );
   obnovStavMlhy();
 }
@@ -1310,7 +1537,7 @@ async function spustDuel() {
   const reps = stav.duel.reps;
 
   tlacitko.disabled = true;
-  tlacitko.textContent = reps === 1 ? "počítám…" : "počítám " + reps + " zápasů…";
+  tlacitko.textContent = reps === 1 ? "simulating…" : "simulating " + reps + " matches…";
 
   const telo = {
     bot1: botSpec(stav.duel.bot1),
@@ -1332,13 +1559,13 @@ async function spustDuel() {
     }
     vykresliDuel(cil, vysledky);
     $("#status").dataset.state = "up";
-    $("#statusText").textContent = "backend běží";
+    $("#statusText").textContent = "server online";
   } catch (chyba) {
     vykresliChybu(cil, chyba);
     overSpojeni();
   } finally {
     tlacitko.disabled = false;
-    tlacitko.textContent = "Spustit zápas";
+    tlacitko.textContent = "Run match";
   }
 }
 
@@ -1361,8 +1588,8 @@ function vykresliDuel(cil, vysledky) {
 
   cil.innerHTML = "";
   const hlava = el("div", "panel-head");
-  hlava.append(el("h2", null, n === 1 ? "Výsledek zápasu" : n + " zápasů"));
-  hlava.append(el("span", "hint", n === 1 ? "" : "průměr na jeden zápas"));
+  hlava.append(el("h2", null, n === 1 ? "Match result" : n + " matches"));
+  hlava.append(el("span", "hint", n === 1 ? "" : "average per match"));
   cil.append(hlava);
 
   const stage = el("div", "stage");
@@ -1400,10 +1627,10 @@ function vykresliDuel(cil, vysledky) {
      6 bodů za kolo. To je nejvyšší možný společný zisk — vyšší součet neexistuje. */
   const spolecnyStrop = Math.round(kolaPrumer * 6);
   verdikt.append(
-    stat("Odehraných kol", n === 1 ? String(prvni.rounds_played) : kolaPrumer.toFixed(1)),
-    stat("Vítěz", vedeBot1 ? jmeno1 : vedeBot2 ? jmeno2 : "remíza"),
-    stat("Rozdíl", cislo(Math.abs(prumer1 - prumer2)) + " bodů"),
-    stat("Společný zisk", cislo(celkem) + " ze " + spolecnyStrop + " možných")
+    stat("Rounds played", n === 1 ? String(prvni.rounds_played) : kolaPrumer.toFixed(1)),
+    stat("Winner", vedeBot1 ? jmeno1 : vedeBot2 ? jmeno2 : "tie"),
+    stat("Difference", cislo(Math.abs(prumer1 - prumer2)) + " points"),
+    stat("Joint payoff", cislo(celkem) + " of " + spolecnyStrop + " possible")
   );
   stage.append(verdikt);
 
@@ -1423,10 +1650,10 @@ function vykresliDuel(cil, vysledky) {
     };
     legenda.append(
       polozka("var(--accent)", jmeno1 + " — " + vyhry1 + "×  (" + Math.round(vyhry1 / n * 100) + " %)"),
-      polozka("var(--line)", "remíza — " + remizy + "×"),
+      polozka("var(--line)", "tie — " + remizy + "×"),
       polozka("var(--faint)", jmeno2 + " — " + vyhry2 + "×  (" + Math.round(vyhry2 / n * 100) + " %)")
     );
-    tally.append(el("div", "field-label", "Kdo vyhrál kolikrát"), pruh2, legenda);
+    tally.append(el("div", "field-label", "Who won how often"), pruh2, legenda);
     stage.append(tally);
   }
 
@@ -1443,17 +1670,17 @@ function popisTahu(zaznam, kdo, jmenoSoupere) {
   const tah      = kdo === 1 ? zaznam.move1    : zaznam.move2;
   const dorazilo = kdo === 1 ? zaznam.arrived1 : zaznam.arrived2;
   const vMlze    = kdo === 1 ? zaznam.fog1     : zaznam.fog2;
-  const slovo = (t) => (t === "C" ? "spolupráci" : "zradu");
+  const slovo = (t) => (t === "C" ? "cooperate" : "defect");
 
-  let s = "Kolo " + zaznam.round + " — zahrál " + slovo(tah) + ".";
+  let s = "Round " + zaznam.round + " — played " + slovo(tah) + ".";
   if (vMlze && tah !== dorazilo) {
-    s += " " + jmenoSoupere + " ho v tu chvíli neviděl; až se mlha rozplyne, uvidí " + slovo(dorazilo) + ".";
+    s += " " + jmenoSoupere + " couldn’t see it at the time; once the fog clears it will see " + slovo(dorazilo) + ".";
   } else if (vMlze) {
-    s += " " + jmenoSoupere + " ho v tu chvíli neviděl.";
+    s += " " + jmenoSoupere + " couldn’t see it at the time.";
   } else if (tah !== dorazilo) {
-    s += " K soupeři ale dorazila " + slovo(dorazilo) + ".";
+    s += " But the opponent received " + slovo(dorazilo) + ".";
   }
-  s += " Body v tomhle kole: " + zaznam.points1 + " : " + zaznam.points2 + ".";
+  s += " Points this round: " + zaznam.points1 + " : " + zaznam.points2 + ".";
   return s;
 }
 
@@ -1466,27 +1693,27 @@ function vykresliPrubeh(historie, jmeno1, jmeno2) {
     (a, r) => a + (r.move1 !== r.arrived1 ? 1 : 0) + (r.move2 !== r.arrived2 ? 1 : 0), 0);
 
   /* České skloňování: 1 → jedna, 2–4 → málo, 5+ → hodně. */
-  const sklonuj = (n, jedna, malo, hodne) => n + " " + (n === 1 ? jedna : (n >= 2 && n <= 4 ? malo : hodne));
+  const sklonuj = (n, jedna, vice) => n + " " + (n === 1 ? jedna : vice);
 
   const hlava = el("div", "replay-head");
-  hlava.append(el("div", "t", "Průběh zápasu"));
+  hlava.append(el("div", "t", "Round by round"));
   const casti = [];
   if (zakryto) {
-    casti.push(sklonuj(zakryto, "kolo bylo", "kola byla", "kol bylo") + " zčásti v mlze");
+    casti.push(sklonuj(zakryto, "round was", "rounds were") + " partly in fog");
   }
   if (prevraceno) {
-    casti.push(sklonuj(prevraceno, "tah dorazil", "tahy dorazily", "tahů dorazilo") + " převráceně");
+    casti.push(sklonuj(prevraceno, "move arrived", "moves arrived") + " flipped");
   }
-  hlava.append(el("div", "s", casti.length ? casti.join(" · ") : "čistá hra bez mlhy a šumu"));
+  hlava.append(el("div", "s", casti.length ? casti.join(" · ") : "clean game, no fog or noise"));
   box.append(hlava);
 
   const mriz = el("div", "replay-grid");
   const popisky = el("div", "rlabels");
   popisky.append(
-    el("div", "head", "kolo"),
+    el("div", "head", "round"),
     el("div", null, jmeno1),
     el("div", null, jmeno2),
-    el("div", "head", "body")
+    el("div", "head", "points")
   );
 
   const scroll = el("div", "rscroll");
@@ -1525,10 +1752,10 @@ function vykresliPrubeh(historie, jmeno1, jmeno2) {
     return s;
   };
   legenda.append(
-    polozka("C", "C", "spolupráce"),
-    polozka("D", "D", "zrada"),
-    polozka("D fog", "D", "soupeř tenhle tah neviděl (mlha)"),
-    polozka("C noise", "C", "k soupeři dorazil opak (šum)")
+    polozka("C", "C", "cooperate"),
+    polozka("D", "D", "defect"),
+    polozka("D fog", "D", "opponent didn’t see this move (fog)"),
+    polozka("C noise", "C", "opponent received the opposite (noise)")
   );
   box.append(legenda);
 
@@ -1585,7 +1812,7 @@ function initTurnaj() {
 function obnovPocet() {
   const k = stav.turnaj.vybrani.length;
   const zapasu = k * (k - 1) / 2;
-  $("#t-count").textContent = k < 2 ? "vyber aspoň dva" : k + " botů · " + zapasu + " zápasů";
+  $("#t-count").textContent = k < 2 ? "pick at least two" : k + " bots · " + zapasu + " matches";
   $("#t-run").disabled = k < 2;
 }
 
@@ -1594,7 +1821,7 @@ async function spustTurnaj() {
   const cil = $("#t-result");
   const reps = stav.turnaj.reps;
   tlacitko.disabled = true;
-  tlacitko.textContent = reps === 1 ? "počítám…" : "počítám " + reps + " turnajů…";
+  tlacitko.textContent = reps === 1 ? "simulating…" : "simulating " + reps + " tournaments…";
 
   try {
     const data = await api("/simulate/tournament", {
@@ -1607,13 +1834,13 @@ async function spustTurnaj() {
     });
     vykresliTurnaj(cil, data);
     $("#status").dataset.state = "up";
-    $("#statusText").textContent = "backend běží";
+    $("#statusText").textContent = "server online";
   } catch (chyba) {
     vykresliChybu(cil, chyba);
     overSpojeni();
   } finally {
     tlacitko.disabled = false;
-    tlacitko.textContent = "Odehrát turnaj";
+    tlacitko.textContent = "Run tournament";
     obnovPocet();
   }
 }
@@ -1627,18 +1854,18 @@ function vykresliTurnaj(cil, data) {
 
   cil.innerHTML = "";
   const hlava = el("div", "panel-head");
-  hlava.append(el("h2", null, "Pořadí"));
+  hlava.append(el("h2", null, "Standings"));
   hlava.append(el("span", "hint", viceKrat
-    ? opak + " turnajů · průměr na jeden"
-    : data.matches.length + " odehraných zápasů"));
+    ? opak + " tournaments · average per tournament"
+    : data.matches.length + " matches played"));
   cil.append(hlava);
 
   const wrap = el("div", "tablewrap");
   const t = el("table");
-  t.innerHTML = "<thead><tr><th></th><th>Bot</th><th class='num'>Body</th>"
-    + (viceKrat ? "<th class='num'>Rozpětí</th>" : "")
-    + "<th class='num'>V&nbsp;/&nbsp;R&nbsp;/&nbsp;P</th>"
-    + (viceKrat ? "<th class='num'>1.&nbsp;místo</th>" : "")
+  t.innerHTML = "<thead><tr><th></th><th>Bot</th><th class='num'>Score</th>"
+    + (viceKrat ? "<th class='num'>Range</th>" : "")
+    + "<th class='num'>W&nbsp;/&nbsp;T&nbsp;/&nbsp;L</th>"
+    + (viceKrat ? "<th class='num'>1st&nbsp;place</th>" : "")
     + "</tr></thead>";
   const tb = el("tbody");
 
@@ -1689,13 +1916,13 @@ function vykresliTurnaj(cil, data) {
   if (viceKrat) {
     const poznamka = el("div", "note");
     poznamka.style.padding = "14px 20px 0";
-    poznamka.textContent = "Rozpětí je nejhorší a nejlepší výsledek napříč turnaji. Když se dvěma botům rozpětí překrývá, "
-      + "je rozdíl v průměru nejspíš jen náhoda — proto je vedle sloupec, jak často kdo doopravdy skončil první.";
+    poznamka.textContent = "Range is the worst and best result across tournaments. When two bots’ ranges overlap, "
+      + "the difference in their averages is most likely just luck — that’s why the last column shows how often each one really finished first.";
     cil.append(poznamka);
   }
 
   const fold = el("details", "fold");
-  fold.append(el("summary", null, viceKrat ? "Jednotlivé dvojice (průměr)" : "Jednotlivé zápasy"));
+  fold.append(el("summary", null, viceKrat ? "Individual pairings (average)" : "Individual matches"));
   const mriz = el("div", "matches");
   for (const m of data.matches) {
     const box = el("div", "match");
@@ -1717,48 +1944,48 @@ function vykresliTurnaj(cil, data) {
 
 const POLE_BOTA = [
   {
-    klic: "jmeno", typ: "text", popisek: "Jméno",
-    napoveda: "Jak se bude jmenovat ve výsledcích."
+    klic: "jmeno", typ: "text", popisek: "Name",
+    napoveda: "How it will be called in results."
   },
   {
-    klic: "prvni_tah", typ: "select", popisek: "První tah",
-    volby: [["C", "Spolupráce"], ["D", "Zrada"], ["random", "Náhodně"]],
-    napoveda: "Čím začne, když ještě nic neviděl."
+    klic: "prvni_tah", typ: "select", popisek: "First move in match",
+    volby: [["C", "Cooperate"], ["D", "Defect"], ["random", "Random (50/50)"]],
+    napoveda: "What it plays before it has seen anything."
   },
   {
-    klic: "zakladni_strategie", typ: "select", popisek: "Základní strategie",
-    volby: [["tit_for_tat", "Opakuj soupeřův tah"], ["pavlov", "Drž se, když to vychází"], ["opak", "Dělej opak"], ["pravdepodobnost", "Náhodně podle pravděpodobnosti"]],
-    napoveda: "Podle čeho se rozhoduje, když nezasáhne žádné z pravidel níž."
+    klic: "zakladni_strategie", typ: "select", popisek: "Base strategy",
+    volby: [["tit_for_tat", "Tit-for-Tat"], ["pavlov", "Pavlov (Win = Repeat, Lose = Switch)"], ["opak", "Do the exact opposite"], ["pravdepodobnost", "Roll dice (Probability)"]],
+    napoveda: "How it decides when none of the rules below applies."
   },
   {
-    klic: "pravdepodobnost_c", typ: "range", popisek: "Pravděpodobnost spolupráce", jednotka: "%",
-    napoveda: "Uplatní se jen u strategie „Náhodně podle pravděpodobnosti“."
+    klic: "pravdepodobnost_c", typ: "range", popisek: "Probability of cooperation", jednotka: "%",
+    napoveda: "Only used with the “Roll dice (Probability)” base strategy."
   },
   {
-    klic: "tolerance_d", typ: "number", popisek: "Kolik zrad odpustí", min: 1, max: 20,
-    napoveda: "Kolik zrad v řadě snese, než začne oplácet. Oplácí až o jednu víc."
+    klic: "tolerance_d", typ: "number", popisek: "Tolerance", min: 1, max: 20,
+    napoveda: "Forgive N consecutive defects before retaliating. It strikes back at N + 1."
   },
   {
-    klic: "zrada_pri_pomeru", typ: "range", popisek: "Zradí, když soupeř zrazuje aspoň", jednotka: "%",
-    napoveda: "Sleduje se až od pátého viditelného tahu. Sto procent znamená, že tohle pravidlo prakticky nezasáhne."
+    klic: "zrada_pri_pomeru", typ: "range", popisek: "Greed limit", jednotka: "%",
+    napoveda: "Always defect if the opponent’s defect ratio is at least X %. Checked from the fifth visible move on; 100 % practically switches this rule off."
   },
   {
-    klic: "reakce_mlha", typ: "select", popisek: "Když soupeřův tah nevidí",
-    volby: [["zradit", "Zradí"], ["spolupracovat", "Spolupracuje"], ["random", "Náhodně"], ["opakovat_sebe", "Zopakuje svůj minulý tah"]],
-    napoveda: "Co udělá, když místo tahu vidí otazník."
+    klic: "reakce_mlha", typ: "select", popisek: "In fog (unknown move)",
+    volby: [["zradit", "Defect (caution)"], ["spolupracovat", "Cooperate (trust)"], ["random", "Random (50/50)"], ["opakovat_sebe", "Repeat your own last move"]],
+    napoveda: "What it does when it sees a question mark instead of a move."
   },
   {
-    klic: "posledni_tah", typ: "select", popisek: "V posledním kole",
-    volby: [["normal", "Nic zvláštního"], ["vzdy_d", "Vždy zradí"], ["vzdy_c", "Vždy spolupracuje"]],
-    napoveda: "Funguje jen tehdy, když je počet kol známý. Při neznámém počtu kol se ignoruje."
+    klic: "posledni_tah", typ: "select", popisek: "In the last round",
+    volby: [["normal", "Keep normal logic"], ["vzdy_d", "Always defect"], ["vzdy_c", "Always cooperate"]],
+    napoveda: "Only works when the number of rounds is known. Ignored when it is hidden."
   },
   {
-    klic: "nikdy_neodpoustet", typ: "check", popisek: "Nikdy neodpouští",
-    napoveda: "Jakmile ho soupeř jednou zradí, zrazuje už napořád. Přebije všechno ostatní."
+    klic: "nikdy_neodpoustet", typ: "check", popisek: "Never forgive",
+    napoveda: "Grudger mode — one defect triggers eternal defection. Overrides everything else."
   },
   {
     klic: "chyba_pct", typ: "range", popisek: "Chybovost", jednotka: "%",
-    napoveda: "Šance, že se splete a zahraje opak toho, co chtěl."
+    napoveda: "Execution error chance (trembling hand) — it plays the opposite of what it meant to."
   }
 ];
 
@@ -1850,31 +2077,31 @@ function obnovBotVystup() {
   const kroky = [];
 
   if (b.posledni_tah !== "normal") {
-    kroky.push(["V posledním kole", "Když je počet kol známý, v posledním kole " +
-      (b.posledni_tah === "vzdy_d" ? "vždy zradí" : "vždy spolupracuje") + " a dál se nerozhoduje."]);
+    kroky.push(["Last round", "When the number of rounds is known, in the last round it " +
+      (b.posledni_tah === "vzdy_d" ? "always defects" : "always cooperates") + " and decides nothing else."]);
   }
   if (b.nikdy_neodpoustet) {
-    kroky.push(["Nikdy neodpouští", "Jestli ho soupeř někdy zradil, zradí. Nic dalšího už neřeší."]);
+    kroky.push(["Never forgive", "If the opponent has ever defected, it defects. Nothing else matters."]);
   }
-  kroky.push(["První tah", "Když ještě nic neviděl, zahraje " +
-    (b.prvni_tah === "random" ? "náhodně" : b.prvni_tah === "C" ? "spolupráci" : "zradu") + "."]);
+  kroky.push(["First move", "Before it has seen anything, it plays " +
+    (b.prvni_tah === "random" ? "at random" : b.prvni_tah === "C" ? "cooperate" : "defect") + "."]);
   if (b.zrada_pri_pomeru < 100) {
-    kroky.push(["Sleduje poměr", "Od pátého viditelného tahu: když soupeř zrazuje v " +
-      b.zrada_pri_pomeru + " % a víc případů, zradí."]);
+    kroky.push(["Greed limit", "From the fifth visible move on: if the opponent defects in " +
+      b.zrada_pri_pomeru + " % of cases or more, it defects."]);
   }
-  kroky.push(["Trpělivost", b.tolerance_d === 1
-    ? "Odpustí jednu zradu. Až po dvou zradách v řadě oplatí."
-    : "Odpustí " + b.tolerance_d + " zrad v řadě. Až po " + (b.tolerance_d + 1) + " oplatí."]);
-  kroky.push(["Když nevidí", "Na otazník reaguje tak, že " +
-    ({ zradit: "zradí", spolupracovat: "spolupracuje", random: "hodí si", opakovat_sebe: "zopakuje svůj minulý tah" })[b.reakce_mlha] + "."]);
-  kroky.push(["Jinak", ({
-    tit_for_tat: "Zopakuje soupeřův poslední tah.",
-    pavlov: "Když poslední kolo dopadlo dobře, zopakuje svůj tah. Když ne, změní ho.",
-    opak: "Udělá opak soupeřova posledního tahu.",
-    pravdepodobnost: "Spolupracuje s pravděpodobností " + b.pravdepodobnost_c + " %."
+  kroky.push(["Tolerance", b.tolerance_d === 1
+    ? "Forgives one defect. Retaliates only after two in a row."
+    : "Forgives " + b.tolerance_d + " defects in a row. Retaliates after " + (b.tolerance_d + 1) + "."]);
+  kroky.push(["In fog", "When it sees a question mark, it " +
+    ({ zradit: "defects", spolupracovat: "cooperates", random: "flips a coin", opakovat_sebe: "repeats its own last move" })[b.reakce_mlha] + "."]);
+  kroky.push(["Otherwise", ({
+    tit_for_tat: "Repeats the opponent’s last move.",
+    pavlov: "If the last round went well, it repeats its move. If not, it switches.",
+    opak: "Does the exact opposite of the opponent’s last move.",
+    pravdepodobnost: "Cooperates with a probability of " + b.pravdepodobnost_c + " %."
   })[b.zakladni_strategie]]);
   if (b.chyba_pct > 0) {
-    kroky.push(["Na závěr", "S pravděpodobností " + b.chyba_pct + " % se splete a zahraje opak."]);
+    kroky.push(["Finally", "With a " + b.chyba_pct + " % chance its hand trembles and it plays the opposite."]);
   }
 
   const kam = $("#b-explain");
@@ -1901,8 +2128,8 @@ function obnovBotVystup() {
      ale nepřekreslujeme celý panel, aby uživateli neuteklo psaní v popisu. */
   const jmenoVPanelu = $("#b-save-name");
   if (jmenoVPanelu) {
-    jmenoVPanelu.innerHTML = "Uloží se pod jménem <b style='color:var(--ink)'>" +
-      esc(jmeno || "(bez jména)") + "</b> — změníš ho v poli Jméno vlevo.";
+    jmenoVPanelu.innerHTML = "It will be saved as <b style='color:var(--ink)'>" +
+      esc(jmeno || "(no name)") + "</b> — change it in the Name field on the left.";
   }
 }
 
@@ -1916,15 +2143,15 @@ function obnovUzivatele() {
 
   if (stav.auth.username) {
     const s = el("span", "whoami");
-    s.innerHTML = "přihlášen jako <b>" + esc(stav.auth.username) + "</b>";
-    const odhlasit = el("button", "linkbtn", "Odhlásit");
+    s.innerHTML = "logged in as <b>" + esc(stav.auth.username) + "</b>";
+    const odhlasit = el("button", "linkbtn", "Log out");
     odhlasit.addEventListener("click", odhlas);
     kam.append(s, document.createTextNode(" "), odhlasit);
   } else {
-    const prihlasit = el("button", "linkbtn", "Přihlásit se");
+    const prihlasit = el("button", "linkbtn", "Log in");
     prihlasit.addEventListener("click", () => otevriAuth("login"));
-    const nebo = el("span", "whoami", " nebo ");
-    const registrace = el("button", "linkbtn", "založit účet");
+    const nebo = el("span", "whoami", " or ");
+    const registrace = el("button", "linkbtn", "create an account");
     registrace.addEventListener("click", () => otevriAuth("register"));
     kam.append(prihlasit, nebo, registrace);
   }
@@ -1951,11 +2178,11 @@ function otevriAuth(rezim) {
 
 function vykresliAuth() {
   const jeLogin = authRezim === "login";
-  $("#auth-title").textContent = jeLogin ? "Přihlášení" : "Nový účet";
+  $("#auth-title").textContent = jeLogin ? "Log in" : "Create account";
   $("#auth-sub").textContent = jeLogin
-    ? "Přihlaš se, ať si můžeš ukládat vlastní boty."
-    : "Účet potřebuješ jen k ukládání botů. Hrát můžeš i bez něj.";
-  $("#auth-submit").textContent = jeLogin ? "Přihlásit se" : "Založit účet";
+    ? "Log in to save your own bots."
+    : "You only need an account to save bots. You can play without one.";
+  $("#auth-submit").textContent = jeLogin ? "Log in" : "Create account";
   $("#auth-err").hidden = true;
 
   const pole = $("#auth-fields");
@@ -1974,18 +2201,18 @@ function vykresliAuth() {
   };
 
   if (jeLogin) {
-    vstup("auth-user", "Jméno nebo e-mail", "text");
-    vstup("auth-pass", "Heslo", "password");
+    vstup("auth-user", "Username or email", "text");
+    vstup("auth-pass", "Password", "password");
   } else {
-    vstup("auth-user", "Uživatelské jméno", "text", "Aspoň 3 znaky. Uvidí ho ostatní u tvých veřejných botů.");
-    vstup("auth-email", "E-mail", "text");
-    vstup("auth-pass", "Heslo", "password", "Aspoň 8 znaků.");
+    vstup("auth-user", "Username", "text", "At least 3 characters. Others will see it next to your public bots.");
+    vstup("auth-email", "Email", "text");
+    vstup("auth-pass", "Password", "password", "At least 8 characters.");
   }
 
   const prep = $("#auth-switch");
   prep.innerHTML = "";
-  prep.append(document.createTextNode(jeLogin ? "Ještě nemáš účet? " : "Už účet máš? "));
-  const odkaz = el("button", "linkbtn", jeLogin ? "Založ si ho" : "Přihlas se");
+  prep.append(document.createTextNode(jeLogin ? "No account yet? " : "Already have an account? "));
+  const odkaz = el("button", "linkbtn", jeLogin ? "Create one" : "Log in");
   odkaz.addEventListener("click", () => { authRezim = jeLogin ? "register" : "login"; vykresliAuth(); });
   prep.append(odkaz);
 
@@ -2006,16 +2233,16 @@ async function odesliAuth() {
   const ukazChybu = (t) => { chyba.textContent = t; chyba.hidden = false; };
   chyba.hidden = true;
 
-  if (!jmeno || !heslo) return ukazChybu("Vyplň prosím obě políčka.");
+  if (!jmeno || !heslo) return ukazChybu("Please fill in both fields.");
   if (authRezim === "register") {
-    if (jmeno.length < 3) return ukazChybu("Uživatelské jméno musí mít aspoň 3 znaky.");
-    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ukazChybu("Zadej platný e-mail.");
-    if (heslo.length < 8) return ukazChybu("Heslo musí mít aspoň 8 znaků.");
-    if (heslo.length > 72) return ukazChybu("Heslo může mít nejvýš 72 znaků.");
+    if (jmeno.length < 3) return ukazChybu("The username must have at least 3 characters.");
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ukazChybu("Please enter a valid email.");
+    if (heslo.length < 8) return ukazChybu("The password must have at least 8 characters.");
+    if (heslo.length > 72) return ukazChybu("The password can have at most 72 characters.");
   }
 
   tlacitko.disabled = true;
-  tlacitko.textContent = "moment…";
+  tlacitko.textContent = "one moment…";
   try {
     if (authRezim === "register") {
       await api("/auth/register", { method: "POST", telo: { username: jmeno, email, password: heslo } });
@@ -2038,7 +2265,7 @@ async function odesliAuth() {
 }
 
 function vykresliAuthTlacitko() {
-  $("#auth-submit").textContent = authRezim === "login" ? "Přihlásit se" : "Založit účet";
+  $("#auth-submit").textContent = authRezim === "login" ? "Log in" : "Create account";
 }
 
 /* ============================================================
@@ -2057,27 +2284,27 @@ function vykresliUlozit() {
   napoveda.textContent = "";
 
   if (!stav.auth.token) {
-    kam.append(el("div", "note", "Boti se ukládají pod tvůj účet, takže se nejdřív musíš přihlásit. Hrát a zkoušet můžeš i bez toho — jen se ti nastavení po obnovení stránky ztratí."));
-    const b = el("button", "btn btn-ghost btn-wide", "Přihlásit se nebo založit účet");
+    kam.append(el("div", "note", "Bots are saved under your account, so you need to log in first. You can play and experiment without one — your settings are just lost when you reload the page."));
+    const b = el("button", "btn btn-ghost btn-wide", "Log in or create an account");
     b.addEventListener("click", () => otevriAuth("login"));
     kam.append(b);
     return;
   }
 
-  napoveda.textContent = stav.ulozeni.id ? "upravuješ uloženého bota" : "zatím neuložený";
+  napoveda.textContent = stav.ulozeni.id ? "editing a saved bot" : "not saved yet";
 
   const info = el("div", "note");
   info.id = "b-save-name";
-  info.innerHTML = "Uloží se pod jménem <b style='color:var(--ink)'>" +
-    esc(stav.bot.jmeno || "(bez jména)") + "</b> — změníš ho v poli Jméno vlevo.";
+  info.innerHTML = "It will be saved as <b style='color:var(--ink)'>" +
+    esc(stav.bot.jmeno || "(no name)") + "</b> — change it in the Name field on the left.";
   kam.append(info);
 
   const popisPole = el("div", "field");
-  const popisLabel = el("label", null, "Popis");
+  const popisLabel = el("label", null, "Description");
   popisLabel.setAttribute("for", "b-popis");
   const popisVstup = el("input");
   popisVstup.type = "text"; popisVstup.id = "b-popis"; popisVstup.value = stav.ulozeni.popis;
-  popisVstup.placeholder = "Čím je tenhle bot zajímavý?";
+  popisVstup.placeholder = "What makes this bot interesting?";
   popisVstup.addEventListener("input", () => { stav.ulozeni.popis = popisVstup.value; });
   popisPole.append(popisLabel, popisVstup);
   kam.append(popisPole);
@@ -2085,8 +2312,8 @@ function vykresliUlozit() {
   const verejny = el("label", "check");
   verejny.innerHTML =
     '<input type="checkbox"' + (stav.ulozeni.verejny ? " checked" : "") + '>' +
-    '<span class="txt"><b>Zveřejnit v galerii</b>' +
-    '<span>Ostatní ho uvidí, budou si ho moct přidat a poslat proti svým botům. Soukromého bota vidíš jen ty.</span></span>';
+    '<span class="txt"><b>Publish in the gallery</b>' +
+    '<span>Others will see it and can add it to their own matches. A private bot is visible only to you.</span></span>';
   verejny.querySelector("input").addEventListener("change", (e) => { stav.ulozeni.verejny = e.target.checked; });
   kam.append(verejny);
 
@@ -2095,13 +2322,13 @@ function vykresliUlozit() {
   kam.append(hlaska);
 
   if (stav.ulozeni.id) {
-    const zmeny = el("button", "btn btn-primary btn-wide", "Uložit změny");
+    const zmeny = el("button", "btn btn-primary btn-wide", "Save changes");
     zmeny.addEventListener("click", () => ulozBota(false));
-    const novy = el("button", "btn btn-ghost btn-wide", "Uložit jako nového bota");
+    const novy = el("button", "btn btn-ghost btn-wide", "Save as a new bot");
     novy.addEventListener("click", () => ulozBota(true));
     kam.append(zmeny, novy);
   } else {
-    const ulozit = el("button", "btn btn-primary btn-wide", "Uložit bota");
+    const ulozit = el("button", "btn btn-primary btn-wide", "Save bot");
     ulozit.addEventListener("click", () => ulozBota(true));
     kam.append(ulozit);
   }
@@ -2115,7 +2342,7 @@ async function ulozBota(jakoNovy) {
 
   if (!jmeno) {
     hlaska.className = "formerr";
-    hlaska.textContent = "Bot musí mít jméno — doplň ho v poli Jméno vlevo.";
+    hlaska.textContent = "The bot needs a name — fill in the Name field on the left.";
     return;
   }
 
@@ -2138,8 +2365,8 @@ async function ulozBota(jakoNovy) {
     const zprava = $("#b-save-msg");
     zprava.className = "formok";
     zprava.textContent = jakoNovy
-      ? "Uloženo. Najdeš ho v záložce Boti ostatních pod „Moji“."
-      : "Změny uloženy (verze " + vysledek.config_version + ").";
+      ? "Saved. You’ll find it in the Public gallery of Bots under “Mine”."
+      : "Changes saved (version " + vysledek.config_version + ").";
     if (!$("#p-boti").hidden) nactiSeznamBotu();
   } catch (e) {
     hlaska.className = "formerr";
@@ -2163,7 +2390,7 @@ function nastavFiltrBotu(filtr) {
   for (const b of $("#bl-filter").querySelectorAll("button")) {
     b.setAttribute("aria-pressed", String(b.dataset.f === filtr));
   }
-  $("#bl-title").textContent = filtr === "mine" ? "Moji boti" : "Veřejná galerie";
+  $("#bl-title").textContent = filtr === "mine" ? "My bots" : "Public gallery";
   nactiSeznamBotu();
 }
 
@@ -2174,15 +2401,15 @@ async function nactiSeznamBotu() {
   if (filtr === "mine" && !stav.auth.token) {
     kam.innerHTML = "";
     const box = el("div", "empty");
-    box.append(el("p", "big", "Tohle uvidíš po přihlášení."));
-    const b = el("button", "btn btn-ghost", "Přihlásit se");
+    box.append(el("p", "big", "Log in to see your bots."));
+    const b = el("button", "btn btn-ghost", "Log in");
     b.addEventListener("click", () => otevriAuth("login"));
     box.append(b);
     kam.append(box);
     return;
   }
 
-  kam.innerHTML = '<div class="empty"><p>načítám…</p></div>';
+  kam.innerHTML = '<div class="empty"><p>loading…</p></div>';
   try {
     const data = filtr === "mine"
       ? await api("/bots/mine", { auth: true })
@@ -2198,10 +2425,10 @@ function vykresliSeznamBotu(kam, boti, filtr) {
 
   if (!boti.length) {
     const box = el("div", "empty");
-    box.append(el("p", "big", filtr === "mine" ? "Zatím sis žádného bota neuložil." : "V galerii zatím nikdo nic nezveřejnil."));
+    box.append(el("p", "big", filtr === "mine" ? "You haven’t saved any bots yet." : "Nobody has published a bot yet."));
     box.append(el("p", null, filtr === "mine"
-      ? "Nastav si strategii v záložce Můj bot a dole ji ulož."
-      : "Zveřejnit svého bota můžeš v záložce Můj bot — zaškrtni „Zveřejnit v galerii“."));
+      ? "Build a strategy in Customize your own bot and save it at the bottom."
+      : "You can publish yours in Customize your own bot — tick “Publish in the gallery”."));
     kam.append(box);
     return;
   }
@@ -2223,7 +2450,7 @@ function vykresliSeznamBotu(kam, boti, filtr) {
     znacky.style.display = "flex";
     znacky.style.gap = "6px";
     znacky.style.flexWrap = "wrap";
-    znacky.append(el("span", "badge" + (bot.is_public ? " pub" : ""), bot.is_public ? "veřejný" : "soukromý"));
+    znacky.append(el("span", "badge" + (bot.is_public ? " pub" : ""), bot.is_public ? "public" : "private"));
     if (!jeCustom) znacky.append(el("span", "badge", (bot.config || {}).type || "?"));
     karta.append(znacky);
 
@@ -2231,7 +2458,7 @@ function vykresliSeznamBotu(kam, boti, filtr) {
 
     const akce = el("div", "acts");
 
-    const prevzit = el("button", "minibtn", prevzat ? "Odebrat z výběru" : "Přidat do výběru");
+    const prevzit = el("button", "minibtn", prevzat ? "Remove from my picks" : "Add to my picks");
     prevzit.addEventListener("click", () => {
       if (stav.prevzati[bot.id]) delete stav.prevzati[bot.id];
       else stav.prevzati[bot.id] = bot;
@@ -2240,14 +2467,14 @@ function vykresliSeznamBotu(kam, boti, filtr) {
     });
     akce.append(prevzit);
 
-    const editor = el("button", "minibtn", mujBot ? "Otevřít v editoru" : "Zkopírovat do editoru");
+    const editor = el("button", "minibtn", mujBot ? "Open in editor" : "Copy to editor");
     editor.disabled = !jeCustom;
-    if (!jeCustom) editor.title = "Editor umí jen vlastní strategie, ne vestavěné.";
+    if (!jeCustom) editor.title = "The editor works only with custom strategies, not built-in ones.";
     editor.addEventListener("click", () => otevriBotaVEditoru(bot, mujBot));
     akce.append(editor);
 
     if (mujBot) {
-      const prepnout = el("button", "minibtn", bot.is_public ? "Skrýt z galerie" : "Zveřejnit");
+      const prepnout = el("button", "minibtn", bot.is_public ? "Hide from gallery" : "Publish");
       prepnout.addEventListener("click", async () => {
         prepnout.disabled = true;
         try {
@@ -2260,19 +2487,19 @@ function vykresliSeznamBotu(kam, boti, filtr) {
       });
       akce.append(prepnout);
 
-      const smazat = el("button", "minibtn", "Smazat");
+      const smazat = el("button", "minibtn", "Delete");
       smazat.style.marginLeft = "auto";
       smazat.addEventListener("click", async () => {
         /* Dvoufázové potvrzení — nativní confirm() by zablokoval stránku. */
         if (smazat.dataset.potvrd !== "1") {
           smazat.dataset.potvrd = "1";
-          smazat.textContent = "Opravdu smazat?";
+          smazat.textContent = "Really delete?";
           smazat.style.color = "var(--defect)";
           smazat.style.borderColor = "var(--defect)";
           setTimeout(() => {
             if (smazat.isConnected && smazat.dataset.potvrd === "1") {
               smazat.dataset.potvrd = "";
-              smazat.textContent = "Smazat";
+              smazat.textContent = "Delete";
               smazat.style.color = "";
               smazat.style.borderColor = "";
             }
@@ -2280,7 +2507,7 @@ function vykresliSeznamBotu(kam, boti, filtr) {
           return;
         }
         smazat.disabled = true;
-        smazat.textContent = "mažu…";
+        smazat.textContent = "deleting…";
         try {
           await api("/bots/" + bot.id, { method: "DELETE", auth: true });
           /* Smazaný bot nesmí zůstat v duelu ani v turnaji. */
@@ -2308,7 +2535,7 @@ function otevriBotaVEditoru(bot, mujBot) {
   for (const klic of Object.keys(VYCHOZI_BOT)) {
     if (klic !== "jmeno" && config[klic] !== undefined) novy[klic] = config[klic];
   }
-  novy.jmeno = mujBot ? bot.name : bot.name + " (kopie)";
+  novy.jmeno = mujBot ? bot.name : bot.name + " (copy)";
   stav.bot = novy;
 
   /* Cizího bota přepsat nemůžeš — uloží se jako nový pod tvým účtem. */
@@ -2320,7 +2547,7 @@ function otevriBotaVEditoru(bot, mujBot) {
 
   postavFormularBota();
   vykresliUlozit();
-  prepniZalozku("tab-bot");
+  location.hash = "#bot";
 }
 
 /* ============================================================
@@ -2376,7 +2603,7 @@ function postavChipyEvoluce() {
 
 function obnovPocetDruhu() {
   const k = stav.evoluce.vybrani.length;
-  $("#e-count").textContent = k < 2 ? "vyber aspoň dva" : k + " z " + MAX_DRUHU;
+  $("#e-count").textContent = k < 2 ? "pick at least two" : k + " of " + MAX_DRUHU;
   $("#e-run").disabled = k < 2;
 }
 
@@ -2386,22 +2613,22 @@ function postavEvoNastaveni() {
   const ev = stav.evoluce;
 
   const generace = el("div", "field");
-  const gl = el("label", null, "Počet generací");
+  const gl = el("label", null, "Generations");
   gl.setAttribute("for", "e-gen");
   const gi = el("input");
   gi.type = "number"; gi.id = "e-gen"; gi.min = 1; gi.max = 1000; gi.value = ev.generace;
   gi.addEventListener("input", () => {
     ev.generace = Math.max(1, Math.min(1000, parseInt(gi.value, 10) || 1));
   });
-  generace.append(gl, gi, el("div", "note", "Každá generace znamená odehrát zápas každého s každým. Osm druhů na tisíc generací je pár vteřin počítání."));
+  generace.append(gl, gi, el("div", "note", "Each generation means every species plays every other one. Eight species over a thousand generations takes a few seconds."));
   kam.append(generace);
 
   const rozl = el("div", "field");
-  const rl = el("label", null, "Počáteční rozložení");
+  const rl = el("label", null, "Initial population");
   rl.setAttribute("for", "e-rozl");
   const rs = el("select");
   rs.id = "e-rozl";
-  for (const [h, p] of [["equal", "Všem stejně"], ["random", "Náhodně"], ["manual", "Ručně podle vah"]]) {
+  for (const [h, p] of [["equal", "Even"], ["random", "Random"], ["manual", "Manual (weights)"]]) {
     const o = el("option", null, p); o.value = h; rs.append(o);
   }
   rs.value = ev.rozlozeni;
@@ -2424,12 +2651,12 @@ function postavEvoNastaveni() {
       i.addEventListener("input", () => { ev.vahy[typ] = Math.max(0, Number(i.value) || 0); });
       mriz.append(l, i);
     }
-    kam.append(mriz, el("div", "note", "Poměr, ne počty — přepočítá se na tisíc jedinců."));
+    kam.append(mriz, el("div", "note", "Ratios, not counts — scaled to a thousand individuals."));
   }
 
   const box = el("div", "slider");
   const top = el("div", "top");
-  top.append(el("span", "field-label", "Mutace"));
+  top.append(el("span", "field-label", "Mutation"));
   const val = el("span", "val", ev.mutace.toFixed(1) + " %");
   top.append(val);
   const r = el("input");
@@ -2438,7 +2665,7 @@ function postavEvoNastaveni() {
     ev.mutace = parseInt(r.value, 10) / 10;
     val.textContent = ev.mutace.toFixed(1) + " %";
   });
-  box.append(top, r, el("div", "note", "Kolik procent jedinců každou generaci přeběhne k jiné strategii. Díky mutacím nikdo nevymře nadobro a i poražené strategie se můžou vrátit."));
+  box.append(top, r, el("div", "note", "The share of individuals that switch to another strategy each generation. With mutation nobody dies out for good, and beaten strategies can come back."));
   kam.append(box);
 
   obnovPocetDruhu();
@@ -2450,7 +2677,7 @@ async function spustEvoluci() {
   const ev = stav.evoluce;
 
   tlacitko.disabled = true;
-  tlacitko.textContent = "počítám " + ev.generace + " generací…";
+  tlacitko.textContent = "simulating " + ev.generace + " generations…";
 
   const telo = {
     bots: ev.vybrani.map(botSpec),
@@ -2465,13 +2692,13 @@ async function spustEvoluci() {
     const data = await api("/simulate/evolution", { method: "POST", telo });
     vykresliEvoluci(cil, data);
     $("#status").dataset.state = "up";
-    $("#statusText").textContent = "backend běží";
+    $("#statusText").textContent = "server online";
   } catch (chyba) {
     vykresliChybu(cil, chyba);
     overSpojeni();
   } finally {
     tlacitko.disabled = false;
-    tlacitko.textContent = "Spustit evoluci";
+    tlacitko.textContent = "Start evolution";
     obnovPocetDruhu();
   }
 }
@@ -2487,10 +2714,10 @@ function vykresliEvoluci(cil, data) {
 
   cil.innerHTML = "";
   const hlava = el("div", "panel-head");
-  hlava.append(el("h2", null, "Vývoj populace"));
+  hlava.append(el("h2", null, "Population over time"));
   const prezilo = data.species.filter((s) => s.final > 0).length;
-  const genSlovo = G === 1 ? "generace" : (G >= 2 && G <= 4 ? "generace" : "generací");
-  hlava.append(el("span", "hint", G + " " + genSlovo + " · přežilo " + prezilo + " z " + jmena.length));
+  const genSlovo = G === 1 ? "generation" : "generations";
+  hlava.append(el("span", "hint", G + " " + genSlovo + " · " + prezilo + " of " + jmena.length + " survived"));
   cil.append(hlava);
 
   const stage = el("div", "stage");
@@ -2506,7 +2733,7 @@ function vykresliEvoluci(cil, data) {
   const wrap = el("div", "chartwrap");
   const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "chart", role: "img" });
   svg.setAttribute("aria-label",
-    "Graf vývoje populace jednotlivých strategií během " + G + " generací. Konečné hodnoty jsou i v tabulce pod grafem.");
+    "Chart of each strategy’s population over " + G + " generations. Final values are also in the table below.");
 
   /* mřížka */
   const grid = svgEl("g", { class: "grid" });
@@ -2528,7 +2755,7 @@ function vykresliEvoluci(cil, data) {
     svg.append(t);
   }
   const popisOsy = svgEl("text", { x: px1, y: py1 + 30, "text-anchor": "end" });
-  popisOsy.textContent = "generace";
+  popisOsy.textContent = "generation";
   svg.append(popisOsy);
 
   /* ---- čáry ---- */
@@ -2639,7 +2866,7 @@ function vykresliEvoluci(cil, data) {
   wrapT.style.borderTop = "1px solid " + "var(--line-soft)";
   wrapT.style.boxShadow = "none";
   const t = el("table");
-  t.innerHTML = "<thead><tr><th></th><th>Druh</th><th class='num'>Start</th><th class='num'>Konec</th><th class='num'>Podíl</th><th>Osud</th></tr></thead>";
+  t.innerHTML = "<thead><tr><th></th><th>Species</th><th class='num'>Start</th><th class='num'>End</th><th class='num'>Share</th><th>Fate</th></tr></thead>";
   const tb = el("tbody");
   data.species.forEach((s) => {
     const i = jmena.indexOf(s.name);
@@ -2655,8 +2882,8 @@ function vykresliEvoluci(cil, data) {
       el("td", "num", String(Math.round(s.final))),
       el("td", "num", s.share.toFixed(1) + " %"),
       el("td", null, s.extinct_at !== null && s.extinct_at !== undefined
-        ? "vymřel v generaci " + s.extinct_at
-        : "přežil"));
+        ? "extinct in generation " + s.extinct_at
+        : "survived"));
     tb.append(tr);
   });
   t.append(tb);
@@ -2674,18 +2901,18 @@ function vykresliChybu(cil, chyba) {
   const box = el("div", "errorbox");
 
   if (!nedosazitelny) {
-    box.append(el("p", "big", "Server požadavek odmítl."));
+    box.append(el("p", "big", "The server rejected the request."));
     box.append(el("p", null, chyba.message));
   } else if (bezimeLokalne()) {
-    box.append(el("p", "big", "Backend neodpovídá."));
+    box.append(el("p", "big", "The backend is not responding."));
     const p = el("p");
-    p.innerHTML = "Spusť ho ve složce <code>backend/</code>:";
+    p.innerHTML = "Start it in the <code>backend/</code> folder:";
     box.append(p, el("code", "mono", "source venv/bin/activate && uvicorn app.main:app --reload"));
-    box.append(el("p", null, "Až naběhne, klikni znovu na Spustit."));
+    box.append(el("p", null, "Once it is up, click Run again."));
   } else {
-    box.append(el("p", "big", "Server neodpovídá."));
-    box.append(el("p", null, "Po delší nečinnosti se uspává a probuzení trvá asi minutu. "
-      + "Zkus to za chvíli znovu — jestli to nepomůže, je nejspíš mimo provoz."));
+    box.append(el("p", "big", "The server is not responding."));
+    box.append(el("p", null, "It goes to sleep after a while without visitors, and waking up takes about a minute. "
+      + "Try again in a moment — if that doesn’t help, it is probably down."));
   }
 
   cil.append(box);
@@ -2701,11 +2928,132 @@ function prepniZalozku(idZalozky) {
   if (idZalozky === "tab-boti") nactiSeznamBotu();
 }
 
+/* ============================================================
+   NAVIGACE — titulní strana, menu, režimy
+   Každá obrazovka má vlastní adresu (#home, #menu, #duel …), takže
+   funguje tlačítko Zpět v prohlížeči a na režim se dá poslat odkaz.
+   ============================================================ */
+
+const REZIMY = {
+  duel: "tab-duel",
+  tournament: "tab-turnaj",
+  evolution: "tab-evoluce",
+  bot: "tab-bot",
+  gallery: "tab-boti"
+};
+const REZIM_PODLE_ZALOZKY = Object.fromEntries(Object.entries(REZIMY).map(([k, v]) => [v, k]));
+
+function ukazObrazovku(id) {
+  for (const sc of document.querySelectorAll(".screen")) sc.hidden = sc.id !== id;
+}
+
+function navigace() {
+  const cil = (location.hash || "#home").slice(1);
+  if (cil === "menu") {
+    ukazObrazovku("screen-menu");
+    zastavVideo();
+  } else if (REZIMY[cil]) {
+    ukazObrazovku("screen-app");
+    prepniZalozku(REZIMY[cil]);
+    zastavVideo();
+  } else {
+    ukazObrazovku("screen-home");
+    pripravVideo();
+  }
+  window.scrollTo(0, 0);
+}
+
 function initZalozky() {
   for (const z of document.querySelectorAll(".tab")) {
-    z.addEventListener("click", () => prepniZalozku(z.id));
+    z.addEventListener("click", () => { location.hash = "#" + REZIM_PODLE_ZALOZKY[z.id]; });
   }
+  for (const k of document.querySelectorAll(".card[data-go]")) {
+    k.addEventListener("click", () => { location.hash = "#" + k.dataset.go; });
+  }
+  $("#play").addEventListener("click", () => { location.hash = "#menu"; });
+  $("#nav-menu").addEventListener("click", () => { location.hash = "#menu"; });
+  const domu = () => { location.hash = "#home"; };
+  $("#brand").addEventListener("click", domu);
+  $("#brand").addEventListener("keydown", (e) => { if (e.key === "Enter") domu(); });
+  window.addEventListener("hashchange", navigace);
 }
+
+/* ============================================================
+   VIDEO NA TITULNÍ STRANĚ
+   Pustí se samo 20 vteřin po načtení. Prohlížeče dovolí automatické
+   přehrávání jen ztlumeně, proto se spouští bez zvuku a návštěvník
+   si ho zapne ikonou reproduktoru ve videu. Když video pustí sám,
+   nebo odpočet zruší, nic se samo nespouští.
+   ============================================================ */
+
+const VIDEO_ID = "mScpHTIi-kM";
+const VIDEO_ZACATEK = 190;          /* 3:10, jak je v odkazu */
+const VIDEO_PRODLEVA = 20;          /* vteřin do automatického spuštění */
+const videoUrl = (automaticky) =>
+  "https://www.youtube-nocookie.com/embed/" + VIDEO_ID +
+  "?start=" + VIDEO_ZACATEK + "&rel=0&playsinline=1" +
+  (automaticky ? "&autoplay=1&mute=1" : "");
+
+const video = { odpocet: null, hraje: false, zruseno: false };
+
+function popisVidea(text, akce) {
+  $("#video-cap-text").innerHTML = "<b>Veritasium</b>" + (text ? " &middot; " + text : "");
+  const kam = $("#video-cap-act");
+  kam.innerHTML = "";
+  if (akce) kam.append(akce);
+}
+
+function pripravVideo() {
+  const ramec = $("#intro-video");
+  if (!ramec.getAttribute("src")) ramec.src = videoUrl(false);
+  clearInterval(video.odpocet);
+
+  if (video.hraje) return;
+  const setrnyPohyb = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (video.zruseno || setrnyPohyb) { popisVidea("press play to watch"); return; }
+
+  let zbyva = VIDEO_PRODLEVA;
+  const zrusit = el("button", "linkbtn", "Don’t autoplay");
+  zrusit.addEventListener("click", () => {
+    video.zruseno = true;
+    clearInterval(video.odpocet);
+    popisVidea("press play to watch");
+  });
+  popisVidea("plays automatically in " + zbyva + " s", zrusit);
+
+  video.odpocet = setInterval(() => {
+    zbyva -= 1;
+    if (zbyva > 0) {
+      $("#video-cap-text").innerHTML = "<b>Veritasium</b> &middot; plays automatically in " + zbyva + " s";
+      return;
+    }
+    clearInterval(video.odpocet);
+    ramec.src = videoUrl(true);
+    video.hraje = true;
+    popisVidea("playing muted — use the speaker icon in the video to turn the sound on");
+  }, 1000);
+}
+
+function zastavVideo() {
+  /* Odchodem z titulní strany se video zastaví (nehraje ze skryté obrazovky)
+     a po návratu se nachystá znovu. */
+  clearInterval(video.odpocet);
+  const ramec = $("#intro-video");
+  if (ramec && ramec.getAttribute("src")) ramec.removeAttribute("src");
+  video.hraje = false;
+}
+
+/* Kliknutí do videa (= návštěvník ho pustil sám) přesune fokus do iframe.
+   Pak už automatické spuštění nechceme — přerušilo by ho a pustilo od začátku. */
+window.addEventListener("blur", () => {
+  setTimeout(() => {
+    if (document.activeElement === $("#intro-video") && !video.hraje) {
+      clearInterval(video.odpocet);
+      video.hraje = true;
+      popisVidea("");
+    }
+  }, 0);
+});
 
 /* ============================================================
    12. START
@@ -2719,6 +3067,7 @@ function initZalozky() {
   initBot();
   initSeznamBotu();
   obnovUzivatele();
+  navigace();
 
   $("#auth-submit").addEventListener("click", odesliAuth);
   /* Kliknutí mimo dialog ho zavře (Escape funguje sám od sebe). */
@@ -2726,9 +3075,10 @@ function initZalozky() {
     if (e.target === $("#authModal")) $("#authModal").close();
   });
   $("#api-base").value = VYCHOZI_API;
+  if (!bezimeLokalne()) $("#api-base").closest("label").hidden = true;
   $("#footer-note").innerHTML = bezimeLokalne()
-    ? 'Backend servíruje i tuhle stránku — stačí <span class="mono">uvicorn app.main:app --reload</span> ve složce <span class="mono">backend/</span>.'
-    : "Iterované vězňovo dilema s mlhou války. Boti se skládají z nastavení, ne z kódu.";
+    ? 'The backend also serves this page — run <span class="mono">uvicorn app.main:app --reload</span> in the <span class="mono">backend/</span> folder.'
+    : "The iterated prisoner’s dilemma with fog of war. Bots are built from settings, not code.";
   $("#api-base").addEventListener("change", () => overSpojeni());
 
   /* Stránka se nemá otevřít prázdná — když backend běží, rovnou
