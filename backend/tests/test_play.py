@@ -95,3 +95,12 @@ def test_spatne_pozadavky():
     assert client.post("/play/round", json={**zaklad, "move2": "C", "rounds_total": 1, "history": [r]}).status_code == 422  # konec
     r = client.post("/play/round", json={**zaklad, "bot": {"type": "custom", "config": {"schema_version": 2, "rules": []}}})
     assert r.status_code == 422
+
+
+def test_stranka_ma_no_cache_a_api_ne():
+    r = client.get("/")
+    assert r.status_code == 200 and r.headers.get("cache-control") == "no-cache"
+    etag = r.headers.get("etag")
+    if etag:
+        assert client.get("/", headers={"If-None-Match": etag}).status_code == 304
+    assert "cache-control" not in client.get("/health").headers

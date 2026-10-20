@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -22,6 +22,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+
+@app.middleware("http")
+async def stranka_vzdy_cerstva(request: Request, call_next):
+    """Prohlížeč si stránku smí uložit, ale před použitím se musí zeptat,
+    jestli se nezměnila (no-cache = ověř si to; odpověď je pak levné 304).
+    Bez toho prohlížeče stránku bez hlavičky Cache-Control drží podle
+    vlastního odhadu klidně celé hodiny a nová verze webu se neukáže."""
+    response = await call_next(request)
+    if request.url.path == "/" or request.url.path.endswith(".html"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 
 app.include_router(health.router)
 app.include_router(auth.router)
