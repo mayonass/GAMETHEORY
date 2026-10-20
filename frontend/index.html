@@ -146,7 +146,9 @@ main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 64px; }
   gap: 24px;
   align-items: start;
 }
-@media (max-width: 940px) { .split { grid-template-columns: 1fr; } }
+/* minmax(0, 1fr), ne 1fr: jinak široký obsah (průběh duelu) roztáhne sloupec
+   přes okraj obrazovky a stránka na mobilu jezdí do stran. */
+@media (max-width: 940px) { .split { grid-template-columns: minmax(0, 1fr); } }
 
 .panel {
   background: var(--panel);
@@ -1441,6 +1443,24 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
 }
 .pick-status { font-size: 13px; color: var(--muted); font-weight: 700; }
 .reveal-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+/* shrnutí výsledku jednou větou */
+.takeaway {
+  margin: 0 0 22px; padding: 12px 16px;
+  border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0;
+  background: var(--accent-2); color: var(--ink);
+  font-size: 16.5px; line-height: 1.55;
+}
+.takeaway b { font-weight: 800; }
+.panel > .takeaway { margin: 16px 20px 4px; }
+/* předávání zařízení v PvP */
+.pvp-picks.solo { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+.handover {
+  width: 100%; max-width: 460px; text-align: center;
+  border: 2px dashed var(--accent); border-radius: 16px; background: var(--white);
+  padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.handover p { margin: 0; color: var(--muted); font-size: 15px; }
+.handover .handover-big { font-family: "Fredoka", "Nunito", sans-serif; font-size: 24px; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -1643,8 +1663,11 @@ ol.explain li b { color: var(--ink); font-weight: 700; margin-right: 2px; }
             <div class="field" id="h-jmeno2-pole" hidden>
               <label for="h-jmeno2">Your friend’s name</label>
               <input type="text" id="h-jmeno2" maxlength="30" value="Friend">
-              <div class="note">You both choose on this screen, at the same time. Use the keyboard so the other one can’t see your choice.</div>
             </div>
+            <label class="check" id="h-predavat-pole" hidden>
+              <input type="checkbox" id="h-predavat">
+              <span class="txt"><b>Take turns and pass the device</b><span id="h-predavat-note"></span></span>
+            </label>
           </div>
         </div>
 
@@ -2260,6 +2283,7 @@ function vykresliDuel(cil, vysledky, postavy = ["mystery", "mystery"]) {
   cil.append(hlava);
 
   const stage = el("div", "stage");
+  stage.append(prvekShrnuti(shrnutiDuelu(vysledky)));
 
   /* Skóre */
   const radek = el("div", "scoreline");
@@ -2530,6 +2554,7 @@ function vykresliTurnaj(cil, data) {
     ? opak + " tournaments · average per tournament"
     : data.matches.length + " matches played"));
   cil.append(hlava);
+  cil.append(prvekShrnuti(shrnutiTurnaje(data, stav.turnaj.nastaveni)));
 
   const wrap = el("div", "tablewrap");
   const t = el("table");
@@ -2616,6 +2641,263 @@ function vykresliTurnaj(cil, data) {
 }
 
 /* ============================================================
+   SHRNUTÍ VÝSLEDKU JEDNOU VĚTOU
+   Režimy ukazují čísla; tyhle funkce z nich vyberou to nejzajímavější
+   a řeknou to slovy — stejně jako příběh. Věty se skládají jen z čísel,
+   která přišla ze serveru, nic se nevymýšlí.
+   ============================================================ */
+
+const poradi = (n) => n + ((n % 100 >= 11 && n % 100 <= 13) ? "th" : ({ 1: "st", 2: "nd", 3: "rd" })[n % 10] || "th");
+const jmenoB = (s) => "<b>" + esc(s) + "</b>";
+
+function prvekShrnuti(html) {
+  const p = el("p", "takeaway");
+  p.innerHTML = html;
+  return p;
+}
+
+function shrnutiDuelu(vysledky) {
+  const n = vysledky.length;
+  const v = vysledky[0];
+  const j1 = jmenoB(v.bot1_name), j2 = jmenoB(v.bot2_name);
+
+  if (n > 1) {
+    const w1 = vysledky.filter((x) => x.result === "bot1").length;
+    const w2 = vysledky.filter((x) => x.result === "bot2").length;
+    const r = n - w1 - w2;
+    if (w1 === n || w2 === n) {
+      return (w1 === n ? j1 : j2) + " won all " + n + " matches — that’s not luck, the same bot wins every single time.";
+    }
+    if (r === n) return "All " + n + " matches ended in a tie.";
+    let t = j1 + " won " + w1 + " of " + n + " matches, " + j2 + " " + w2 + (r ? ", and " + r + " ended in a tie" : "") + ".";
+    if (w1 > 0 && w2 > 0) t += " A single match would have told you little — luck decides a lot of them.";
+    return t;
+  }
+
+  const a = v.score1, b = v.score2, strop = v.rounds_played * 6, spolu = a + b;
+  if (a === b && spolu === strop) {
+    return "They cooperated all the way and earned the most two players can make together: " + spolu + " points.";
+  }
+  const vitez = a > b ? v.bot1_name : v.bot2_name;
+  let t = a === b ? "It’s a tie, " + a + " : " + b
+    : (a > b ? j1 : j2) + (vitez === "You" ? " win " : " wins ") + Math.max(a, b) + " : " + Math.min(a, b);
+  t += spolu < 0.75 * strop
+    ? " — but together they made only " + spolu + " of the " + strop + " points two cooperators would have earned."
+    : ".";
+  const h = v.history || [];
+  if (h.length) {
+    const prevraceno = h.reduce((x, r) => x + (r.move1 !== r.arrived1) + (r.move2 !== r.arrived2), 0);
+    const skryto = h.reduce((x, r) => x + r.fog1 + r.fog2, 0);
+    const kusy = [];
+    if (prevraceno) kusy.push("noise flipped " + prevraceno + (prevraceno === 1 ? " move" : " moves"));
+    if (skryto) kusy.push("fog hid " + skryto + (skryto === 1 ? " move" : " moves") + " for a while");
+    if (kusy.length) t += " Along the way " + kusy.join(" and ") + ".";
+  }
+  return t;
+}
+
+function shrnutiTurnaje(data, nastaveni) {
+  const s = data.standings;
+  const opak = data.repeats || 1;
+  const cislo = (x) => (opak > 1 ? x.toFixed(1) : String(Math.round(x)));
+  const prvni = s[0];
+  let t = s[1] && Math.abs(s[1].score - prvni.score) < 0.05
+    ? jmenoB(prvni.name) + " and " + jmenoB(s[1].name) + " share first place with " + cislo(prvni.score) + " points."
+    : jmenoB(prvni.name) + " comes first with " + cislo(prvni.score) + " points.";
+
+  const nejviceVyher = s.reduce((m, x) => (x.wins > m.wins ? x : m), s[0]);
+  const misto = s.indexOf(nejviceVyher) + 1;
+  if (nejviceVyher.wins > 0 && misto > 1 && nejviceVyher.wins > prvni.wins) {
+    t += " " + jmenoB(nejviceVyher.name) + " won the most matches (" + cislo(nejviceVyher.wins) + (opak > 1 ? " per tournament" : "") + ") and still finished " +
+      poradi(misto) + " — the table counts points, not wins.";
+  } else if (prvni.wins === 0 && s.length > 2) {
+    t += " It didn’t beat a single opponent: it never scores more than the bot it plays, it just collects points from everyone.";
+  } else if (opak > 1 && prvni.first_place_share < 60) {
+    t += " But it finished first in only " + Math.round(prvni.first_place_share) + " % of the " + opak +
+      " tournaments — the top of the table is partly luck.";
+  } else if (opak === 1 && (nastaveni.mlha > 0 || nastaveni.zkresleni > 0 || nastaveni.neznama_kola ||
+      s.some((x) => /^ZD /.test(x.name)))) {
+    t += " There is chance in this setup — run it 20× to see whether that holds.";
+  }
+  return t;
+}
+
+function shrnutiEvoluce(data, mutace) {
+  const H = data.history, jmena = data.names;
+  const druhy = data.species;
+  const kusy = [];
+
+  /* Vzestup a pád: kdo nejdřív rostl a pak stejně vymřel? */
+  let nejlepsi = null;
+  jmena.forEach((jm, i) => {
+    const d = druhy.find((x) => x.name === jm);
+    if (!d || d.extinct_at == null) return;
+    let vrchol = H[0][i], gen = 0;
+    H.forEach((r, g) => { if (r[i] > vrchol) { vrchol = r[i]; gen = g; } });
+    const narust = vrchol / Math.max(1, H[0][i]);
+    if (narust > 1.1 && (!nejlepsi || narust > nejlepsi.narust)) nejlepsi = { jm, vrchol, gen, narust, konec: d.extinct_at, start: H[0][i] };
+  });
+  const vymrele = druhy.filter((d) => d.extinct_at != null && (!nejlepsi || d.name !== nejlepsi.jm))
+    .sort((x, y) => x.extinct_at - y.extinct_at);
+  if (!nejlepsi && vymrele.length) {
+    kusy.push(vymrele.length === 1
+      ? jmenoB(vymrele[0].name) + " died out in generation " + vymrele[0].extinct_at + "."
+      : vymrele.map((d) => jmenoB(d.name)).join(", ").replace(/, ([^,]*)$/, " and $1") + " died out (first in generation " + vymrele[0].extinct_at + ").");
+  }
+  if (nejlepsi) {
+    kusy.push(jmenoB(nejlepsi.jm) + " grew from " + Math.round(nejlepsi.start) + " to " + Math.round(nejlepsi.vrchol) +
+      " by generation " + nejlepsi.gen + " — then ran out of victims and died out in generation " + nejlepsi.konec + ".");
+  }
+
+  const top = druhy[0];
+  const i = jmena.indexOf(top.name);
+  if (top.share >= 99) {
+    const g = H.findIndex((r) => r[i] >= 0.99 * data.total_population);
+    kusy.push(jmenoB(top.name) + " took over the whole population" + (g > 0 ? " by generation " + g : "") + ".");
+  } else {
+    const zmena = Math.max(...jmena.map((_, k) => Math.max(...H.map((r) => Math.abs(r[k] - H[0][k])))));
+    if (zmena < 0.05 * data.total_population / jmena.length) {
+      kusy.push("Hardly anything changed — these strategies earn almost the same against each other.");
+    } else {
+      const druhy2 = druhy[1];
+      if (druhy2 && Math.abs(druhy2.share - top.share) < 2) {
+        kusy.push(jmenoB(top.name) + " and " + jmenoB(druhy2.name) + " end up side by side with about " + Math.round(top.share) + " % each.");
+      } else kusy.push(jmenoB(top.name) + " ends with " + Math.round(top.share) + " % of the population" +
+        (druhy2 && druhy2.share >= 5 ? ", " + jmenoB(druhy2.name) + " holds on with " + Math.round(druhy2.share) + " %." : "."));
+    }
+  }
+  if (mutace > 0 && druhy.some((d) => d.share < 2)) {
+    kusy.push("With mutation, beaten strategies keep coming back at a low level instead of dying out.");
+  }
+  return kusy.join(" ");
+}
+
+/* ============================================================
+   PAMĚŤ V PROHLÍŽEČI — nastavení režimů a rozpracovaný bot
+   Ukládá se při opuštění nebo skrytí stránky (obnovení, zavření panelu,
+   přepnutí aplikace na mobilu) a načte se při dalším otevření. Patří jen
+   tomuhle prohlížeči; když je úložiště zakázané, stránka funguje dál
+   s výchozími hodnotami. Všechno načtené se kontroluje — rozbitý nebo
+   starý záznam se tiše zahodí.
+   ============================================================ */
+const PAMET_KLIC = "gt-nastaveni-v1";
+
+const cisloMezi = (x, min, max, vychozi) => {
+  const n = Number(x);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : vychozi;
+};
+
+function cisteNastaveni(n, maxKol = 1000) {
+  n = n && typeof n === "object" ? n : {};
+  return {
+    kola: Math.round(cisloMezi(n.kola, 1, maxKol, Math.min(maxKol, VYCHOZI_NASTAVENI.kola))),
+    neznama_kola: n.neznama_kola === true,
+    mlha: cisloMezi(n.mlha, 0, 1, 0),
+    delay: Math.round(cisloMezi(n.delay, 1, 20, 1)),
+    zkresleni: cisloMezi(n.zkresleni, 0, 1, 0)
+  };
+}
+
+function ulozPamet() {
+  const data = {
+    duel: { bot1: stav.duel.bot1, bot2: stav.duel.bot2, nastaveni: stav.duel.nastaveni, reps: stav.duel.reps },
+    turnaj: { vybrani: stav.turnaj.vybrani, nastaveni: stav.turnaj.nastaveni, reps: stav.turnaj.reps },
+    evoluce: {
+      vybrani: stav.evoluce.vybrani, nastaveni: stav.evoluce.nastaveni, generace: stav.evoluce.generace,
+      rozlozeni: stav.evoluce.rozlozeni, vahy: stav.evoluce.vahy, mutace: stav.evoluce.mutace
+    },
+    hra: stav.hra && {
+      kdo: stav.hra.kdo, bot: stav.hra.bot, nastaveni: stav.hra.nastaveni,
+      jmeno1: $("#h-jmeno1").value, jmeno2: $("#h-jmeno2").value, predavat: stav.hra.predavat
+    },
+    prevzati: stav.prevzati,
+    editor: { bot: stav.bot, ulozeni: stav.ulozeni, uzivatel: stav.auth.username }
+  };
+  try { localStorage.setItem(PAMET_KLIC, JSON.stringify(data)); } catch (_) { /* úložiště není k dispozici */ }
+}
+
+/* Pravidlový bot z paměti — jen když mu editor rozumí. */
+function platnyKoncept(b) {
+  const akceOk = (a) => a && ["PROBABILITY", "REPEAT_MY_LAST", "MIRROR_OPP_LAST_VISIBLE"].includes(a.type) &&
+    (a.type !== "PROBABILITY" || (typeof a.cooperate_prob === "number" && a.cooperate_prob >= 0 && a.cooperate_prob <= 1));
+  return b && typeof b === "object" && b.schema_version === 2 && typeof b.jmeno === "string" &&
+    b.initial_state && typeof b.initial_state === "object" &&
+    Array.isArray(b.rules) && b.rules.length <= MAX_PRAVIDEL && akceOk(b.fallback_action) &&
+    typeof b.error_rate === "number" &&
+    b.rules.every((r) => r && Array.isArray(r.conditions) && r.conditions.length <= MAX_PODMINEK && akceOk(r.action) &&
+      r.conditions.every((c) => c && METRIKY[c.metric] && ["==", "!=", "<", "<=", ">", ">="].includes(c.op)));
+}
+
+function nactiPamet() {
+  let d;
+  try { d = JSON.parse(localStorage.getItem(PAMET_KLIC)); } catch (_) { return; }
+  if (!d || typeof d !== "object") return;
+  try {
+    if (d.prevzati && typeof d.prevzati === "object") {
+      for (const [id, b] of Object.entries(d.prevzati)) {
+        if (b && b.id === id && typeof b.name === "string" && b.config && typeof b.config === "object") stav.prevzati[id] = b;
+      }
+    }
+    const znamy = (t) => typeof t === "string" &&
+      (BOTI.some((b) => b.type === t) || (t.startsWith("saved:") && Boolean(stav.prevzati[t.slice(6)])));
+    const vyber = (pole, max) => (Array.isArray(pole) ? [...new Set(pole.filter(znamy))].slice(0, max) : null);
+
+    if (d.duel) {
+      if (znamy(d.duel.bot1)) stav.duel.bot1 = d.duel.bot1;
+      if (znamy(d.duel.bot2)) stav.duel.bot2 = d.duel.bot2;
+      stav.duel.nastaveni = cisteNastaveni(d.duel.nastaveni);
+      if ([1, 10, 100].includes(d.duel.reps)) stav.duel.reps = d.duel.reps;
+    }
+    if (d.turnaj) {
+      const v = vyber(d.turnaj.vybrani, 16);
+      if (v && v.length) stav.turnaj.vybrani = v;
+      stav.turnaj.nastaveni = cisteNastaveni(d.turnaj.nastaveni);
+      if ([1, 5, 20].includes(d.turnaj.reps)) stav.turnaj.reps = d.turnaj.reps;
+    }
+    if (d.evoluce) {
+      const e = d.evoluce, ev = stav.evoluce;
+      const v = vyber(e.vybrani, MAX_DRUHU);
+      if (v && v.length) ev.vybrani = v;
+      ev.nastaveni = cisteNastaveni(e.nastaveni);
+      ev.generace = Math.round(cisloMezi(e.generace, 1, 1000, ev.generace));
+      if (["equal", "random", "manual"].includes(e.rozlozeni)) ev.rozlozeni = e.rozlozeni;
+      if (e.vahy && typeof e.vahy === "object") {
+        ev.vahy = {};
+        for (const [k, x] of Object.entries(e.vahy)) if (znamy(k)) ev.vahy[k] = cisloMezi(x, 0, 1000, 0);
+      }
+      ev.mutace = cisloMezi(e.mutace, 0, 10, 0);
+    }
+    if (d.hra) {
+      stav.hraUlozena = {
+        kdo: d.hra.kdo === "friend" ? "friend" : "bot",
+        bot: znamy(d.hra.bot) ? d.hra.bot : "tit_for_tat",
+        nastaveni: cisteNastaveni(d.hra.nastaveni, HRA_MAX_KOL),
+        predavat: typeof d.hra.predavat === "boolean" ? d.hra.predavat : undefined
+      };
+      if (typeof d.hra.jmeno1 === "string") $("#h-jmeno1").value = d.hra.jmeno1.slice(0, 30);
+      if (typeof d.hra.jmeno2 === "string") $("#h-jmeno2").value = d.hra.jmeno2.slice(0, 30);
+    }
+    if (d.editor && platnyKoncept(d.editor.bot)) {
+      stav.bot = d.editor.bot;
+      const u = d.editor.ulozeni || {};
+      stav.ulozeni = {
+        /* Úprava uloženého bota platí jen pro toho, kdo ho otevřel. */
+        id: typeof u.id === "string" && d.editor.uzivatel && d.editor.uzivatel === stav.auth.username ? u.id : null,
+        popis: typeof u.popis === "string" ? u.popis.slice(0, 2000) : "",
+        verejny: u.verejny === true
+      };
+    }
+  } catch (_) { /* poškozený záznam — zůstanou výchozí hodnoty */ }
+}
+
+/* Přepínače 1× / 10× / 100× ukazují, co je ve stavu (i po načtení z paměti). */
+function nastavSegment(id, hodnota) {
+  for (const b of document.querySelectorAll("#" + id + " button")) {
+    b.setAttribute("aria-pressed", String(parseInt(b.dataset.reps, 10) === hodnota));
+  }
+}
+
+/* ============================================================
    5b. HRAJ SÁM — člověk proti botovi, nebo dva lidé u jednoho zařízení
    ============================================================
    Server nic nedrží: každé kolo se pošle dosavadní průběh a tahy na
@@ -2630,8 +2912,13 @@ function initHra() {
     kdo: "bot",
     bot: "tit_for_tat",
     nastaveni: { ...VYCHOZI_NASTAVENI },
+    /* Hra na jednom dotykovém displeji: volby se střídají a mezi nimi se
+       zařízení předává (klávesnice tu není, takže by druhý viděl, kam ťukáš). */
+    predavat: window.matchMedia("(hover: none)").matches,
+    ...(stav.hraUlozena || {}),
     zapas: null
   };
+  if (stav.hra.predavat === undefined) stav.hra.predavat = window.matchMedia("(hover: none)").matches;
   const h = stav.hra;
 
   obnovovace.push(naplnVyberBotu($("#h-bot"), $("#h-bot-desc"), h.bot, (v) => { h.bot = v; }));
@@ -2651,14 +2938,24 @@ function initHra() {
   postavHraNastaveni();
   $("#h-reset").addEventListener("click", () => { h.nastaveni = { ...VYCHOZI_NASTAVENI }; postavHraNastaveni(); });
 
+  const ukazKoho = () => {
+    for (const x of $("#h-kdo").querySelectorAll("button")) x.setAttribute("aria-pressed", String(x.dataset.kdo === h.kdo));
+    $("#h-bot-pole").hidden = h.kdo !== "bot";
+    $("#h-jmeno2-pole").hidden = h.kdo !== "friend";
+    $("#h-predavat-pole").hidden = h.kdo !== "friend";
+    $("#h-predavat").checked = h.predavat;
+    $("#h-predavat-note").textContent = h.predavat
+      ? "Each of you chooses alone, then hands the device over. Best on a phone or tablet."
+      : "You both choose on this screen at the same time, with the keyboard — A / S and K / L — so nobody sees the other’s choice.";
+  };
   $("#h-kdo").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-kdo]");
     if (!b) return;
     h.kdo = b.dataset.kdo;
-    for (const x of $("#h-kdo").querySelectorAll("button")) x.setAttribute("aria-pressed", String(x === b));
-    $("#h-bot-pole").hidden = h.kdo !== "bot";
-    $("#h-jmeno2-pole").hidden = h.kdo !== "friend";
+    ukazKoho();
   });
+  $("#h-predavat").addEventListener("change", (e) => { h.predavat = e.target.checked; ukazKoho(); });
+  ukazKoho();
 
   $("#h-start").addEventListener("click", zacniHru);
   document.addEventListener("keydown", klavesaVeHre);
@@ -2684,6 +2981,9 @@ function zacniHru() {
   }
   h.zapas = {
     pvp, spec,
+    /* Předávání zařízení: faze 0 = volí hráč 1, 1 = předej zařízení, 2 = volí hráč 2. */
+    predavat: pvp && h.predavat,
+    faze: 0,
     jmena: [jmeno1, jmeno2],
     postavy: ["you", postava2],
     nastaveni: { ...h.nastaveni },
@@ -2706,6 +3006,20 @@ function tahHrace(hrac, tah) {
   if (!z || z.konec || z.posila) return;
   if (!z.pvp) { odesliKolo(tah, null); return; }
   if (z.cekam[hrac - 1]) return;
+  if (z.predavat) {
+    /* Kdo zrovna nedrží zařízení, nevolí — ani klávesou. */
+    if ((hrac === 1 && z.faze !== 0) || (hrac === 2 && z.faze !== 2)) return;
+    z.cekam[hrac - 1] = tah;
+    if (hrac === 1) {
+      z.faze = 1;
+      vykresliHru();
+      const dal = $("#h-arena .handover .btn");
+      if (dal) dal.focus();
+      return;
+    }
+    odesliKolo(z.cekam[0], z.cekam[1]);
+    return;
+  }
   z.cekam[hrac - 1] = tah;
   if (z.cekam[0] && z.cekam[1]) odesliKolo(z.cekam[0], z.cekam[1]);
   else vykresliHru(hrac);
@@ -2738,6 +3052,7 @@ async function odesliKolo(tah1, tah2) {
     z.chyba = "The server didn’t accept the move (" + e.message + "). Choose again.";
   } finally {
     z.cekam = [null, null];
+    z.faze = 0;
     z.posila = false;
     vykresliHru();
     if (z.konec) vykresliKonecHry();
@@ -2854,8 +3169,24 @@ function vykresliHru() {
       arena.append(volba);
       arena.append(el("p", "play-keys", "or press C / D"));
     } else {
-      const dvojice = el("div", "pvp-picks");
-      [0, 1].forEach((i) => {
+      const dvojice = el("div", "pvp-picks" + (z.predavat ? " solo" : ""));
+      if (z.predavat && z.faze === 1) {
+        const predej = el("div", "handover");
+        predej.innerHTML = "<p class='handover-big'>Hand the device to <b>" + esc(z.jmena[1]) + "</b></p>" +
+          "<p>" + esc(z.jmena[0]) + " has chosen. " + esc(z.jmena[0]) + ", don’t peek.</p>";
+        const dal = el("button", "btn btn-primary", "I’m " + z.jmena[1] + " — show my buttons");
+        dal.type = "button";
+        dal.addEventListener("click", () => {
+          z.faze = 2;
+          vykresliHru();
+          const prvni = $("#h-arena .pick-btn:not(:disabled)");
+          if (prvni) prvni.focus();
+        });
+        predej.append(dal);
+        arena.append(predej);
+      }
+      const kdoVoli = z.predavat ? (z.faze === 0 ? [0] : z.faze === 2 ? [1] : []) : [0, 1];
+      kdoVoli.forEach((i) => {
         const klavesy = i === 0 ? ["A", "S"] : ["K", "L"];
         const box = el("div", "pvp-pick" + (z.cekam[i] ? " locked" : ""));
         box.append(el("div", "pick-name", z.jmena[i]));
@@ -2870,12 +3201,14 @@ function vykresliHru() {
           tlacitka.append(b);
         }
         box.append(tlacitka);
-        box.append(el("div", "pick-status", z.cekam[i]
-          ? "Locked in ✓ — waiting for " + z.jmena[1 - i]
-          : z.cekam[1 - i] ? "Your turn — " + z.jmena[1 - i] + " has chosen" : "Choose your move"));
+        box.append(el("div", "pick-status", z.predavat
+          ? "Your move, " + z.jmena[i] + " — " + z.jmena[1 - i] + ", look away."
+          : z.cekam[i]
+            ? "Locked in ✓ — waiting for " + z.jmena[1 - i]
+            : z.cekam[1 - i] ? "Your turn — " + z.jmena[1 - i] + " has chosen" : "Choose your move"));
         dvojice.append(box);
       });
-      arena.append(dvojice);
+      if (kdoVoli.length) arena.append(dvojice);
     }
     if (z.posila) arena.append(el("p", "loading", "…"));
     if (z.chyba) arena.append(el("p", "story-error", z.chyba));
@@ -4336,6 +4669,7 @@ function vykresliEvoluci(cil, data) {
   cil.append(hlava);
 
   const stage = el("div", "stage");
+  stage.append(prvekShrnuti(shrnutiEvoluce(data, stav.evoluce.mutace)));
 
   /* ---- geometrie grafu ---- */
   /* Souřadnice viewBoxu držíme blízko skutečné šířce panelu — jinak by se
@@ -5320,6 +5654,12 @@ function initPribeh() {
    ============================================================ */
 
 (async function start() {
+  nactiPrihlaseni();
+  nactiPamet();
+  nastavSegment("d-reps", stav.duel.reps);
+  nastavSegment("t-reps", stav.turnaj.reps);
+  addEventListener("pagehide", ulozPamet);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") ulozPamet(); });
   initZalozky();
   initDuel();
   initTurnaj();
@@ -5329,7 +5669,6 @@ function initPribeh() {
   initSeznamBotu();
   nakresliTitulniStranu();
   initPribeh();
-  nactiPrihlaseni();
   obnovUzivatele();
   navigace();
 
