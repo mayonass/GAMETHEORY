@@ -7,9 +7,12 @@ services:
     runtime: python
     plan: free
     region: frankfurt          # nejblíž k Česku
-    rootDir: backend           # requirements.txt a balík app/ jsou tady
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Bez rootDir: Render s nastaveným rootDir: backend nespouští nasazení při
+    # změně mimo backend/ (třeba jen ve frontend/index.html) a soubory mimo
+    # backend/ při běhu vůbec nevidí - frontend by tak nemusel být k dispozici.
+    # Celý repozitář je proto kořen služby a do backend/ se jen přepne.
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health   # Render tímhle pozná, že aplikace naběhla
     envVars:
       # Verze Pythonu se bere ze souboru .python-version (je v kořeni
